@@ -1,0 +1,27 @@
+#!/bin/sh
+
+set -eux
+
+die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
+
+# consider symbolic link
+thispath=`perl -MFile::Spec::Functions=rel2abs,canonpath -le'print(canonpath(rel2abs(\$ARGV[0])))' -- "${0}"`
+
+# consider real file path
+# thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
+
+thisprog=${thispath##*/}
+thisdir=${thispath%/*}
+thisdirbasename=${thisdir##*/}
+thisparentdir=${thisdir%/*}
+
+# very useful for keyprefix--do-stuff.sh cases
+# thisprefix=${thisprog%--*.sh}
+
+cd "${thisdir}"
+
+die 1 "error: this is just and example"
+
+####
+
+echo "all done for \"${thisprog}\""
