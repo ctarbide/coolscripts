@@ -29,3 +29,13 @@ Just useful scripts.
       export PATH
   fi
 #+end_src
+
+
+* Usage Examples
+
+** build projects using =buildpack-deps= image
+
+#+begin_src sh
+  docker-cwd.sh --rm docker.io/library/buildpack-deps:sid ./autogen.sh
+#+end_src
+
