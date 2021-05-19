@@ -21,7 +21,6 @@ if ($ENV{MDEP_CLASSPATH}) {
 } else {
     my $workdir = Cwd::getcwd();
     my $adwts = $workdir . q{/}; # absolute dir with trailing slash
-    my $adwts0;
     my $found;
     sub assign_if_notset_and_file_exists {
 	$_[0] = $_[1] if not $_[0] and -f $_[1];
@@ -33,7 +32,7 @@ if ($ENV{MDEP_CLASSPATH}) {
 	assign_if_notset_and_file_exists($found, "${adwts}mdep.classpath");
 	last if $found or ($adwts eq '/');
         $adwts =~ s,/+$,,x;                # remove trailing slashes
-        $adwts =~ s,^(.*)/.*?$,${1}/,x;    # rewind
+        $adwts =~ s,^(.*)/.*?$,${1}/,x;    # rewind and add trailing slash
     }
     $mdepcp = $found if $found;
 }
