@@ -9,7 +9,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
-cd "${thisdir}"
+cd "${thispath%/*}"
 
 test -x show-config.sh || make 1>&2
 kbdir=`./show-config.sh coolscripts.kbdir`
