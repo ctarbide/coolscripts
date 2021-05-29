@@ -20,8 +20,10 @@ thisparentdir=${thisdir%/*}
 
 cd "${thisdir}"
 
-die 1 "error: this is just and example"
+if perl -le'exit(time()%2)'; then
+    die 1 "error: this is just and example"
+fi
 
 ####
 
-echo "all done for \"${thisprog}\""
+echo "all done for \"${0##*/}\""
