@@ -18,8 +18,13 @@ if [ x"${ZSH_VERSION:-}" != x ]; then
     setopt sh_word_split
 fi
 
+has_filelist=
+
 args0=
 while [ "$#" -gt 0 -a x"${1:-}" != x-- ]; do
+    if [ x"${1}" = x--filelist -o x"${1}" = x-f ]; then
+        has_filelist=1
+    fi
     args0=${args0}${sep_char}${1}
     shift
 done
@@ -27,7 +32,7 @@ args0=${args0#${sep_char}}
 
 if [ x"${1:-}" = x-- ]; then
     shift # shift '--'
-    if [ "$#" -eq 0 ]; then
+    if [ "$#" -eq 0 -a x"${has_filelist}" = x ]; then
         # has only args0
         die 1 "error: no input files"
     fi

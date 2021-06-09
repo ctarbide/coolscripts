@@ -15,7 +15,7 @@ perlprint=
 if [ x"${PERLPRINT:-}" != x ]; then
     perlprint=${PERLPRINT}
 else
-    perlprint='print(qq{printf "%s" '"${kbdir}"'/$_ | first-line-to-clipboard.sh})}{exit(!$.)'
+    perlprint='print(qq{echo '"${kbdir}"'/$_ | first-line-to-clipboard.sh})}{exit(!$.)'
 fi
 
 index_gz=${kbdir}/index.gz

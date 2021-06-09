@@ -44,6 +44,7 @@ cat <<EOF>README.txt
 
 * References
 
+
 - 
 
 
@@ -52,4 +53,4 @@ cat <<EOF>README.txt
 
 EOF
 
-echo 'printf "%s" '"${DOCABSDIR}"' | first-line-to-clipboard.sh'
+echo 'echo '"${DOCABSDIR}"' | first-line-to-clipboard.sh'
