@@ -29,7 +29,7 @@ elif [ "$#" -gt 1 ]; then
     fi
     tmpfile=${tmpdir}/Pictures-find$$.tmp
     first=$1; shift
-    gzip -dc "${index_gz}" | fgrep -i "${first}" > "${tmpfile}"
+    gzip -dc "${index_gz}" | fgrep -i "${first}" > "${tmpfile}" || true # 'true' prevents fgrep from exiting
     for i in "$@"; do
         cat "${tmpfile}" | fgrep -i "${i}" > "${tmpfile}0" || true # 'true' prevents fgrep from exiting
         mv "${tmpfile}0" "${tmpfile}"

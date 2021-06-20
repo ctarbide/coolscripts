@@ -53,7 +53,7 @@ if git rev-parse --quiet --verify --symbolic-full-name master; then
 fi
 git repack -d
 git prune
-echo all done
+echo "all done for \"\${0##*/}\""
 EOF
 
 chmod +x "${outdir}-update.sh"
