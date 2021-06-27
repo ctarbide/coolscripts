@@ -44,7 +44,7 @@ for i in ${1+"$@"}; do
 
     sum=`sha1sum "$i" | perl -lne'chomp;print(substr($_,0,7));last'`
 
-    filelocalstamp=`perl -MPOSIX=strftime -e'print(strftime(q{%Y-%m-%d_%Hh%Mm%S}, localtime((stat($ARGV[0]))[9])))' "$i"`
+    filelocalstamp=`perl -MPOSIX=strftime -e'print(strftime(q{%Y-%m-%d_%Hh%Mm%S}, localtime((stat($ARGV[0]))[9])))' -- "$i"`
     out=${basename_noext}_${filelocalstamp}_${sum}${extsuffix}
 
     if [ x"${dirname}" != x"${i}" ]; then
