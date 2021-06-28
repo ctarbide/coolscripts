@@ -39,7 +39,15 @@ for i in ${1+"$@"}; do
     out=${basename}_${filelocalstamp}_${sum}.bak
 
     if [ x"${dirname}" != x"${i}" ]; then
-        out=${dirname}/${out}
+        if [ -d "${dirname}/sandbox/bkp" ]; then
+            out=${dirname}/sandbox/bkp/${out}
+        else
+            out=${dirname}/${out}
+        fi
+    else
+        if [ -d sandbox/bkp ]; then
+            out=sandbox/bkp/${out}
+        fi
     fi
 
     if [ -f "${out}" ]; then
