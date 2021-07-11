@@ -38,7 +38,7 @@ else
     git clone --bare "${repos}" "${outdir}"
 fi
 
-find "${outdir}/hooks/" -name '*.sample' | xargs rm -f
+find "${outdir}/hooks/" -name '*.sample' | xargs rm -f --
 
 cat <<EOF > "${outdir}-update.sh"
 #!/bin/sh

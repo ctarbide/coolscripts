@@ -9,7 +9,8 @@ filter(){
 }
 if [ -f not-found ]; then
     if [ ! -f not-found.sorted -o not-found -nt not-found.sorted ]; then
-        perl -lne'next unless m{^\w+://}; print' -- not-found | sort -u > not-found.sorted
+        perl -lne's,^--2[\d\-: ]+--\s+,,; next unless m{^\w+://}; print' -- not-found |
+            sort -u > not-found.sorted
     fi
     filter "$@" | comm -23 - not-found.sorted
 else
