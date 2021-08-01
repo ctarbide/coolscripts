@@ -16,7 +16,10 @@ elif echo "${repos}" | perl -ne'exit 0 if m{^\w+://gitlab\.com/} and not m{(\w[\
     repos=${repos}.git
 fi
 
-if echo "${repos}" | perl -ne'exit 1 unless m@^\w+://github\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@'; then
+if perl -le'exit($ARGV[0] !~ m{^ https? :// git\.savannah\.gnu\.org /r/ [^/]+ \.git$}xi)' -- "${repos}"; then
+    # http://git.savannah.gnu.org/r/m4.git
+    outdir=org_gnu_savannah_`perl -le'print($ARGV[0] =~ m{^ https? :// git\.savannah\.gnu\.org /r/ ( [^/]+ ) \.git$}xi)' -- "${repos}"`
+elif echo "${repos}" | perl -ne'exit 1 unless m@^\w+://github\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@'; then
     outdir=`echo "$repos" | perl -lpe's@^\w+://github\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@${1}_${2}@'`
 elif echo "${repos}" | perl -ne'exit 1 unless m@^\w+://gitlab\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@'; then
     outdir=`echo "$repos" | perl -lpe's@^\w+://gitlab\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@${1}_${2}@'`
