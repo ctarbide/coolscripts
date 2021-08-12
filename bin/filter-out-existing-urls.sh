@@ -5,5 +5,5 @@ thisdir=${thispath%/*}
 LC_ALL=C
 export LC_ALL
 "${thisdir}/filter-out-not-found-urls.sh" "$@" |
-    perl -MURI::Escape -lne'next if m{%} and m{^\w+://(.*)$} and -f uri_unescape($1); print' |
+    perl -MURI::Escape::XS -lne'next if m{%} and m{^\w+://(.*)$} and -f uri_unescape($1); print' |
     perl -lne'next if m{^\w+://(.*)$} and -f $1; print'
