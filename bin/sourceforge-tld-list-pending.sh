@@ -17,8 +17,8 @@ export LC_ALL
 
 filter_existing(){
     perl -lne'next if m{/$}; next if m{\?} and !m{\?viasf=1}; print' -- "$@" |
-        perl -MURI::Escape::XS -lne'next if m{%} and m{^\w+://(.*)$} and -f uri_unescape($1); print' |
-        perl -MURI::Escape::XS -lne'next if m{%} and m{^\w+://(.*)(?:\?viasf=\d+)$} and -f uri_unescape($1); print' |
+        perl -MURI::Escape::XS=uri_unescape -lne'next if m{%} and m{^\w+://(.*)$} and -f uri_unescape($1); print' |
+        perl -MURI::Escape::XS=uri_unescape -lne'next if m{%} and m{^\w+://(.*)(?:\?viasf=\d+)$} and -f uri_unescape($1); print' |
         perl -lne'next if m{^\w+://(.*)$} and -f $1; print' |
         perl -lne'next if m{^\w+://(.*)(?:\?viasf=\d+)$} and -f $1; print' |
         perl -lne'print(qq{\047${_}\047})'
