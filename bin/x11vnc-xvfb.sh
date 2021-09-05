@@ -67,10 +67,7 @@ echo ''
 echo 'other usage examples:'
 echo ''
 echo "    DISPLAY=${display} xterm &"
-echo ''
-echo "    DISPLAY=${display} sawfish &"
-echo "    DISPLAY=${display} sawfish-about &"
-echo "    DISPLAY=${display} sawfish-client"
+echo "    DISPLAY=${display} vtwm &"
 echo ''
 echo ''
 
