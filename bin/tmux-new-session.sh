@@ -20,4 +20,6 @@ tmux new-session -d -s "${sess}"
 
 tmux send-keys -t "${sess}:0" "cd '${thisdir}'" C-m clear C-m
 
+tmux rename-window -t "${sess}:0" 'home'
+
 tmux switch-client -t "${sess}"
