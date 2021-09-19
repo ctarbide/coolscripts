@@ -9,18 +9,13 @@ else
     title=${stamp}_${thisdir}
 fi
 cat<<EOF
-# -*- mode: org; coding: utf-8-unix -*-
 
-#+TITLE: ${title}
-#+STARTUP: indent
+${title}
 
-
-* References
-
+**************** references
 
 - 
 
-
-* Notes
+****************
 
 EOF

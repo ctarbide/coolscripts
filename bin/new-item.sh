@@ -37,20 +37,14 @@ mkdir -p "${DOCABSDIR}"
 cd "${DOCABSDIR}"
 
 cat <<EOF>README.txt
-# -*- mode: org; coding: utf-8-unix -*-
 
-#+TITLE: ${DOC_ID}
-#+STARTUP: indent
+${DOC_ID}
 
-
-* References
-
+**************** references
 
 - 
 
-
-* Notes
-
+****************
 
 EOF
 

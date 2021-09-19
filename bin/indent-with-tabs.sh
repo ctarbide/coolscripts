@@ -2,4 +2,5 @@
 set -eu
 cfg=${HOME}/.bcpp.cfg
 test -f "${cfg}" || echo > "${cfg}"
-exec bcpp -bcl -t "$@"
+exec 2>/dev/null
+exec bcpp -ylcnc -tbcl -bcl -nbbi -nbi -t "$@"
