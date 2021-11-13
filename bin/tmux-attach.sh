@@ -25,4 +25,4 @@ if ! tmux ls | perl -F: -lane'exit 0 if $F[0] eq q{mplayer}}{exit(1)'; then
     tmux send-keys -t mplayer:0.0 top C-m
 fi
 
-exec tmux a -t misc:0
+exec tmux a

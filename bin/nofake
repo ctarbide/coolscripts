@@ -138,7 +138,7 @@ sub extract {
                 my $after = $3;
                 if ($chunks_options{$chunkref}) {
                     my $line_new = undef;
-                    my ($chunkreffname, $chunkreflnum, @chunkreflines) = extract($prefix . $before, $fname, $lnum, $chunkref);
+                    my @chunkreflines = extract($prefix . $before, $fname, $lnum, $chunkref);
                     while (@chunkreflines and ref($chunkreflines[0])) {
                         # propagate special items early, before processing lines
                         push(@res, shift(@chunkreflines));
@@ -212,7 +212,7 @@ sub extract {
         $lnum_previous = $lnum;
     }
     $being_extracted{$chunk}--;
-    return $representative_fname, $representative_lnum, @res;
+    return @res;
 }
 sub usage {
     my $arg = shift @_;
@@ -283,8 +283,7 @@ if ($no_op) {
     for my $chunk (@chunks) {
         local $\ = undef;
         my ($first_fname, $first_lnum) = get_many($chunks{$chunk});
-        my ($representative_fname, $representative_lnum, @res) = extract('', $first_fname, $first_lnum, $chunk);
-        for my $item (@res) {
+        for my $item (extract('', $first_fname, $first_lnum, $chunk)) {
             if (ref($item) eq 'ARRAY') {
                 print line_directive($item->[1], $item->[2]);
             } else {
