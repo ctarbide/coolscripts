@@ -23,9 +23,9 @@
 eval 'exec perl -wS $0 ${1+"$@"}'
     if 0;
 
+use 5.008; # perl v5.8.0 was released on July 18, 2002
 use strict;
 use warnings FATAL => 'uninitialized';
-use 5.010; # perl v5.10 was released on December 18, 2007
 use Carp ();
 $SIG{__DIE__} = \&Carp::confess;
 
@@ -115,14 +115,8 @@ sub extract {
     $chunks_options{$chunk}->{nextractions}++;
     my @res = ();
     my @input = get_many($chunks{$chunk});
-    my $representative_fname = $input[0] if @input;
-    my $representative_lnum = $input[1] if @input;
-    if ($list_roots) {
-        $chunks{$chunk} = [
-            $representative_fname,
-            $representative_lnum,
-            ""
-        ];
+    if ($list_roots and @input) {
+        $chunks{$chunk} = [$input[0], $input[1], ""];
     }
     my $lnum_previous = -1;
     while (my ($fname, $lnum, $line) = splice(@input, 0, 3)) {
