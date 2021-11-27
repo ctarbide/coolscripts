@@ -22,4 +22,4 @@ new_window_at(){
 # organize windows numbers before creating a new one
 tmux move-window -r
 
-new_window_at "${thisdir##*/}-$$" "${thisdir}"
+new_window_at "${thisdir##*/}" "${thisdir}"

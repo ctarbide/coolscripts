@@ -11,7 +11,7 @@ is_ok_to_continue_1(){
     git diff --quiet
 }
 
-# are there unknown files?
+# are there only known files?
 is_ok_to_continue_2(){
     git status --porcelain | perl -lane'exit(1) if m{^\?\? }}{'
 }
