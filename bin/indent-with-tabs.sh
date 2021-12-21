@@ -9,4 +9,6 @@ exec astyle -n -T8 --style=k/r -xB -j \
     --indent-after-parens \
     --min-conditional-indent=3 \
     --delete-empty-lines \
+    --align-pointer=name \
+    --align-reference=name \
     "$@"
