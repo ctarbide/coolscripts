@@ -50,13 +50,22 @@ utcstamp=\`date --utc '+%Y%m%dT%H%M%S %N UTC' | perl -lane'print(\$F[0],sprintf(
 GIT_DIR="${outdir}"
 export GIT_DIR
 git fetch '${repos}' 'refs/heads/*:refs/heads/*'
+branch=
 if git rev-parse --quiet --verify --symbolic-full-name master; then
-    git log -10 refs/heads/master > "\${GIT_DIR}-log-\${utcstamp}"
+    branch=master
+elif git rev-parse --quiet --verify --symbolic-full-name main; then
+    # life finds a way.. to self select
+    branch=main
+fi
+if [ x"\${branch}" != x ]; then
+    echo "using branch: \"\${branch}\"" > "\${GIT_DIR}-log-\${utcstamp}"
+    echo >> "\${GIT_DIR}-log-\${utcstamp}"
+    git log -5 refs/heads/"\${branch}" >> "\${GIT_DIR}-log-\${utcstamp}"
     chmod a-w "\${GIT_DIR}-log-\${utcstamp}"
 fi
 git repack -d
 git prune
-echo "all done for \"\${0##*/}\""
+echo "All done for \"\${0##*/}\", branch \"\${branch}\"."
 EOF
 
 chmod +x "${outdir}-update.sh"

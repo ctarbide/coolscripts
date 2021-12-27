@@ -32,4 +32,4 @@ while true; do
     fi
 done
 
-echo "${GIT_DIR}";
+echo "${GIT_DIR}"

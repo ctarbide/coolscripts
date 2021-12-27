@@ -4,10 +4,10 @@ set -eux
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
-# consider symbolic link
+# thispath uses symlink
 thispath=`perl -MFile::Spec::Functions=rel2abs,canonpath -le'print(canonpath(rel2abs(\$ARGV[0])))' -- "${0}"`
 
-# consider real file path
+# thispath follows real path
 # thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
 
 thisprog=${thispath##*/}
