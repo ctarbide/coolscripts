@@ -61,12 +61,8 @@ useful commands:
 
         commit changes with a custom message
 
-    ${0##*/} log [...]
-    ${0##*/} show [...]
-    ${0##*/} diff [...]
-    ${0##*/} status [...]
-    ${0##*/} add [...]
-    ${0##*/} checkout [...]
+    ${0##*/} (log|show|diff|status) [...]
+    ${0##*/} (add|checkout|mv|rm) [...]
 
         bypassed as-is to git
 
@@ -94,7 +90,7 @@ case "${#}_${1}" in
     2_commit)
         exec git commit -m "${2}"
         ;;
-    *_commit | *_log | *_show | *_diff | *_status | *_add | *_checkout)
+    *_commit | *_log | *_show | *_diff | *_status | *_add | *_checkout | *_mv | *_rm)
         cmd=$1
         shift
         exec git "${cmd}" "$@"
@@ -105,6 +101,6 @@ case "${#}_${1}" in
         ;;
     *)
         n=$#
-        die 1 "ERROR: Invalid usage: command \"${1}\" with $((n-1)) arguments."
+        die 1 "ERROR: Unknown command \"${1}\" with $((n-1)) arguments."
         ;;
 esac
