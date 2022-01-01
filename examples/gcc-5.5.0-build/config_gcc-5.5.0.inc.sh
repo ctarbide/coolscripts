@@ -1,5 +1,5 @@
 
-GCC_VERSION=11.2.0
+GCC_VERSION=5.5.0
 
 BUILD_DIR=${HOME}/Ephemeral/build/gcc-${GCC_VERSION}_build-multilib
 PREFIX=${HOME}/Ephemeral/gcc-releases/${GCC_VERSION}-multilib
@@ -48,7 +48,7 @@ extract_libtool(){ extract "${LIBTOOL_DIST}" "${BUILD_DIR}"; }
 
 ################ gperf
 
-GPERF_VERSION=3.0.4
+GPERF_VERSION=2.7.2
 GPERF_BUILD_ROOT_DIR=${BUILD_DIR}/gperf-${GPERF_VERSION}
 GPERF_DIST=${GCC_DIST_HOME}/gperf-${GPERF_VERSION}.tar.gz
 
@@ -88,7 +88,7 @@ extract_mpc(){ cat.sh "${MPC_DIST}" | tar -C "${BUILD_DIR}" -xf -; }
 
 ################ binutils
 
-BINUTILS_VERSION=2.37
+BINUTILS_VERSION=2.36.1
 BINUTILS_BUILD_ROOT_DIR=${BUILD_DIR}/binutils-${BINUTILS_VERSION}
 BINUTILS_DIST=${GCC_DIST_HOME}/binutils-${BINUTILS_VERSION}.tar.lz
 

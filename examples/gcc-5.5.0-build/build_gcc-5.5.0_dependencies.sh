@@ -21,7 +21,7 @@ thisparentdir=${thisdir%/*}
 cd "${thisdir}"
 
 . ./config.inc.sh
-. ./config_gcc-11.2.0.inc.sh
+. ./config_gcc-5.5.0.inc.sh
 
 PATH=${PREFIX}/bin:${PATH}
 
@@ -80,7 +80,7 @@ mkdir -p "${BUILD_DIR}"
     cd "${M4_BUILD_ROOT_DIR}"
     if [ ! -d .git ]; then
         git init
-        git add -f .
+        git add .
         git commit -m"initial commit from version ${M4_VERSION}"
         rm -fv .git/hooks/*.sample
         git repack -d
@@ -130,7 +130,7 @@ mkdir -p "${BUILD_DIR}"
     cd "${AUTOMAKE_BUILD_ROOT_DIR}"
     if [ ! -d .git ]; then
         git init
-        git add -f .
+        git add .
         git commit -m"initial commit from version ${AUTOMAKE_VERSION}"
         rm -fv .git/hooks/*.sample
         git repack -d
@@ -180,7 +180,7 @@ mkdir -p "${BUILD_DIR}"
     cd "${GPERF_BUILD_ROOT_DIR}"
     if [ ! -d .git ]; then
         git init
-        git add -f .
+        git add .
         git commit -m"initial commit from version ${GPERF_VERSION}"
         rm -fv .git/hooks/*.sample
         git repack -d
@@ -327,7 +327,7 @@ mkdir -p "${BUILD_DIR}"
     [ -x config.status ] || ../configure --prefix="${PREFIX}" --disable-shared
     if [ ! -x "${PREFIX}/bin/ar" -o ! -f "ld/ldmain.o" ]; then
         ${MAKE}
-        ${MAKE} check
+        # ${MAKE} check
         ${MAKE} install
     fi
 )

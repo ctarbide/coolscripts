@@ -9,7 +9,7 @@ thisprog=${thispath##*/}
 thisdir=${thispath%/*}
 
 . "${thisdir}/config.inc.sh"
-. "${thisdir}/config_gcc-11.2.0.inc.sh"
+. "${thisdir}/config_gcc-5.5.0.inc.sh"
 
 LANG=en_US.UTF-8
 export LANG

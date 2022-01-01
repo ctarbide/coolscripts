@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# reference: https://www.linuxfromscratch.org/lfs/view/7.7/chapter05/gcc-pass1.html
+# reference: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66955
+# reference: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78430
+
 set -eux
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
@@ -21,7 +25,7 @@ thisparentdir=${thisdir%/*}
 cd "${thisdir}"
 
 . ./config.inc.sh
-. ./config_gcc-11.2.0.inc.sh
+. ./config_gcc-5.5.0.inc.sh
 
 PATH=${PREFIX}/bin:${PATH}
 
