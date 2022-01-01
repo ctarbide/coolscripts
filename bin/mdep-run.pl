@@ -2,9 +2,9 @@
 
 # https://github.com/ctarbide/coolscripts
 
+use 5.008; # perl v5.8.0 was released on July 18, 2002
 use strict;
 use warnings FATAL => 'uninitialized';
-use 5.010; # perl v5.10 was released on December 18, 2007
 use Carp ();
 $SIG{__DIE__} = \&Carp::confess;
 use File::Spec::Functions qw(rel2abs canonpath);
