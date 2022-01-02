@@ -71,6 +71,16 @@ EOF
     exit 1
 fi
 
+protect_command(){
+    for arg in "$@"; do
+        case "${arg}" in
+            -*)
+                die 1 "ERROR: Use exec command for explicit git commands."
+                ;;
+        esac
+    done
+}
+
 case "${#}_${1}" in
     1_add)
         files_m | xargs -r git add
@@ -90,7 +100,15 @@ case "${#}_${1}" in
     2_commit)
         exec git commit -m "${2}"
         ;;
-    *_commit | *_log | *_show | *_diff | *_status | *_add | *_checkout | *_mv | *_rm)
+    *_add)
+        cmd=$1
+        shift
+        # 'git add -u' has the ability to stage/confirm deleted files, this
+        # don't match nicely with git-sandbox.sh intended workflow
+        protect_command "$@"
+        exec git "${cmd}" "$@"
+        ;;
+    *_commit | *_log | *_show | *_diff | *_status | *_checkout | *_mv | *_rm)
         cmd=$1
         shift
         exec git "${cmd}" "$@"
