@@ -15,6 +15,8 @@ fi
 unset TMUX
 
 sess=${thisdir##*/}
+# tmux does not allow '.' on a session name
+sess=`echo "${sess}" | sed 's,\.,_,g'`
 
 tmux new-session -d -s "${sess}"
 
