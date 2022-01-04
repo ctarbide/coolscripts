@@ -67,7 +67,7 @@ useful commands:
         bypassed as-is to git
 
 EOF
-    files_m | xargs -r git status
+    cd "${GIT_WORK_TREE}" && files_m | xargs -r git status
     exit 1
 fi
 
@@ -83,10 +83,10 @@ protect_command(){
 
 case "${#}_${1}" in
     1_add)
-        files_m | xargs -r git add
+        cd "${GIT_WORK_TREE}" && files_m | xargs -r git add
         ;;
     1_diff)
-        files_m | xargs -r git diff
+        cd "${GIT_WORK_TREE}" && files_m | xargs -r git diff
         ;;
     1_status)
         exec git status -uno
