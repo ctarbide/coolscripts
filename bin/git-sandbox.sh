@@ -61,7 +61,7 @@ useful commands:
 
         commit changes with a custom message
 
-    ${0##*/} (log|show|diff|status) [...]
+    ${0##*/} (log|show|diff|status|ls-files) [...]
     ${0##*/} (add|checkout|mv|rm) [...]
 
         bypassed as-is to git
@@ -108,11 +108,15 @@ case "${#}_${1}" in
         protect_command "$@"
         exec git "${cmd}" "$@"
         ;;
-    *_commit | *_log | *_show | *_diff | *_status | *_checkout | *_mv | *_rm)
+    *_commit | *_log | *_show | *_diff | *_status | *_ls-files | *_checkout | *_mv | *_rm)
         cmd=$1
         shift
         exec git "${cmd}" "$@"
         ;;
+    *_gitk)
+        shift
+        exec gitk "$@"
+	;;
     *_exec) # yeahh.. easter egg, use with care
         shift
         exec "$@"
