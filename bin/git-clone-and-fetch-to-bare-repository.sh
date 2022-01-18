@@ -53,6 +53,14 @@ git fetch '${repos}' 'refs/heads/*:refs/heads/*'
 branch=
 if git rev-parse --quiet --verify --symbolic-full-name master; then
     branch=master
+elif git rev-parse --quiet --verify --symbolic-full-name default; then
+    branch=default
+elif git rev-parse --quiet --verify --symbolic-full-name development; then
+    branch=development
+elif git rev-parse --quiet --verify --symbolic-full-name develop; then
+    branch=develop
+elif git rev-parse --quiet --verify --symbolic-full-name dev; then
+    branch=dev
 elif git rev-parse --quiet --verify --symbolic-full-name main; then
     # life finds a way.. to self select
     branch=main
