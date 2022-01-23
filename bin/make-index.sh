@@ -7,7 +7,7 @@ die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
 cd "${thispath%/*}"
 
-test -x show-config.sh || make 1>&2
+test -x show-config.sh || ./create-config.sh 1>&2
 kbdir=`./show-config.sh coolscripts.kbdir`
 test -d "${kbdir}" || die 1 "error: directory not found: ${kbdir}"
 cd "${kbdir}"

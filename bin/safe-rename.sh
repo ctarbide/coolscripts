@@ -57,4 +57,5 @@ for i in ${1+"$@"}; do
     fi
 
     mv -v "${i}" "${out}"
+    chmod a-w "${out}"
 done

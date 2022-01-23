@@ -18,10 +18,10 @@ echo 'checking zip, jar (*.zip, *.jar, *.apk)'
 find ./ \( -iname '*.zip' -o -iname '*.jar' -o -iname '*.apk' \) \( -type f -or -xtype f \) -print0 | xargs -0n1 --no-run-if-empty unzip -tq
 
 echo 'checking sha1sum (*sha1sum)'
-find ./ -iname '*sha1sum' \( -type f -or -xtype f \) -print0 | xargs -0n1 --no-run-if-empty -Iiii sh -c 'cd "$(dirname "iii")"; sha1sum -c "$(basename "iii")"'
+find ./ -iname '*sha1sum' \( -type f -or -xtype f \) -print0 | xargs -0 --no-run-if-empty -Iiii sh -c 'cd "$(dirname "iii")"; sha1sum -c "$(basename "iii")"'
 
 echo 'checking md5sum (*md5sum)'
-find ./ -iname '*md5sum' \( -type f -or -xtype f \) -print0 | xargs -0n1 --no-run-if-empty  -Iiii sh -c 'cd "$(dirname "iii")"; md5sum -c "$(basename "iii")"'
+find ./ -iname '*md5sum' \( -type f -or -xtype f \) -print0 | xargs -0 --no-run-if-empty  -Iiii sh -c 'cd "$(dirname "iii")"; md5sum -c "$(basename "iii")"'
 
 echo 'checking 7zip (*.7z)'
 find ./ -iname '*.7z' \( -type f -or -xtype f \) -print0 | xargs -0n1 --no-run-if-empty 7za t | grep -i '^\(error:\|processing archive:\|sub items errors:\)'

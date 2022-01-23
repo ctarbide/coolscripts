@@ -12,8 +12,8 @@ glob_has_file(){
 }
 
 if [ "$#" -le 0 ]; then
-    if glob_has_file "${HOME}/Pictures/Screenshot_*.png"; then
-        set -- ~/Pictures/Screenshot_*.png
+    if glob_has_file "${HOME}/Downloads/Pictures/Screenshot_*.png"; then
+        set -- ~/Downloads/Pictures/Screenshot_*.png
     fi
 else
     for i in "$@"; do
@@ -24,8 +24,8 @@ else
     years=$@
     set -- # clear $@
     for i in $years; do
-        if glob_has_file "${HOME}/Pictures/${i}/Screenshot_*.png"; then
-            set -- "$@" ~/Pictures/"${i}"/Screenshot_*.png
+        if glob_has_file "${HOME}/Downloads/Pictures/${i}/Screenshot_*.png"; then
+            set -- "$@" ~/Downloads/Pictures/"${i}"/Screenshot_*.png
         fi
     done
 fi
