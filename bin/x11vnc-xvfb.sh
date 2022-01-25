@@ -12,10 +12,10 @@ if [ x"${1:-}" = xstop ]; then
     exit 0
 fi
 
-which socat >/dev/null || die 1 "error: command not found: socat"
-which xrdb >/dev/null || die 1 "error: command not found: xrdb"
-which Xvfb >/dev/null || die 1 "error: command not found: Xvfb"
-which x11vnc >/dev/null || die 1 "error: command not found: x11vnc"
+type socat >/dev/null 2>&1 || die 1 "error: command not found: socat"
+type xrdb >/dev/null 2>&1 || die 1 "error: command not found: xrdb"
+type Xvfb >/dev/null 2>&1 || die 1 "error: command not found: Xvfb"
+type x11vnc >/dev/null 2>&1 || die 1 "error: command not found: x11vnc"
 
 resolution=1600x1000x24
 # resolution=1600x1000x32  # TODO: test this
