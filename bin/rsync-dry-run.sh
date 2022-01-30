@@ -19,6 +19,13 @@ temporary_file(){
     fi
     echo "${tmpfile}"
 }
+for arg do
+    case "${arg}" in
+    --dry-run|-n)
+        die 1 "error: option --dry-run/-n invalidates ${0##*/} purpose"
+        ;;
+    esac
+done
 tmpfile=`temporary_file`
 tmpfiles="${tmpfiles} '${tmpfile}'"
 rsync --dry-run "$@" | perl -lne'next if m{/$}; print' > "${tmpfile}"

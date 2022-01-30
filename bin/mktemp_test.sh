@@ -18,8 +18,8 @@ temporary_file(){
     if type mktemp >/dev/null 2>&1; then
         tmpfile=`mktemp`
     elif type roll-2dice.sh >/dev/null 2>&1; then
-	tmpfile="/tmp/tmp.`roll-2dice.sh 0a | head -n12 | perl -pe chomp`"
-	( umask 0177; : > "${tmpfile}" )
+        tmpfile="/tmp/tmp.`roll-2dice.sh 0a | head -n12 | perl -pe chomp`"
+        ( umask 0177; : > "${tmpfile}" )
     else
         die 1 'error: mktemp not found'
     fi
