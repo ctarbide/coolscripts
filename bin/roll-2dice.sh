@@ -7,9 +7,6 @@ set -eu
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
-thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
-thisdir=${thispath%/*}
-
 map=${MAP:-}
 mapid=${1:-0}
 
@@ -41,8 +38,11 @@ fi
 
 # 0..215 equals 6^3 possibilities, but discard the last roll, to converge faster
 
-"${thisdir}/random-bytes.sh" | MAP="${map}" perl -lne'
-    BEGIN { @map = split(q{,}, $ENV{MAP}) }
-    next if $_ > 215;
-    print($map[$_ % 36])
-'
+MAP="${map}" perl -l -0777 -Minteger -e'
+@map = split(q{,},$ENV{MAP},-1);
+while(read(STDIN,$d,64)){
+    for $x (unpack(q{C*},$d)) {
+        next if $x > 215;
+        print($map[$x % 36]);
+    }
+}'</dev/urandom

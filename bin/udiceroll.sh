@@ -1,4 +1,5 @@
 #!/bin/sh
+# ./udiceroll.sh | head -n1000000 | perl -lne'$c{$_}++}{print($c{$_}) for keys(%c)'
 exec perl -l -0777 -Minteger -e'while(read(STDIN,$d,64)){
 for $x (unpack(q{C*},$d)) {
     next if $x > 215;
