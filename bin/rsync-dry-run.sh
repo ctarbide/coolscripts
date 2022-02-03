@@ -38,7 +38,7 @@ exit 1;
 }
 if no_changes_to_sync; then
     echo "no changes"
-else
+elif [ -t 1 ]; then
     cat "${tmpfile}"
     echo 'confirm? (type "yes" to confirm)'
     read ans
@@ -47,4 +47,6 @@ else
     else
         echo "not syncing"
     fi
+else
+    cat "${tmpfile}"
 fi
