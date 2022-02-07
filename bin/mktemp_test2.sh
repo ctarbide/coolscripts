@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# similar to mktemp_test.sh, but independent of 'u0Aa.sh' and
+# 'r0Aa.sh'
+
 set -eu
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
@@ -14,8 +17,26 @@ rm_tmpfiles(){
 # 0:exit, 1:hup, 2:int, 3:quit, 15:term
 trap 'rm_tmpfiles' 0 1 2 3 15
 
-u0Aa(){ ./u0Aa.sh | head -n"${1}" | perl -pe chomp; }
-r0Aa(){ ./r0Aa.sh | head -n"${1}" | perl -pe chomp; }
+u0Aa(){
+    perl -0777 -e'
+        @map=map{chr}48..57,65..90,97..122;
+        $c = $ARGV[0];
+        while($c and read(STDIN,$d,64)){
+            for $x (unpack(q{C*},$d)) {
+                last unless $c;
+                next if $x >= scalar(@map);
+                $c--;
+                print($map[$x]);
+            }
+        }' -- "${1}" </dev/urandom
+}
+
+r0Aa(){
+    perl -e'
+        @map=map{chr}48..57,65..90,97..122;
+        sub c{$map[int(rand(scalar(@map)))]}
+        for ($c=$ARGV[0];$c;$c--) { print(c) }' -- "${1}"
+}
 
 temporary_file(){
     if type mktemp >/dev/null 2>&1; then
