@@ -18,7 +18,7 @@ rm_tmpfiles(){
 trap 'rm_tmpfiles' 0 1 2 3 15
 
 u0Aa(){
-    perl -0777 -e'
+    perl -e'
         @map=map{chr}48..57,65..90,97..122;
         $c = $ARGV[0];
         while($c and read(STDIN,$d,64)){

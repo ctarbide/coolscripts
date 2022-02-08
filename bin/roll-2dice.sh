@@ -38,7 +38,7 @@ fi
 
 # 0..215 equals 6^3 possibilities, but discard the last roll, to converge faster
 
-MAP="${map}" perl -l -0777 -Minteger -e'
+MAP="${map}" perl -Minteger -le'
 @map = split(q{,},$ENV{MAP},-1);
 while(read(STDIN,$d,64)){
     for $x (unpack(q{C*},$d)) {
