@@ -1,0 +1,238 @@
+
+nofake -Rtest.sh lconcat.nw | sh -eux
+
+<<header>>=
+/*
+ * taken from https://github.com/openwall/blists/blob/main/misc.c,
+ * misc.h not taken
+ *
+ * various functions removed, only concat maintained, see [1] for
+ * more info on concat
+ *
+ * lconcat based on concat and inspired by strlcpy and strlcat semantics
+ *
+ * - [1]: https://openwall.info/wiki/people/solar/software/public-domain-source-code/concat
+ */
+
+/*
+ * Miscellaneous system and library call wrappers.
+ * See misc.h for the descriptions.
+ *
+ * Copyright (c) 1998-2008,2017,2018 Solar Designer <solar at openwall.com>
+ * Copyright (c) 2017 ABC <abc at openwall.com>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted.
+ *
+ * There's ABSOLUTELY NO WARRANTY, express or implied.
+ */
+@
+
+<<test.sh>>=
+nofake.sh -L -Rtest.c -otest.c lconcat.nw
+<<build-gcc.sh>>
+./test
+@
+
+<<gcc debug? >>=
+-O2
+@
+
+[[gdb -q -tui -ex 'break main' -ex 'run' ./test]]
+
+<<gcc debug?>>=
+-O0 -ggdb3
+@
+
+<<build-gcc.sh>>=
+gcc -ansi -pedantic <<gcc debug?>> -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes \
+    -Wshadow -Wconversion -Wdeclaration-after-statement \
+    -Wno-unused-parameter -Werror -fmax-errors=5 \
+    -DDEBUG \
+    -o test test.c
+@
+
+<<protos>>=
+extern char *concat(const char *s1, ...);
+<<function concat>>=
+/* allocate combined string from NULL terminated variable argument list */
+char*
+concat(const char *s1, ...)
+{
+	va_list args;
+	const char *s;
+	char *p, *result;
+	size_t l, m, n;
+
+	if (!s1) return NULL;
+
+	m = n = strlen(s1);
+	va_start(args, s1);
+	while ((s = va_arg(args, char *))) {
+		l = strlen(s);
+		if ((m += l) < l)
+			break;
+	}
+	va_end(args);
+	if (s || m >= INT_MAX)
+		return NULL;
+
+	result = (char *)malloc(m + 1);
+	if (!result)
+		return NULL;
+
+	memcpy(p = result, s1, n);
+	p += n;
+	va_start(args, s1);
+	while ((s = va_arg(args, char *))) {
+		l = strlen(s);
+		if ((n += l) < l || n > m)
+			break;
+		memcpy(p, s, l);
+		p += l;
+	}
+	va_end(args);
+	if (s || m != n || p != result + n) {
+		free(result);
+		return NULL;
+	}
+
+	*p = '\0';
+	return result;
+}
+@
+
+<<lconcat memcpy arg>>=
+memcpy(p, s, l);
+p += l;
+@
+
+<<protos>>=
+extern size_t lconcat(char *dst, size_t dstsize, const char *s1, ...);
+<<function lconcat>>=
+/* copy combined string from NULL terminated variable argument list,
+ * result >= dstsize means buffer size is insufficient and truncation
+ * occurred, i.e., mimics strlcpy and strlcat semantics, returns
+ * SIZE_MAX on overflow */
+size_t
+lconcat(char *dst, size_t dstsize, const char *s1, ...)
+{
+	va_list args;
+	size_t l, m;
+	const char *s;
+	if (!s1) {
+		if (dst && dstsize) *dst = '\0';
+		return 0;
+	}
+	s = s1;
+	l = m = strlen(s);
+	if (dst && dstsize) {
+		char *p = dst;
+		if (m < dstsize) {
+			<<lconcat memcpy arg>>
+		}
+		va_start(args, s1);
+		while ((s = va_arg(args, char *))) {
+			l = strlen(s);
+			if ((m += l) < l) {
+				m = SIZE_MAX;
+				break;
+			}
+			if (m < dstsize) {
+				<<lconcat memcpy arg>>
+			}
+		}
+		va_end(args);
+		*p = '\0';
+	} else {
+		va_start(args, s1);
+		while ((s = va_arg(args, char *))) {
+			l = strlen(s);
+			if ((m += l) < l) {
+				m = SIZE_MAX;
+				break;
+			}
+		}
+		va_end(args);
+	}
+	return m;
+}
+@
+
+<<includes>>=
+#include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <stdint.h>
+#include <assert.h>
+@
+
+<<definitions>>=
+#ifndef SIZE_MAX
+#define SIZE_MAX ((size_t)-1)
+#endif
+@
+
+<<test args 1 result>>=
+"ab c d "
+<<test args 1>>=
+<<test args 1 result>>, NULL
+<<test args 1 length>>=
+strlen(<<test args 1 result>>)
+<<test args 1b>>=
+"a", "b c", " d ", NULL
+@
+
+String below must be larger than (sizeof buf - 1).
+
+<<test args 2 result>>=
+"This is certainly larger than destination buffer."
+<<test args 2>>=
+<<test args 2 result>>, NULL
+<<test args 2 length>>=
+strlen(<<test args 2 result>>)
+<<test args 2b>>=
+"This", " ", "is", " ", "certainly", " ", "larger", " ",
+	"than", " ", "destination", " ", "buffer.", NULL
+<<test args 2b first char>>=
+'T'
+@
+
+<<trash buf>>=
+memset(buf, '*', sizeof buf);
+@
+
+<<test.c>>=
+<<header>>
+<<includes>>
+<<definitions>>
+<<protos>>
+<<function concat>>
+<<function lconcat>>
+int
+main(int argc, char **argv)
+{
+	char *cp;
+	char buf[30];
+	<<trash buf>>
+	assert(concat(NULL) == NULL);
+	<<trash buf>>
+	cp = concat(<<test args 1>>);
+	assert(strcmp(<<test args 1 result>>, cp) == 0);
+	<<trash buf>>
+	assert(lconcat(buf, sizeof buf, NULL) == 0);
+	assert(buf[0] == '\0');
+	<<trash buf>>
+	assert(lconcat(buf, sizeof buf, <<test args 1>>, NULL) == <<test args 1 length>>);
+	assert(strcmp(<<test args 1 result>>, buf) == 0);
+	<<trash buf>>
+	assert(lconcat(buf, sizeof buf, <<test args 2>>, NULL) >= sizeof buf);
+	assert(buf[0] == '\0');
+	<<trash buf>>
+	assert(lconcat(buf, sizeof buf, <<test args 2b>>, NULL) >= sizeof buf);
+	assert(buf[0] == <<test args 2b first char>>);
+	return 0;
+}
+@
