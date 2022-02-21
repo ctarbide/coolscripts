@@ -1,0 +1,23 @@
+
+nofake.sh -L -R.joverc joverc.nw -o ~/.joverc
+
+Reference:
+
+- ftp://ftp.uni-potsdam.de/pub/systems/mac/TextProcessing/jove-microemacs-configs.txt
+
+<<.joverc>>=
+# generated from joverc.nw
+
+# all these mimic mg, mg is more known and available than JOVE
+bind-to-key goto-line ^Xg
+bind-to-key query-replace-string %
+bind-to-key fill-paragraph q
+bind-to-key read-only-mode 
+bind-to-key delete-current-window 0
+
+bind-to-key i-search-forward 
+bind-to-key i-search-reverse 
+
+# M-.
+bind-to-key find-tag .
+@
