@@ -36,6 +36,15 @@ alias git-repack-and-prune='git repack -d && git prune'
 export PATH
 @
 
+Nice, small and fast emacs-like editors.
+
+<<exports>>=
+# EDITOR=em
+# EDITOR=mg
+EDITOR=jove
+export EDITOR
+@
+
 <<README.txt install snippet>>=
 is_path_element(){
     perl -e'do { exit(0) if $_ eq $ARGV[0] } for split(q{:}, $ENV{PATH}); exit(1)' -- "$@"
@@ -136,6 +145,26 @@ fi
 if can_be_added_to_path "${perl5_local_lib_home}/bin"; then
     PATH=${perl5_local_lib_home}/bin:${PATH}
 fi
+@
+
+PipeWire, Alsa and JACK.
+
+<<exports>>=
+PIPEWIRE_RUNTIME_DIR="/tmp/pipewire-`id -u`"
+export PIPEWIRE_RUNTIME_DIR
+@
+
+PipeWire pulseaudio emulation.
+
+<<exports>>=
+PULSE_RUNTIME_PATH="/tmp/pipewire-pulse-`id -u`"
+PULSE_SERVER=${PULSE_RUNTIME_PATH}/pulse/native
+export PULSE_RUNTIME_PATH PULSE_SERVER
+@
+
+<<exports>>=
+LIBVIRT_DEFAULT_URI=qemu:///system
+export LIBVIRT_DEFAULT_URI
 @
 
 <<zsh-newuser-install snippet>>=
