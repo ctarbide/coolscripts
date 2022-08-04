@@ -12,11 +12,11 @@ thisdir=${thispath%/*}
 
 list_urls(){
     perl -lpe's,\015+$,,' -- listings_curl |
-        perl -lne'next unless m{^Location:\s+(.*)}; next if $1 =~ m{^https://downloads\.sourceforge\.net/}; print($1)'
+        perl -lne'next unless m{^location: \s+ (.*)}xi; next if $1 =~ m{^https://downloads\.sourceforge\.net/}i; print($1)'
 }
 
 list_domains(){
-    list_urls | perl -lne'next if !m{^[hf][tps]+://(.*?)/}; $h{$1}++}{print for keys(%h)'
+    list_urls | perl -lne'next if !m{^[hf][tps]+://(.*?)/}i; $h{$1}++}{print for keys(%h)'
 }
 
 mkdir -p sourceforge-tld

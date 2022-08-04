@@ -156,9 +156,13 @@ export PIPEWIRE_RUNTIME_DIR
 
 PipeWire pulseaudio emulation.
 
+A previous version used:
+
+    PULSE_SERVER=${PULSE_RUNTIME_PATH}/pulse/native
+
 <<exports>>=
 PULSE_RUNTIME_PATH="/tmp/pipewire-pulse-`id -u`"
-PULSE_SERVER=${PULSE_RUNTIME_PATH}/pulse/native
+PULSE_SERVER=${PULSE_RUNTIME_PATH}/native
 export PULSE_RUNTIME_PATH PULSE_SERVER
 @
 

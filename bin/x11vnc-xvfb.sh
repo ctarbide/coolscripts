@@ -67,6 +67,7 @@ echo ''
 echo 'other usage examples:'
 echo ''
 echo "    DISPLAY=${display} xterm &"
+echo "    DISPLAY=${display} jwm &"
 echo "    DISPLAY=${display} vtwm &"
 echo ''
 echo ''

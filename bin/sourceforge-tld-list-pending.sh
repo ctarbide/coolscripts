@@ -16,18 +16,17 @@ LC_ALL=C
 export LC_ALL
 
 filter_existing(){
-    perl -lne'next if m{/$}; next if m{\?} and !m{\?viasf=1}; print' -- "$@" |
-        perl -MCGI::Util=unescape -lne'next if m{%} and m{^\w+://(.*)$} and -f unescape($1); print' |
-        perl -MCGI::Util=unescape -lne'next if m{%} and m{^\w+://(.*)(?:\?viasf=\d+)$} and -f unescape($1); print' |
+    perl -lne'next if m{/$}; next if m{\?} and !m{\?viasf=1}i; print' -- "$@" |
+        perl -MCGI::Util=unescape -lne'next if m{%} and m{^\w+://(.*)$}i and -f unescape($1); print' |
+        perl -MCGI::Util=unescape -lne'next if m{%} and m{^\w+://(.*)(?:\?viasf=\d+)$}i and -f unescape($1); print' |
         perl -lne'next if m{^\w+://(.*)$} and -f $1; print' |
-        perl -lne'next if m{^\w+://(.*)(?:\?viasf=\d+)$} and -f $1; print' |
+        perl -lne'next if m{^\w+://(.*)(?:\?viasf=\d+)$}i and -f $1; print' |
         perl -lne'print(qq{\047${_}\047})'
 }
 
 list_urls(){
     perl -lpe's,\015+$,,' -- listings_curl |
-        perl -lne'next unless m{^Location:\s+(.*)}; next if $1 =~ m{^https://downloads\.sourceforge\.net/}; print($1)' |
-        filter_existing
+        perl -lne'next unless m{^location: \s+ (.*)}xi; next if $1 =~ m{^https://downloads\.sourceforge\.net/}i; print($1)'
 }
 
 list_urls
