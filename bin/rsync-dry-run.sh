@@ -32,7 +32,7 @@ rsync --dry-run "$@" | perl -lne'next if m{/$}; print' > "${tmpfile}"
 no_changes_to_sync(){
     perl -lne'
 last if $. > 2;
-next if m{^(?: building \s file \s list .* | \s* )$}xi;
+next if m{^(?: building \s file \s list .* | sending \s incremental \s file \s list | \s* )$}xi;
 exit 1;
 ' < "${tmpfile}"
 }
