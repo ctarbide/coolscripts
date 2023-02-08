@@ -31,13 +31,13 @@ tmpfiles="${tmpfiles} '${tmpfile}'"
 rsync --dry-run "$@" | perl -lne'next if m{/$}; print' > "${tmpfile}"
 no_changes_to_sync(){
     perl -lne'
-last if $. > 2;
 while ( m{^ \s \d+ \s files \.\.\. \015 }xi ) { s,^.*?\015,, };
 next if m{^ \s* $}xi;
 next if m{^ building \s file \s list .* $}xi;
 next if m{^ sending \s incremental \s file \s list $}xi;
 next if m{^ receiving \s file \s list \s \.\.\. .* $}xi;
 next if m{^ \d+ \s files \s to \s consider \s* $}xi;
+last if m{^ sent \s \d[\d,]* \s bytes \s .* $}xi;
 exit 1;
 ' < "${tmpfile}"
 }
