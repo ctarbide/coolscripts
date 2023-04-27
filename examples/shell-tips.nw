@@ -1,4 +1,7 @@
 
+nofake shell-tips.nw
+
+<<*>>=
 nofake.sh -L -R.zshrc shell-tips.nw -o ~/.zshrc
 
 <<.zshrc>>=
@@ -26,6 +29,8 @@ alias rm='rm -i'
 
 alias rm-tilde='rm -fv *~'
 alias emacs=mg
+
+alias localstamp="date '+%Y-%m-%d_%Hh%Mm%S'"
 @
 
 <<git aliases>>=
