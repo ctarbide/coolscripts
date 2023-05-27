@@ -6,6 +6,15 @@ die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
 [ "$#" -gt 0 ] || die 1 "usage: ${0##*/} file1 file2 ..."
 
+copy_instead=false
+
+for i in ${1+"$@"}; do
+    if [ x"${i}" = x--copy-instead ]; then
+        copy_instead=true
+shift
+    fi
+done
+
 for i in ${1+"$@"}; do
     if ! test -f "$i"; then
         echo "error: file [$i] not found"
@@ -56,6 +65,10 @@ for i in ${1+"$@"}; do
         continue
     fi
 
-    mv -v "${i}" "${out}"
-    chmod a-w "${out}"
+    if [ x"${copy_instead}" = xtrue ]; then
+        cp -av "${i}" "${out}"
+    else
+        mv -v "${i}" "${out}"
+        chmod a-w "${out}"
+    fi
 done

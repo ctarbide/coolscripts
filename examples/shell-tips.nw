@@ -31,6 +31,9 @@ alias rm-tilde='rm -fv *~'
 alias emacs=mg
 
 alias localstamp="date '+%Y-%m-%d_%Hh%Mm%S'"
+
+alias head20='head -n20'
+alias head30='head -n30'
 @
 
 <<git aliases>>=
