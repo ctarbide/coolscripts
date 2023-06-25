@@ -16,9 +16,11 @@ export LC_ALL
 script_id=${thisprog#doit_}
 script_id=${script_id%.sh}
 
-# seeds are in listings, initial lines as '0.'
+# seeds are in 'listings' file, initial lines as '0.'
 
-url_prefix='(?:www\d*\.)? (?: dosemu\.org/ ) (?!.*?//)'
+# an initial 'lynx-list-links.sh' might be needed to bootstrap 'listings' files
+
+url_prefix='(?:www\d*\.)? (?: s48\.org/ ) (?!.*?//)'
 github_userid=
 project_name=
 
@@ -30,6 +32,7 @@ do_help(){
   ./${thisprog} list-all-html-links | tee gather__${script_id}.inc.sh
   ./${thisprog} list-pending-dirs
   ./${thisprog} list-pending-files
+  ./${thisprog} list-pending-files | download-full-dirs.sh
   ./${thisprog} list-unrelated-files
 EOF
     if [ x"${github_userid}" != x ]; then
@@ -96,11 +99,13 @@ do_gather_links(){
 do_list_all_html_links(){
     lynx-list-urls.sh listings |
         perl -lne'next unless m{:// '"${url_prefix}"' }xi; print' |
+        perl -lpe's,\047,%27,g' | LC_ALL=C sort -u |
         perl -lne'next unless m{(?: \.s?html? | / ) $}xi; print(qq{    list \047${_}\047})'
 }
 
 do_list_pending_dirs(){
     lynx-list-urls.sh listings |
+        perl -lpe's,\047,%27,g' | LC_ALL=C sort -u |
         perl -lne'next unless m{:// ( '"${url_prefix}"' / (?:.*/)? ) $}xi; print(qq{\047${_}\047}) unless -f qq{${1}/index.html}'
 }
 
@@ -108,6 +113,7 @@ do_list_pending_dirs(){
 
 do_list_pending_files(){
     lynx-list-urls.sh listings |
+        perl -lpe's,\047,%27,g' | LC_ALL=C sort -u |
         perl -lne'next unless m{:// '"${url_prefix}"' (?:.*/)? [^/.]* \. (?:.*\.)? [^/.]+ $}xi; print' |
         filter-out-existing-urls.sh |
         perl -lne'($p = $_) =~ s,^\w+://(.*),$1,; print($_) unless -f qq{${p}/.listing}' |

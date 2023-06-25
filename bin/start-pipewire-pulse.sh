@@ -1,9 +1,13 @@
 #!/bin/sh
+
 set -eu
 
-# TODO: DRY, see ~/.zshrc
+die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
-PIPEWIRE_RUNTIME_DIR="/tmp/pipewire-`id -u`"
+if [ x"${PIPEWIRE_RUNTIME_DIR:-}" = x ]; then
+    die 1 "Error, PIPEWIRE_RUNTIME_DIR environment variable not set."
+fi
+
 PULSE_RUNTIME_PATH="/tmp/pipewire-pulse-`id -u`"
 
 # previously
@@ -11,10 +15,8 @@ PULSE_RUNTIME_PATH="/tmp/pipewire-pulse-`id -u`"
 
 PULSE_SERVER=${PULSE_RUNTIME_PATH}/native
 
-export PIPEWIRE_RUNTIME_DIR PULSE_RUNTIME_PATH PULSE_SERVER
+export PULSE_RUNTIME_PATH PULSE_SERVER
 
-mkdir -p \
-    "${PIPEWIRE_RUNTIME_DIR}" \
-    "${PULSE_RUNTIME_PATH}"
+mkdir -p "${PULSE_RUNTIME_PATH}"
 
 exec pipewire-pulse

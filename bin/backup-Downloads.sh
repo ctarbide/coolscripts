@@ -9,10 +9,10 @@ if [ x"${1:-}" != x ]; then
     fi
     subdir=`strip_r_slash "${1}"`
     srcdir=${HOME}/Downloads/${subdir}
-    dname=Downloads-from-${hname}/${subdir}
+    dname=Downloads-from-${hname}--${USER}/${subdir}
 else
     srcdir=${HOME}/Downloads
-    dname=Downloads-from-${hname}
+    dname=Downloads-from-${hname}--${USER}
 fi
 for dir in `perl -lane'next unless $F[1] =~ m{^/media/}; print($F[1])' /proc/mounts`; do
     if [ -d "${dir}/${dname}" ]; then
