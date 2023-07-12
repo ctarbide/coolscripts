@@ -88,7 +88,9 @@ can_be_added_to_manpath(){
 @
 
 <<exports>>=
-export MANPATH
+export LD_LIBRARY_PATH MANPATH
+@
+
 @
 
 <<set MANPATH>>=
@@ -104,6 +106,10 @@ fi
 <<set ~/local>>=
 if can_be_added_to_path "${HOME}/local/bin"; then
     PATH=${HOME}/local/bin:${PATH}
+fi
+
+if can_be_added_to_ld_lib_path "${HOME}/local/lib"; then
+    LD_LIBRARY_PATH=${HOME}/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 fi
 
 if can_be_added_to_manpath "${HOME}/local/share/man"; then

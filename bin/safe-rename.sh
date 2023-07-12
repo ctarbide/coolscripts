@@ -11,7 +11,7 @@ copy_instead=false
 for i in ${1+"$@"}; do
     if [ x"${i}" = x--copy-instead ]; then
         copy_instead=true
-shift
+        shift
     fi
 done
 
