@@ -7,10 +7,9 @@ die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 if [ -n "${1:-}" ]; then
     test -d "${1}" || die 1 "error: \"${1}\" is not a directory"
     cd "${1}"
-    thisdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- .`
-else
-    thisdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- .`
 fi
+
+thisdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- .`
 
 new_window_at(){
     name=$1
@@ -22,7 +21,11 @@ new_window_at(){
 # organize windows numbers before creating a new one
 tmux move-window -r
 
-name=${thisdir##*/}
-name=${name:-/}
+if [ -n "${2:-}" ]; then
+    name=${2}
+else
+    name=${thisdir##*/}
+    name=${name:-/}
+fi
 
 new_window_at "${name}" "${thisdir}"
