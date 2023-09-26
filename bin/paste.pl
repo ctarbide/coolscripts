@@ -8,12 +8,14 @@ use warnings;
 
 my $eofcntstart = 0;
 
-my @files = map {
+my @files = grep { defined } map {
     my $fh;
-    if ($_ eq '-') {
+    if ($_ eq '--') {
+        # no-op
+    } elsif ($_ eq '-') {
         $fh = \*STDIN;
         # skip stdin eof, don't wait for it to close
-        $eofcntstart = 1;
+        $eofcntstart++;
     } else {
         open($fh, '<', $_) or die "$!: \"$_\"";
     }

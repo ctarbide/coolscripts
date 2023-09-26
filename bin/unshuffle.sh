@@ -69,8 +69,8 @@ fi
 
 if [ x"${args}" != x ]; then
     eval "set -- ${args}"
-    "${thisdir}/random-prefix.sh" -k "${key}" | "${thisdir}/paste.pl" -- - "$@" |
-        LC_ALL=C sort | perl -lpe's,^.*?\t.*?\t,,'
+    "${thisdir}/random-prefix.sh" -k "${key}" | perl -e'while(<ARGV>){print(scalar(<STDIN>))}' -- "$@" |
+        LC_ALL=C sort | ./paste.pl -- - "$@" | LC_ALL=C sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'
 else
     die 1 "Error, no input data."
 fi

@@ -39,12 +39,12 @@ r0Aa(){
 }
 
 temporary_file(){
-    if type mktemp >/dev/null 2>&1; then
+    if command -v mktemp >/dev/null 2>&1; then
         tmpfile=`mktemp`
-    elif type perl >/dev/null 2>&1 && test -r /dev/urandom; then
+    elif command -v perl >/dev/null 2>&1 && test -r /dev/urandom; then
         tmpfile="/tmp/tmp.`u0Aa 10`"
         ( umask 0177; : > "${tmpfile}" )
-    elif type perl >/dev/null 2>&1; then
+    elif command -v perl >/dev/null 2>&1; then
         tmpfile="/tmp/tmp.`r0Aa 10`"
         ( umask 0177; : > "${tmpfile}" )
     else
@@ -56,7 +56,7 @@ temporary_file(){
 echo "**** a: [${tmpfiles}]"
 
 tmpfile=`temporary_file`
-tmpfiles="${tmpfiles} '${tmpfile}'"
+tmpfiles="${tmpfiles:+${tmpfiles} }'${tmpfile}'"
 echo "**** b: [${tmpfiles}]"
 
 tmpfile=`temporary_file`
