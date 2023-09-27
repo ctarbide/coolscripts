@@ -1,0 +1,54 @@
+
+<<lsb-to-bits.sh>>=
+#!/bin/sh
+# generated from lsb-to-bits.nw
+# run 'nofake lsb-to-bits.nw' for shell recipe
+exec perl -le'
+    while(read(STDIN, $d, 16384)){
+        $offset = 0;
+        $dlen = length($d);
+        while($offset + 32 < $dlen){
+            $bits = unpack(q{B*}, substr($d, $offset, 32));
+            print(join(qq{\n},
+                <<substr-32>>
+            ));
+            $offset += 32;
+	}
+        while($offset + 8 < $dlen){
+            $bits = unpack(q{B*}, substr($d, $offset, 8));
+            print(join(qq{\n},
+                <<substr-8>>
+            ));
+            $offset += 8;
+	}
+        while($offset < $dlen){
+            print(substr(unpack(q{B*}, substr($d, $offset++, 1)), 7, 1));
+	}
+    }' "$@"
+@
+
+<<substr>>=
+substr($bits, 8*<<i>>-1, 1),
+@
+
+<<*>>=
+#!/bin/sh
+set -eu
+
+:>tmp.substr
+
+echo '@<<substr-32@>>='>>tmp.substr
+for i in `seq 1 32`; do
+    perl -slne'print}{print(qq{@<<i@>>=\n${i}\n@\n})' -- -i="${i}" lsb-to-bits.nw | nofake -Rsubstr
+done >>tmp.substr
+
+echo '@<<substr-8@>>='>>tmp.substr
+for i in `seq 1 8`; do
+    perl -slne'print}{print(qq{@<<i@>>=\n${i}\n@\n})' -- -i="${i}" lsb-to-bits.nw | nofake -Rsubstr
+done >>tmp.substr
+
+nofake.sh -Rlsb-to-bits.sh -olsb-to-bits.sh lsb-to-bits.nw tmp.substr
+chmod a+x lsb-to-bits.sh
+
+rm -f tmp.substr
+@

@@ -17,8 +17,8 @@ rm_tmpfiles(){
 # 0:exit, 1:hup, 2:int, 3:quit, 15:term
 trap 'rm_tmpfiles' 0 1 2 3 15
 
-u0Aa(){ ./u0Aa.sh | head -n"${1}" | perl -pe chomp; }
-r0Aa(){ ./r0Aa.sh | head -n"${1}" | perl -pe chomp; }
+u0Aa(){ "${thisdir}/u0Aa.sh" | head -n"${1}" | perl -pe chomp; }
+r0Aa(){ "${thisdir}/r0Aa.sh" | head -n"${1}" | perl -pe chomp; }
 
 temporary_file(){
     if command -v mktemp >/dev/null 2>&1; then
@@ -70,7 +70,7 @@ fi
 if [ x"${args}" != x ]; then
     eval "set -- ${args}"
     "${thisdir}/random-prefix.sh" -k "${key}" | perl -e'while(<ARGV>){print(scalar(<STDIN>))}' -- "$@" |
-        LC_ALL=C sort | ./paste.pl -- - "$@" | LC_ALL=C sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'
+        LC_ALL=C sort | "${thisdir}/paste.pl" -- - "$@" | LC_ALL=C sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'
 else
     die 1 "Error, no input data."
 fi

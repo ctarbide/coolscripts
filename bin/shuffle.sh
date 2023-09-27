@@ -17,8 +17,8 @@ rm_tmpfiles(){
 # 0:exit, 1:hup, 2:int, 3:quit, 15:term
 trap 'rm_tmpfiles' 0 1 2 3 15
 
-u0Aa(){ ./u0Aa.sh | head -n"${1}" | perl -pe chomp; }
-r0Aa(){ ./r0Aa.sh | head -n"${1}" | perl -pe chomp; }
+u0Aa(){ "${thisdir}/u0Aa.sh" | head -n"${1}" | perl -pe chomp; }
+r0Aa(){ "${thisdir}/r0Aa.sh" | head -n"${1}" | perl -pe chomp; }
 
 temporary_file(){
     if command -v mktemp >/dev/null 2>&1; then

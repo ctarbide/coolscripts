@@ -1,0 +1,50 @@
+
+<<bytes-to-bits.sh>>=
+#!/bin/sh
+# generated from bytes-to-bits.nw
+# run 'nofake bytes-to-bits.nw' for shell recipe
+exec perl -le'
+    while(read(STDIN, $d, 16384)){
+        $offset = 0;
+        $dlen = length($d);
+        while($offset + 4 < $dlen){
+            $bits = unpack(q{B*}, substr($d, $offset, 4));
+            print(join(qq{\n},
+                <<substr-32>>
+            ));
+            $offset += 4;
+	}
+        while($offset < $dlen){
+            $bits = unpack(q{B*}, substr($d, $offset++, 1));
+            print(join(qq{\n},
+                <<substr-8>>
+            ));
+	}
+    }' "$@"
+@
+
+<<substr>>=
+substr($bits, <<i>>, 1),
+@
+
+<<*>>=
+#!/bin/sh
+set -eu
+
+:>tmp.substr
+
+echo '@<<substr-32@>>='>>tmp.substr
+for i in `seq 0 31`; do
+    perl -slne'print}{print(qq{@<<i@>>=\n${i}\n@\n})' -- -i="${i}" bytes-to-bits.nw | nofake -Rsubstr
+done >>tmp.substr
+
+echo '@<<substr-8@>>='>>tmp.substr
+for i in `seq 0 7`; do
+    perl -slne'print}{print(qq{@<<i@>>=\n${i}\n@\n})' -- -i="${i}" bytes-to-bits.nw | nofake -Rsubstr
+done >>tmp.substr
+
+nofake.sh -Rbytes-to-bits.sh -obytes-to-bits.sh bytes-to-bits.nw tmp.substr
+chmod a+x bytes-to-bits.sh
+
+rm -f tmp.substr
+@
