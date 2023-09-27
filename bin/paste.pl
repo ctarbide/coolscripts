@@ -38,7 +38,7 @@ while (1) {
         }
     }
     if ($eofcnt >= $nfiles) {
-        close($$_) for (@files);
+        close($$_) for @files;
         last;
     }
     print(join("\t", @fields), "\n");

@@ -3,6 +3,11 @@
 #!/bin/sh
 # generated from bytes-to-bits.nw
 # run 'nofake bytes-to-bits.nw' for shell recipe
+die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
+if [ $# -eq 0 ]; then
+    die 1 "Error, no data input. Use \"-\" for standard input."
+    exit
+fi
 exec perl -le'
     for $file (@ARGV) {
         if ($file eq q{-}) {
@@ -51,8 +56,7 @@ for i in `seq 0 7`; do
     perl -slne'print}{print(qq{@<<i@>>=\n${i}\n@\n})' -- -i="${i}" bytes-to-bits.nw | nofake -Rsubstr
 done >>tmp.substr
 
-nofake.sh -Rbytes-to-bits.sh -obytes-to-bits.sh bytes-to-bits.nw tmp.substr
-chmod a+x bytes-to-bits.sh
+CHMOD='chmod 0555' nofake.sh -Rbytes-to-bits.sh -obytes-to-bits.sh bytes-to-bits.nw tmp.substr
 
 rm -f tmp.substr
 @

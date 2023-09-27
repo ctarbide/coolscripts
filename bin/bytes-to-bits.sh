@@ -1,6 +1,11 @@
 #!/bin/sh
 # generated from bytes-to-bits.nw
 # run 'nofake bytes-to-bits.nw' for shell recipe
+die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
+if [ $# -eq 0 ]; then
+    die 1 "Error, no data input. Use \"-\" for standard input."
+    exit
+fi
 exec perl -le'
     for $file (@ARGV) {
         if ($file eq q{-}) {

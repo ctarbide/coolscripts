@@ -3,6 +3,11 @@
 #!/bin/sh
 # generated from lsb-to-bits.nw
 # run 'nofake lsb-to-bits.nw' for shell recipe
+die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
+if [ $# -eq 0 ]; then
+    die 1 "Error, no data input. Use \"-\" for standard input."
+    exit
+fi
 exec perl -le'
     for $file (@ARGV) {
         if ($file eq q{-}) {
@@ -55,8 +60,7 @@ for i in `seq 1 8`; do
     perl -slne'print}{print(qq{@<<i@>>=\n${i}\n@\n})' -- -i="${i}" lsb-to-bits.nw | nofake -Rsubstr
 done >>tmp.substr
 
-nofake.sh -Rlsb-to-bits.sh -olsb-to-bits.sh lsb-to-bits.nw tmp.substr
-chmod a+x lsb-to-bits.sh
+CHMOD='chmod 0555' nofake.sh -Rlsb-to-bits.sh -olsb-to-bits.sh lsb-to-bits.nw tmp.substr
 
 rm -f tmp.substr
 @
