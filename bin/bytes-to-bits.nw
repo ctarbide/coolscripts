@@ -4,22 +4,30 @@
 # generated from bytes-to-bits.nw
 # run 'nofake bytes-to-bits.nw' for shell recipe
 exec perl -le'
-    while(read(STDIN, $d, 16384)){
-        $offset = 0;
-        $dlen = length($d);
-        while($offset + 4 < $dlen){
-            $bits = unpack(q{B*}, substr($d, $offset, 4));
-            print(join(qq{\n},
-                <<substr-32>>
-            ));
-            $offset += 4;
-	}
-        while($offset < $dlen){
-            $bits = unpack(q{B*}, substr($d, $offset++, 1));
-            print(join(qq{\n},
-                <<substr-8>>
-            ));
-	}
+    for $file (@ARGV) {
+        if ($file eq q{-}) {
+            $fh = \*STDIN;
+        } else {
+            open($fh, q{<}, $file);
+        }
+        while(read($fh, $d, 16384)){
+            $offset = 0;
+            $dlen = length($d);
+            while($offset + 4 < $dlen){
+                $bits = unpack(q{B*}, substr($d, $offset, 4));
+                print(join(qq{\n},
+                    <<substr-32>>
+                ));
+                $offset += 4;
+            }
+            while($offset < $dlen){
+                $bits = unpack(q{B*}, substr($d, $offset++, 1));
+                print(join(qq{\n},
+                    <<substr-8>>
+                ));
+            }
+        }
+        close($fh) unless $file eq q{-};
     }' "$@"
 @
 

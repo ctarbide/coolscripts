@@ -4,26 +4,34 @@
 # generated from lsb-to-bits.nw
 # run 'nofake lsb-to-bits.nw' for shell recipe
 exec perl -le'
-    while(read(STDIN, $d, 16384)){
-        $offset = 0;
-        $dlen = length($d);
-        while($offset + 32 < $dlen){
-            $bits = unpack(q{B*}, substr($d, $offset, 32));
-            print(join(qq{\n},
-                <<substr-32>>
-            ));
-            $offset += 32;
-	}
-        while($offset + 8 < $dlen){
-            $bits = unpack(q{B*}, substr($d, $offset, 8));
-            print(join(qq{\n},
-                <<substr-8>>
-            ));
-            $offset += 8;
-	}
-        while($offset < $dlen){
-            print(substr(unpack(q{B*}, substr($d, $offset++, 1)), 7, 1));
-	}
+    for $file (@ARGV) {
+        if ($file eq q{-}) {
+            $fh = \*STDIN;
+        } else {
+            open($fh, q{<}, $file);
+        }
+        while(read($fh, $d, 16384)){
+            $offset = 0;
+            $dlen = length($d);
+            while($offset + 32 < $dlen){
+                $bits = unpack(q{B*}, substr($d, $offset, 32));
+                print(join(qq{\n},
+                    <<substr-32>>
+                ));
+                $offset += 32;
+            }
+            while($offset + 8 < $dlen){
+                $bits = unpack(q{B*}, substr($d, $offset, 8));
+                print(join(qq{\n},
+                    <<substr-8>>
+                ));
+                $offset += 8;
+            }
+            while($offset < $dlen){
+                print(substr(unpack(q{B*}, substr($d, $offset++, 1)), 7, 1));
+            }
+        }
+        close($fh) unless $file eq q{-};
     }' "$@"
 @
 
