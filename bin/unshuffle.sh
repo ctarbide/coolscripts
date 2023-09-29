@@ -60,17 +60,20 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+if [ x"${args}" = x ]; then
+    slurp_to=`temporary_file`
+    tmpfiles="${tmpfiles:+${tmpfiles} }'${slurp_to}'"
+    args="${args:+${args} }'${slurp_to}'"
+fi
+
 if [ x"${slurp_to}" != x ]; then
     if [ x"${key}" = x- ]; then
-        die 1 "Error, ambiguous usage of standard input."
+        key=${slurp_to}
     fi
     cat > "${slurp_to}"
 fi
 
-if [ x"${args}" != x ]; then
-    eval "set -- ${args}"
-    "${thisdir}/random-prefix.sh" -k "${key}" | perl -e'while(<ARGV>){print(scalar(<STDIN>))}' -- "$@" |
-        LC_ALL=C sort | "${thisdir}/paste.pl" -- - "$@" | LC_ALL=C sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'
-else
-    die 1 "Error, no input data."
-fi
+eval "set -- ${args}"
+
+"${thisdir}/random-prefix.sh" -k "${key}" | perl -e'while(<ARGV>){print(scalar(<STDIN>))}' -- "$@" |
+    LC_ALL=C sort | "${thisdir}/paste.pl" -- - "$@" | LC_ALL=C sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'

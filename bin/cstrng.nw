@@ -1,0 +1,49 @@
+
+<<sh preamble>>=
+#!/bin/sh
+set -eu
+@
+
+<<sub seed>>=
+sub seed () {
+    $a = clock;
+    $b = $a + 1e-4;
+    $c = 0;
+    while (clock < $b) { $c++; }
+    sprintf(qq{%s\t%s\t%s\t%.9f\t%.9f\t%s}, getppid, $$, ++$n, time, $a, $c)
+}
+@
+
+<<seed.sh>>=
+<<sh preamble>>
+exec perl -MTime::HiRes=time,clock -le'
+    <<sub seed>>
+    if ($ARGV[0] =~ /^(\d+)$/) {
+        $times = $1;
+        while ($times--) { print(seed); }
+    } else {
+        while (1) { print(seed) }
+    }
+' -- "$@"
+@
+
+<<cstrng.sh>>=
+<<sh preamble>>
+exec perl -MTime::HiRes=time,clock -MDigest::SHA=sha512 -e'
+    <<sub seed>>
+    while (1) {
+        $s = seed;
+        $k = length($s).qq{:${s},};
+        for $n (1..4096) {
+            print(sha512(qq{${k}${n}}));
+        }
+    }
+'
+@
+
+<<*>>=
+#!/bin/sh
+set -eu
+CHMOD='chmod 0555' nofake.sh -Rseed.sh -oseed.sh cstrng.nw
+CHMOD='chmod 0555' nofake.sh -Rcstrng.sh -ocstrng.sh cstrng.nw
+@
