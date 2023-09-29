@@ -29,12 +29,12 @@ exec perl -MTime::HiRes=time,clock -le'
 
 <<cstrng.sh>>=
 <<sh preamble>>
-exec perl -MTime::HiRes=time,clock -MDigest::SHA=sha512 -e'
+exec perl -MTime::HiRes=time,clock -MDigest::SHA=sha256,sha512 -e'
     <<sub seed>>
     while (1) {
-        $s = seed;
+        $s = sha256(join(qq{\n}, map {seed} 1..64));
         $k = length($s).qq{:${s},};
-        for $n (1..4096) {
+        for $n (1..65536) {
             print(sha512(qq{${k}${n}}));
         }
     }
