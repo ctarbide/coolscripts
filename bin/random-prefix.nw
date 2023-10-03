@@ -1,5 +1,6 @@
-#!/bin/sh
-set -eu
+
+<<random-prefix.sh>>=
+<<sh preamble>>
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
@@ -70,3 +71,14 @@ while (<>){
     my ($a, $b) = get2;
     printf(qq{%08x%08x\t%s\t%s\n}, $a, $b, seq, $_);
 }' -- "${key}"
+@
+
+<<sh preamble>>=
+#!/bin/sh
+set -eu
+@
+
+<<*>>=
+<<sh preamble>>
+CHMOD='chmod 0555' nofake.sh -Rrandom-prefix.sh -orandom-prefix.sh random-prefix.nw
+@

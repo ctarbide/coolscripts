@@ -1,33 +1,13 @@
-#!/bin/sh
-set -eu
 
-tmpfiles=
+perl -le'while(1){print(q{})}' | "${thisdir}/random-prefix.sh" -k "${key}" |
+    perl -e'while(<ARGV>){print(scalar(<STDIN>))}' -- "$@" |
+    LC_ALL=C sort | "${thisdir}/paste.pl" -- - "$@" | LC_ALL=C sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'
 
-rm_tmpfiles(){
-    eval "set -- ${tmpfiles}"
-    rm -f -- "$@"
-}
 
-# 0:exit, 1:hup, 2:int, 3:quit, 15:term
-trap 'rm_tmpfiles' 0 1 2 3 15
+<<unshuffle.sh>>=
+<<sh preamble>>
 
-u0Aa(){ u0Aa.sh | head -n"${1}" | perl -pe chomp; }
-r0Aa(){ r0Aa.sh | head -n"${1}" | perl -pe chomp; }
-
-temporary_file(){
-    if command -v mktemp >/dev/null 2>&1; then
-        tmpfile=`mktemp`
-    elif command -v perl >/dev/null 2>&1 && test -r /dev/urandom; then
-        tmpfile="/tmp/tmp.`u0Aa 10`"
-        ( umask 0177; : > "${tmpfile}" )
-    elif command -v perl >/dev/null 2>&1; then
-        tmpfile="/tmp/tmp.`r0Aa 10`"
-        ( umask 0177; : > "${tmpfile}" )
-    else
-        die 1 'error: mktemp not found'
-    fi
-    echo "${tmpfile}"
-}
+<<function temporary_file>>
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
@@ -71,3 +51,16 @@ cat > "${slurp_to}"
 perl -le'while(<STDIN>){print(q{})}' < "${slurp_to}" | "${thisdir}/random-prefix.sh" -k "${key}" |
     LC_ALL=C sort | perl -e'while(<STDIN>){chomp;print($_,scalar(<ARGV>))}' -- "${slurp_to}" |
     LC_ALL=C sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'
+@
+
+"${thisdir}/random-prefix.sh" -k "${key}" | LC_ALL=C sort | perl -lpe's,^.*?\t.*?\t,,'
+
+<<sh preamble>>=
+#!/bin/sh
+set -eu
+@
+
+<<*>>=
+<<sh preamble>>
+CHMOD='chmod 0555' nofake.sh -Runshuffle.sh -ounshuffle.sh unshuffle.nw temporary-files-shell.nw
+@

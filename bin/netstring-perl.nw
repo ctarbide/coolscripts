@@ -1,0 +1,72 @@
+
+<<sub ns>>=
+sub ns ($) { length($_[0]) . qq{:} . $_[0] . q{,} }
+@
+
+<<ns k=v>>=
+perl -se'<<sub ns>>print(ns(ns($k).ns($v)))' --
+@
+
+<<ns stdin>>=
+perl -0777 -e'<<sub ns>>print(ns(<>))'
+@
+
+<<ns k=stdin>>=
+perl -0777 -se'<<sub ns>>print(ns(ns($k).ns(<>)))' --
+@
+
+<<sub nsget>>=
+sub nsget ($) {
+    return unless defined wantarray;
+    $_[0] =~ m{^(\d+):} or die qq{Error, invalid netstring.};
+    my $skip = length($1) + $1 + 2;
+    my $data = substr($_[0], length($1) + 1, $1);
+    return wantarray ? ($skip, $data) : $data;
+}
+@
+
+<<sub nssplit>>=
+sub nssplit ($) {
+    my $ofs = 0;
+    my $len = length($_[0]);
+    my @res;
+    while ($ofs < $len) {
+        ($next, $data) = nsget(substr($_[0], $ofs));
+        push(@res, $data);
+        $ofs += $next;
+    }
+    @res;
+}
+@
+
+<<sub nskvpair>>=
+sub nskvpair (@) {
+    my ($next, $key);
+    for my $kvp (@_) {
+        ($next, $key) = nsget($kvp);
+        $res{$key} = nsget(substr($kvp, $next));
+    }
+    %res;
+}
+@
+
+<<sub nsstart>>=
+sub nsstart0 ($;$) {
+    my $read = $_[0];
+    my $fh = $_[1];
+    my $res;
+    my $len = 0;
+    while($read->($fh, my $c, 1)){
+        last if $c eq q{:};
+        die unless $c =~ m{^\d$};
+        $len = $len * 10 + $c;
+    }
+    $read->($fh, $res, $len) == $len or die;
+    $read->($fh, my $comma, 1) or die;
+    $comma eq q{,} or die;
+    $res;
+}
+sub nsstart ($) {
+    nsstart0(sub{read($_[0], $_[1], $_[2], $_[3])}, $_[0]);
+}
+@

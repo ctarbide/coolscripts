@@ -1,5 +1,6 @@
-#!/bin/sh
-set -eu
+
+<<shuffle.sh>>=
+<<sh preamble>>
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
@@ -36,3 +37,14 @@ if [ ! -r "${key}" ]; then
 fi
 
 "${thisdir}/random-prefix.sh" -k "${key}" | LC_ALL=C sort | perl -lpe's,^.*?\t.*?\t,,'
+@
+
+<<sh preamble>>=
+#!/bin/sh
+set -eu
+@
+
+<<*>>=
+<<sh preamble>>
+CHMOD='chmod 0555' nofake.sh -Rshuffle.sh -oshuffle.sh shuffle.nw
+@
