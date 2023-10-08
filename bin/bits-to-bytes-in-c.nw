@@ -45,6 +45,7 @@ int main(int argc, char **argv)
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 @
 
 <<Definitions>>=
@@ -67,7 +68,9 @@ char *which;  					/* which counts to print */
 long char_count, word_count, line_count;	/* given totals */
 
 <<Close file>>=
-close(fd);
+if (fd != 0) {
+	close(fd);
+}
 @
 
 Assume every bit will occupy 2 bytes, a '0' or '1' and a new line.
@@ -102,14 +105,18 @@ ptr = buf_end = buffer;
 @
 
 <<If a file is given, try to open [[*(++argv)]]; [[continue]] if unsuccessful>>=
-if (file_count > 0
-    && (fd = open(*(++argv), READ_ONLY)) < 0) {
-	fprintf(stderr,
-		"%s: cannot open file %s\n",
-		prog_name, *argv);
-	status |= cannot_open_file;
-	file_count--;
-	continue;
+if (file_count > 0) {
+	char *fname = *(++argv);
+	if (strcmp(fname, "-") == 0) {
+		fd = 0;
+	} else if ((fd = open(fname, READ_ONLY)) < 0) {
+		fprintf(stderr,
+			"%s: cannot open file %s\n",
+			prog_name, *argv);
+		status |= cannot_open_file;
+		file_count--;
+		continue;
+	}
 }
 @
 
