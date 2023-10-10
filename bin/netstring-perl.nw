@@ -41,7 +41,7 @@ sub nssplit ($) {
 
 <<sub nskvpair>>=
 sub nskvpair (@) {
-    my ($next, $key);
+    my ($next, $key, %res);
     for my $kvp (@_) {
         ($next, $key) = nsget($kvp);
         $res{$key} = nsget(substr($kvp, $next));
@@ -55,15 +55,21 @@ sub nsstart0 ($;$) {
     my $read = $_[0];
     my $fh = $_[1];
     my $res;
-    my $len = 0;
+    my $len;
+    if ($read->($fh, my $c, 2)) {
+        die "Error, invalid netstring." unless $c =~ m{^\d[\d:]$};
+        $len = int($c);
+    } else {
+        die "Error, no data.";
+    }
     while($read->($fh, my $c, 1)){
         last if $c eq q{:};
-        die unless $c =~ m{^\d$};
+        die "Error, invalid netstring." unless $c =~ m{^\d$};
         $len = $len * 10 + $c;
     }
-    $read->($fh, $res, $len) == $len or die;
-    $read->($fh, my $comma, 1) or die;
-    $comma eq q{,} or die;
+    $read->($fh, $res, $len) == $len or die "Error, missing data.";
+    $read->($fh, my $comma, 1) or die "Error, missing comma.";
+    $comma eq q{,} or die "Error, no comma.";
     $res;
 }
 sub nsstart ($) {
