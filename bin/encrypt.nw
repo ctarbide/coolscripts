@@ -1,0 +1,273 @@
+
+<<test-vector.sh>>=
+echo -n hi | csprng.sh | ddfb.sh bs=64 count=1000000 | sha256sum
+echo 'eba93d7f5b399adb7877b0d816a4b022f6e962aa54626d424a55b6e24bebcb7d'
+@
+
+<<sh preamble>>=
+#!/bin/sh
+set -eu
+@
+
+<<function die>>=
+die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
+@
+
+<<sub mac>>=
+sub mac ($$) { sha256(sha256(ns($_[0]) . $_[1])) }
+@
+
+calculates a 128-bit message authentication tag.
+
+<<sub tag>>=
+sub tag ($$$) { substr(sha256(sha256(ns($_[0]) . ns($_[1]) . $_[2])), 0, 16) }
+@
+
+<<sub csprng_session>>=
+sub csprng_session ($$$$) {
+    my ($master_key, $sub_key, $nonce, $len) = @_;
+    die unless defined($master_key) and defined($sub_key) and defined($nonce) and defined($len);
+    open2(my $chld_out, my $chld_in, q{csprng.sh});
+    print $chld_in ns($master_key);
+    print $chld_in ns($sub_key);
+    print $chld_in ns($nonce);
+    close $chld_in;
+    read($chld_out, my $res, $len) == $len or die;
+    close $chld_out;
+    $res;
+}
+@
+
+<<sub csprng_stream>>=
+sub csprng_stream ($$$) {
+    my ($master_key, $sub_key, $nonce) = @_;
+    die unless defined($master_key) and defined($sub_key) and defined($nonce);
+    open2(my $chld_out, my $chld_in, q{csprng.sh});
+    print $chld_in ns($master_key);
+    print $chld_in ns($sub_key);
+    print $chld_in ns($nonce);
+    close $chld_in;
+    $chld_out;
+}
+@
+
+<<sub tohex>>=
+sub tohex ($) { unpack(q{H*}, $_[0]) }
+@
+
+Cannot use 'xor', it is a built-in perl function.
+
+<<sub xor_>>=
+sub xor_ ($$) {
+    my ($x, $y) = @_;
+    my $len = length($x);
+    die q{Error, operators must be of the same length.} unless $len == length($y);
+    my (@a, @b, $a, $b);
+    @a = unpack(q{Q*}, $x);
+    @b = unpack(q{Q*}, $y);
+    my ($res, $i) = (q{}, 0);
+    for $a (@a) {
+        $res .= pack(q{Q}, $a ^ $b[$i++]);
+    }
+    my $ofs = $len & ~7;
+    while ($ofs < $len) {
+        $a = ord(substr($x, $ofs, 1));
+        $b = ord(substr($y, $ofs, 1));
+        $res .= chr($a ^ $b);
+        $ofs++;
+    }
+    $res;
+}
+@
+
+<<sub cipher>>=
+sub cipher ($$) {
+    my $len = length($_[1]);
+    read($_[0], my $ks, $len) == $len or die;
+    xor_($_[1], $ks);
+}
+@
+
+<<sub printmeta>>=
+sub printmeta ($) {
+    my $res = cipher($mkspipe, $_[0]);
+    print($res);
+    $res;
+}
+@
+
+<<sub readmeta>>=
+sub readmeta ($$) {
+    my ($fh, $len) = @_;
+    read($fh, my $e, $len) == $len or die;
+    ($e, cipher($mkspipe, $e))
+}
+@
+
+<<thisdir>>=
+thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
+thisdir=${thispath%/*}
+@
+
+The key is always read from standard input, it is the caller responsibility to
+properly handle the key (e.g. use of salt, deciding safe levels of entropy and
+complexity etc).
+
+<<load keys>>=
+my ($master_key, $sub_mac_key, $sub_tag_key, $sub_meta_keystream, $sub_cipher_keystream);
+{
+    my $secret = `"${thisdir}/csprng.sh" | "${thisdir}/ddfb.sh" bs=32 count=5`;
+    die unless length($secret) == 32 * 5;
+    sub subkey ($) { substr($secret, $_[0] * 32, 32) }
+    $master_key = subkey(0);
+    $sub_mac_key = subkey(1);
+    $sub_tag_key = subkey(2);
+    $sub_meta_keystream = subkey(3);
+    $sub_cipher_keystream = subkey(4);
+}
+@
+
+<<setup keys and streams>>=
+my $mac_key = csprng_session($master_key, $sub_mac_key, $nonce, 32);
+my $tag_key = csprng_session($master_key, $sub_tag_key, $nonce, 32);
+my $mkspipe = csprng_stream($master_key, $sub_meta_keystream, $nonce);
+my $ckspipe = csprng_stream($master_key, $sub_cipher_keystream, $nonce);
+@
+
+<<encrypt.sh>>=
+<<sh preamble>>
+<<thisdir>>
+exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
+    <<sub ns>>
+    <<sub mac>>
+    <<sub tag>>
+    <<sub csprng_session>>
+    <<sub csprng_stream>>
+    <<sub xor_>>
+    <<sub cipher>>
+
+    <<load keys>>
+
+    my $nonce = `"${thisdir}/cstrng.sh" | "${thisdir}/ddfb.sh" bs=32 count=1`;
+    die unless length($nonce) == 32;
+
+    <<setup keys and streams>>
+
+    <<sub printmeta>>
+
+    print $nonce;
+
+    my $header = q{};
+    $header .= ns(ns(q{version}) . ns(q{1.0}));
+
+    my $metainf = printmeta(ns($header));
+
+    print(mac($mac_key, $metainf));
+
+    my $ofs = 0;
+
+    for my $fname (@ARGV) {
+        open(my $fh, q{<}, $fname) or die qq{Error, can\047t open ${fname}: $!};
+        while(read($fh, my $plain, 1<<15)){
+            my $len = length($plain);
+            my $e = cipher($ckspipe, $plain);
+            my $tag = tag($tag_key, $ofs, $e);
+            $metainf .= printmeta(pack(q{n}, $len)) . $tag;
+            print($tag);
+            print($e);
+            $ofs += $len;
+        }
+        close($fh);
+    }
+
+    $metainf .= printmeta(pack(q{n}, 0));  # eof
+    print(mac($mac_key, $metainf));
+' -- -thisdir="${thisdir}" "$@"
+@
+
+<<decrypt.sh>>=
+<<sh preamble>>
+<<thisdir>>
+exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
+    <<sub ns>>
+    <<sub nsget>>
+    <<sub nssplit>>
+    <<sub nskvpair>>
+    <<sub nsstart>>
+    <<sub mac>>
+    <<sub tag>>
+    <<sub csprng_session>>
+    <<sub csprng_stream>>
+    <<sub xor_>>
+    <<sub cipher>>
+
+    <<load keys>>
+
+    die unless @ARGV == 1;
+    open(E, q{<}, $ARGV[0]) or die qq{Error, can\047t open } . $ARGV[0] . qq{: $!};
+    read(E, my $nonce, 32) == 32 or die;
+
+    <<setup keys and streams>>
+
+    <<sub readmeta>>
+
+    my $metainf = q{};
+
+    sub readmetawrapper {
+        (my $e, $_[1]) = readmeta(E, $_[2]);
+        $metainf .= $e;
+        $_[2];
+    }
+
+    my $header = nsstart0(\&readmetawrapper);
+
+    read(E, my $mac_header, 32) == 32 or die;
+    die "Error, invalid MAC." unless $mac_header eq mac($mac_key, $metainf);
+
+    my @header = nssplit($header);
+    my %header = nskvpair(@header);
+
+    die "Error, unexpected version: \"$header{version}\"." unless $header{version} eq q{1.0};
+
+    my $ofs = 0;
+
+    while (1) {
+        readmetawrapper(undef, my $packedlen, 2);
+        my $len = unpack(q{n}, $packedlen);
+        last if $len == 0;
+        read(E, my $tag, 16) == 16 or die;
+        $metainf .= $tag;
+        read(E, my $e, $len) == $len or die;
+        die "Error, invalid TAG." unless $tag eq tag($tag_key, $ofs, $e);
+        print(cipher($ckspipe, $e));
+        $ofs += $len;
+    }
+
+    read(E, my $mac_all, 32) == 32 or die;
+    die "Error, invalid MAC." unless $mac_all eq mac($mac_key, $metainf);
+' -- -thisdir="${thisdir}" "$@"
+@
+
+<<function sha256>>=
+sha256(){ cat "$@" | sha256sum | perl -ane'print(pack(q{H*},$F[0]))'; }
+@
+
+<<noweb aux>>=
+netstring-perl.nw temporary-files-shell.nw
+@
+
+<<*>>=
+<<sh preamble>>
+CHMOD='chmod 0555' nofake.sh -Rencrypt.sh -oencrypt.sh <<noweb aux>> encrypt.nw
+CHMOD='chmod 0555' nofake.sh -Rdecrypt.sh -odecrypt.sh <<noweb aux>> encrypt.nw
+@
+
+<<test>>=
+<<sh preamble>>
+rm -f tmp.*
+nofake encrypt.nw | sh
+seq 1 1000000 > tmp.plain
+echo -n hi | ./encrypt.sh tmp.plain > tmp.encrypted
+echo -n hi | ./decrypt.sh tmp.encrypted > tmp.decrypted
+sha256sum tmp.plain tmp.decrypted
+@
