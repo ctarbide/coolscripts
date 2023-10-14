@@ -239,13 +239,21 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
         $metainf .= $tag;
         read(E, my $e, $len) == $len or die;
         die "Error, invalid TAG." unless $tag eq tag($tag_key, $ofs, $e);
-        print(cipher($ckspipe, $e));
+        print(cipher($ckspipe, $e)) unless $ENV{VERIFY_ONLY};
         $ofs += $len;
     }
 
     read(E, my $mac_all, 32) == 32 or die;
     die "Error, invalid MAC." unless $mac_all eq mac($mac_key, $metainf);
 ' -- -thisdir="${thisdir}" "$@"
+@
+
+<<verify.sh>>=
+<<sh preamble>>
+<<thisdir>>
+VERIFY_ONLY=1
+export VERIFY_ONLY
+exec "${thisdir}/decrypt.sh" "$@"
 @
 
 <<function sha256>>=
@@ -260,6 +268,7 @@ netstring-perl.nw temporary-files-shell.nw
 <<sh preamble>>
 CHMOD='chmod 0555' nofake.sh -Rencrypt.sh -oencrypt.sh <<noweb aux>> encrypt.nw
 CHMOD='chmod 0555' nofake.sh -Rdecrypt.sh -odecrypt.sh <<noweb aux>> encrypt.nw
+CHMOD='chmod 0555' nofake.sh -Rverify.sh -overify.sh <<noweb aux>> encrypt.nw
 @
 
 <<test>>=
@@ -268,6 +277,7 @@ rm -f tmp.*
 nofake encrypt.nw | sh
 seq 1 1000000 > tmp.plain
 echo -n hi | ./encrypt.sh tmp.plain > tmp.encrypted
+echo -n hi | ./verify.sh tmp.encrypted
 echo -n hi | ./decrypt.sh tmp.encrypted > tmp.decrypted
 sha256sum tmp.plain tmp.decrypted
 @

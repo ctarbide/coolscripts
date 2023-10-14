@@ -159,7 +159,7 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
         $metainf .= $tag;
         read(E, my $e, $len) == $len or die;
         die "Error, invalid TAG." unless $tag eq tag($tag_key, $ofs, $e);
-        print(cipher($ckspipe, $e));
+        print(cipher($ckspipe, $e)) unless $ENV{VERIFY_ONLY};
         $ofs += $len;
     }
 
