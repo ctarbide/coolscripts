@@ -1,0 +1,30 @@
+
+nofake create-config.nw
+
+<<head-README.sh>>=
+<<sh preamble>>
+<<function die>>
+<<thisdir>>
+<<function temporary_file>>
+
+<<get kbdir>>
+
+tmpfile=`temporary_file`
+tmpfiles="${tmpfiles:+${tmpfiles} }'${tmpfile}'"
+
+PERLPRINT="print('${kbdir}/' . \$_)" "${thisdir}/find.sh" "$@" |
+    perl -lne'($path = $_ . q{/README.txt}) =~ s,~/,$ENV{HOME}/,; print($path) if -e $path' > "${tmpfile}"
+
+nlines=${NLINES:-20}
+unset NLINES
+
+if [ -s "${tmpfile}" ]; then
+    for i in `cat "${tmpfile}"`; do
+        echo "################################################################ showing first ${nlines} of ${i}"
+        head -n"${nlines}" "${i}"
+        echo
+    done
+else
+    echo "no results"
+fi
+@

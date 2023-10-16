@@ -1,0 +1,38 @@
+
+nofake create-config.nw
+
+<<find.sh>>=
+<<sh preamble>>
+<<function die>>
+<<thisdir>>
+<<function temporary_file>>
+
+<<get kbdir>>
+
+perlprint=
+if [ x"${PERLPRINT:-}" != x ]; then
+    perlprint=${PERLPRINT}
+else
+    perlprint='print(qq{'"${kbdir}"'/$_})}{exit(!$.)'
+fi
+
+index_gz=${kbdir}/index.gz
+
+if [ "$#" -eq 1 ]; then
+    gzip -dc "${index_gz}" | fgrep -i "$@" | perl -lne"${perlprint}"
+elif [ "$#" -gt 1 ]; then
+    tmpfile=`temporary_file`
+    tmpfiles="${tmpfiles:+${tmpfiles} }'${tmpfile}'"
+
+    first=$1; shift
+    gzip -dc "${index_gz}" | fgrep -i "${first}" > "${tmpfile}" || true # 'true' prevents fgrep from exiting
+    for i in "$@"; do
+        cat "${tmpfile}" | fgrep -i "${i}" > "${tmpfile}0" || true # 'true' prevents fgrep from exiting
+        mv "${tmpfile}0" "${tmpfile}"
+    done
+    cat "${tmpfile}" | perl -lne"${perlprint}"
+    rm -f "${tmpfile}"
+else
+    gzip -dc "${index_gz}" | perl -lne"${perlprint}"
+fi
+@

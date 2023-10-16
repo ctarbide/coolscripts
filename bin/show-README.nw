@@ -1,0 +1,25 @@
+
+nofake create-config.nw
+
+<<show-README.sh>>=
+<<sh preamble>>
+<<function die>>
+<<thisdir>>
+<<function temporary_file>>
+
+<<get kbdir>>
+
+tmpfile=`temporary_file`
+tmpfiles="${tmpfiles:+${tmpfiles} }'${tmpfile}'"
+
+PERLPRINT="print('${kbdir}/' . \$_)" "${thisdir}/find.sh" "$@" |
+    perl -lne'($path = $_ . q{/README.txt}) =~ s,~/,$ENV{HOME}/,; print($path) if -e $path' > "${tmpfile}"
+
+if [ -s "${tmpfile}" ]; then
+    for i in `cat "${tmpfile}"`; do
+        grep -EH '.?' "${i}"
+    done
+else
+    echo "no results"
+fi
+@

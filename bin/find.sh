@@ -1,12 +1,8 @@
 #!/bin/sh
-
-set -eu #x
-
+set -eu
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
-
 thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
-cd "${thispath%/*}"
-
+thisdir=${thispath%/*}
 tmpfiles=
 
 rm_tmpfiles(){
@@ -17,11 +13,17 @@ rm_tmpfiles(){
 # 0:exit, 1:hup, 2:int, 3:quit, 15:term
 trap 'rm_tmpfiles' 0 1 2 3 15
 
+u0Aa(){ u0Aa.sh | head -n"${1}" | perl -pe chomp; }
+r0Aa(){ r0Aa.sh | head -n"${1}" | perl -pe chomp; }
+
 temporary_file(){
-    if type mktemp >/dev/null 2>&1; then
+    if command -v mktemp >/dev/null 2>&1; then
         tmpfile=`mktemp`
-    elif type roll-2dice.sh >/dev/null 2>&1; then
-        tmpfile="/tmp/tmp.`roll-2dice.sh 0a | head -n12 | perl -pe chomp`"
+    elif command -v perl >/dev/null 2>&1 && test -r /dev/urandom; then
+        tmpfile="/tmp/tmp.`u0Aa 10`"
+        ( umask 0177; : > "${tmpfile}" )
+    elif command -v perl >/dev/null 2>&1; then
+        tmpfile="/tmp/tmp.`r0Aa 10`"
         ( umask 0177; : > "${tmpfile}" )
     else
         die 1 'error: mktemp not found'
@@ -29,15 +31,14 @@ temporary_file(){
     echo "${tmpfile}"
 }
 
-test -x show-config.sh || ./create-config.sh 1>&2
-kbdir=`"${thispath%/*}/show-config.sh" coolscripts.kbdir`
-test -d "${kbdir}" || die 1 "error: directory not found: ${kbdir}"
+kbdir=`"${thisdir}/show-config.sh" coolscripts.kbdir`
+test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
 
 perlprint=
 if [ x"${PERLPRINT:-}" != x ]; then
     perlprint=${PERLPRINT}
 else
-    perlprint='print(qq{echo '"${kbdir}"'/$_ | first-line-to-clipboard.sh})}{exit(!$.)'
+    perlprint='print(qq{'"${kbdir}"'/$_})}{exit(!$.)'
 fi
 
 index_gz=${kbdir}/index.gz
@@ -46,7 +47,7 @@ if [ "$#" -eq 1 ]; then
     gzip -dc "${index_gz}" | fgrep -i "$@" | perl -lne"${perlprint}"
 elif [ "$#" -gt 1 ]; then
     tmpfile=`temporary_file`
-    tmpfiles="${tmpfiles} '${tmpfile}'"
+    tmpfiles="${tmpfiles:+${tmpfiles} }'${tmpfile}'"
 
     first=$1; shift
     gzip -dc "${index_gz}" | fgrep -i "${first}" > "${tmpfile}" || true # 'true' prevents fgrep from exiting

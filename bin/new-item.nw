@@ -1,17 +1,17 @@
-#!/bin/sh
-set -eu
-die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
-thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
-thisdir=${thispath%/*}
-configname="${thisdir}/coolscripts.cfg"
-configure(){ git config -f "${configname}" "$@"; }
+
+nofake create-config.nw
+
+<<new-item.sh>>=
+<<sh preamble>>
+<<function die>>
+<<thisdir>>
+<<function configure>>
 
 if [ "$#" -lt 1 ]; then
     die 1 "usage: ${thispath##*/} id1 id2 ... idN"
 fi
 
-kbdir=`"${thisdir}/show-config.sh" coolscripts.kbdir`
-test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
+<<get kbdir>>
 
 stamp=`date '+%Y-%m-%d_%Hh%Mm%S'`
 year=${stamp%%-*}
@@ -34,7 +34,7 @@ mkdir -p "${DOCABSDIR}"
 
 cd "${DOCABSDIR}"
 
-cat <<EOF>README.txt
+cat @<<EOF>README.txt
 
 ${DOC_ID}
 
@@ -47,3 +47,4 @@ ${DOC_ID}
 EOF
 
 echo 'echo '"${DOCABSDIR}"' | first-line-to-clipboard.sh'
+@

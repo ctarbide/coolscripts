@@ -1,11 +1,12 @@
-#!/bin/sh
-set -eu
-die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
-thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
-thisdir=${thispath%/*}
 
-kbdir=`"${thisdir}/show-config.sh" coolscripts.kbdir`
-test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
+nofake create-config.nw
+
+<<make-index.sh>>=
+<<sh preamble>>
+<<function die>>
+<<thisdir>>
+
+<<get kbdir>>
 
 cd "${kbdir}"
 
@@ -26,3 +27,4 @@ find_docs | perl -le'
   }
   print for @ARGV;
 ' "$@" | LC_ALL=C sort | uniq | gzip > index.gz
+@

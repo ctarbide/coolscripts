@@ -7,11 +7,15 @@ Use 'git config' as a generic configuration tool.
 
 coolscripts.configname is useful for show-config.sh
 
-coolscripts.kbdir is knowledge base directory
+knowledge base directory
+
+<<KBDIR_PNAME>>=
+coolscripts.kbdir
+@
 
 <<configure>>=
 configure coolscripts.configname "${configname}"
-configure coolscripts.kbdir "${HOME}/Downloads/Pictures"
+configure <<KBDIR_PNAME>> "${HOME}/Downloads/Pictures"
 @
 
 <<function configure>>=
@@ -34,6 +38,7 @@ usage example:
 <<sh preamble>>
 <<thisdir>>
 <<function configure>>
+[ -f "${configname}" ] || "${thisdir}/create-config.sh"
 if [ $# -eq 0 ]; then
     configure --get-regexp '.*'
 else
@@ -41,7 +46,18 @@ else
 fi
 @
 
+<<get kbdir>>=
+kbdir=`"${thisdir}/show-config.sh" <<KBDIR_PNAME>>`
+test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
+@
+
 <<*>>=
 CHMOD='chmod 0555' nofake.sh -Rcreate-config.sh -ocreate-config.sh shell.nw create-config.nw
 CHMOD='chmod 0555' nofake.sh -Rshow-config.sh -oshow-config.sh shell.nw create-config.nw
+CHMOD='chmod 0555' nofake.sh -Rnew-item.sh -onew-item.sh shell.nw create-config.nw new-item.nw
+CHMOD='chmod 0555' nofake.sh -Rmake-index.sh -omake-index.sh shell.nw create-config.nw make-index.nw
+CHMOD='chmod 0555' nofake.sh -Rfind.sh -ofind.sh shell.nw create-config.nw temporary-files-shell.nw find.nw
+CHMOD='chmod 0555' nofake.sh -Rhead-README.sh -ohead-README.sh shell.nw create-config.nw temporary-files-shell.nw head-README.nw
+CHMOD='chmod 0555' nofake.sh -Rshow-README.sh -oshow-README.sh shell.nw create-config.nw temporary-files-shell.nw show-README.nw
+CHMOD='chmod 0555' nofake.sh -Rcat-README.sh -ocat-README.sh shell.nw create-config.nw temporary-files-shell.nw cat-README.nw
 @
