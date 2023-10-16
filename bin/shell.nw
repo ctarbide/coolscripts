@@ -1,0 +1,18 @@
+
+<<sh preamble>>=
+#!/bin/sh
+set -eu
+@
+
+<<function die>>=
+die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
+@
+
+<<thisdir>>=
+thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
+thisdir=${thispath%/*}
+@
+
+<<function sha256>>=
+sha256(){ cat "$@" | sha256sum | perl -ane'print(pack(q{H*},$F[0]))'; }
+@

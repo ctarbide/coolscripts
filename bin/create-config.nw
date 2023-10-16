@@ -1,0 +1,47 @@
+
+Use 'git config' as a generic configuration tool.
+
+<<CONFIG_NAME>>=
+"${thisdir}/coolscripts.cfg"
+@
+
+coolscripts.configname is useful for show-config.sh
+
+coolscripts.kbdir is knowledge base directory
+
+<<configure>>=
+configure coolscripts.configname "${configname}"
+configure coolscripts.kbdir "${HOME}/Downloads/Pictures"
+@
+
+<<function configure>>=
+configname=<<CONFIG_NAME>>
+configure(){ git config -f "${configname}" "$@"; }
+@
+
+<<create-config.sh>>=
+<<sh preamble>>
+<<thisdir>>
+<<function configure>>
+<<configure>>
+@
+
+usage example:
+
+    ./show-config.sh coolscripts.configname
+
+<<show-config.sh>>=
+<<sh preamble>>
+<<thisdir>>
+<<function configure>>
+if [ $# -eq 0 ]; then
+    configure --get-regexp '.*'
+else
+    configure "$@"
+fi
+@
+
+<<*>>=
+CHMOD='chmod 0555' nofake.sh -Rcreate-config.sh -ocreate-config.sh shell.nw create-config.nw
+CHMOD='chmod 0555' nofake.sh -Rshow-config.sh -oshow-config.sh shell.nw create-config.nw
+@

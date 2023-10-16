@@ -4,15 +4,6 @@ echo -n hi | csprng.sh | ddfb.sh bs=64 count=1000000 | sha256sum
 echo 'eba93d7f5b399adb7877b0d816a4b022f6e962aa54626d424a55b6e24bebcb7d'
 @
 
-<<sh preamble>>=
-#!/bin/sh
-set -eu
-@
-
-<<function die>>=
-die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
-@
-
 <<sub mac>>=
 sub mac ($$) { sha256(sha256(ns($_[0]) . $_[1])) }
 @
@@ -256,16 +247,11 @@ export VERIFY_ONLY
 exec "${thisdir}/decrypt.sh" "$@"
 @
 
-<<function sha256>>=
-sha256(){ cat "$@" | sha256sum | perl -ane'print(pack(q{H*},$F[0]))'; }
-@
-
 <<noweb aux>>=
-netstring-perl.nw temporary-files-shell.nw
+shell.nw netstring-perl.nw
 @
 
 <<*>>=
-<<sh preamble>>
 CHMOD='chmod 0555' nofake.sh -Rencrypt.sh -oencrypt.sh <<noweb aux>> encrypt.nw
 CHMOD='chmod 0555' nofake.sh -Rdecrypt.sh -odecrypt.sh <<noweb aux>> encrypt.nw
 CHMOD='chmod 0555' nofake.sh -Rverify.sh -overify.sh <<noweb aux>> encrypt.nw
