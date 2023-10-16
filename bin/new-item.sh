@@ -4,13 +4,18 @@ die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
 thisdir=${thispath%/*}
 configname="${thisdir}/coolscripts.cfg"
-configure(){ git config -f "${configname}" "$@"; }
+configure(){
+    if [ x"${1#*.}" = x"${1}" ] || ! git config -f "${configname}" "$@"; then
+        name="coolscripts.${1}"; shift
+        git config -f "${configname}" "${name}" "$@"
+    fi
+}
 
 if [ "$#" -lt 1 ]; then
     die 1 "usage: ${thispath##*/} id1 id2 ... idN"
 fi
 
-kbdir=`"${thisdir}/show-config.sh" coolscripts.kbdir`
+kbdir=`"${thisdir}/show-config.sh" kbdir`
 test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
 
 stamp=`date '+%Y-%m-%d_%Hh%Mm%S'`

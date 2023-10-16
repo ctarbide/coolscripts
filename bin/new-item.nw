@@ -13,8 +13,7 @@ fi
 
 <<get kbdir>>
 
-stamp=`date '+%Y-%m-%d_%Hh%Mm%S'`
-year=${stamp%%-*}
+<<set stamp and year>>
 
 item_id=$1
 shift

@@ -31,7 +31,7 @@ temporary_file(){
     echo "${tmpfile}"
 }
 
-kbdir=`"${thisdir}/show-config.sh" coolscripts.kbdir`
+kbdir=`"${thisdir}/show-config.sh" kbdir`
 test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
 
 tmpfile=`temporary_file`

@@ -5,29 +5,35 @@ Use 'git config' as a generic configuration tool.
 "${thisdir}/coolscripts.cfg"
 @
 
-coolscripts.configname is useful for show-config.sh
-
-knowledge base directory
-
-<<KBDIR_PNAME>>=
-coolscripts.kbdir
+<<NAMESPACE>>=
+coolscripts.
 @
 
-<<configure>>=
-configure coolscripts.configname "${configname}"
-configure <<KBDIR_PNAME>> "${HOME}/Downloads/Pictures"
+<<default values>>=
+configure configname "${configname}"
+configure kbdir "${HOME}/Downloads/Pictures"
+@
+
+<<set stamp and year>>=
+stamp=`date '+%Y-%m-%d_%Hh%Mm%S'`
+year=${stamp%%-*}
 @
 
 <<function configure>>=
 configname=<<CONFIG_NAME>>
-configure(){ git config -f "${configname}" "$@"; }
+configure(){
+    if [ x"${1#*.}" = x"${1}" ] || ! git config -f "${configname}" "$@"; then
+        name="<<NAMESPACE>>${1}"; shift
+        git config -f "${configname}" "${name}" "$@"
+    fi
+}
 @
 
 <<create-config.sh>>=
 <<sh preamble>>
 <<thisdir>>
 <<function configure>>
-<<configure>>
+<<default values>>
 @
 
 usage example:
@@ -40,14 +46,14 @@ usage example:
 <<function configure>>
 [ -f "${configname}" ] || "${thisdir}/create-config.sh"
 if [ $# -eq 0 ]; then
-    configure --get-regexp '.*'
+    git config -f "${configname}" --get-regexp '.*'
 else
     configure "$@"
 fi
 @
 
 <<get kbdir>>=
-kbdir=`"${thisdir}/show-config.sh" <<KBDIR_PNAME>>`
+kbdir=`"${thisdir}/show-config.sh" kbdir`
 test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
 @
 
