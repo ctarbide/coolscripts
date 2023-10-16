@@ -15,7 +15,9 @@ find_docs(){
     cy=`date +%Y`
     set -- # clear $@
     while [ "${cy}" -ge "${fy}" ]; do
-        set -- "${cy}" "$@"
+        if [ -d "${cy}" ]; then
+            set -- "${cy}" "$@"
+        fi
         cy=$((cy-1))
     done
     find "$@" -mindepth 2 -maxdepth 2 -a \( -name 'Screenshot_*.png' -o -name 'Screenshot_*.jpg' -o -name README.txt \) -a -type f
