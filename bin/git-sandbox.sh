@@ -90,7 +90,7 @@ case "${#}_${1}" in
         cd "${GIT_WORK_TREE}" && files_m | xargs -r git diff
         ;;
     1_status)
-        exec git status -uno
+        cd "${GIT_WORK_TREE}" && files_m | xargs -r git status
         ;;
     1_ls)
         exec git ls-files
