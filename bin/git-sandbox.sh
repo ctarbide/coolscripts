@@ -12,7 +12,7 @@ abs_canon_path(){
 
 # modified files
 files_m(){
-    git status --porcelain -uno | awk '/^.M/{print$2}'
+    git status --porcelain -uno | awk '/^[AM][M ]/{print$2}'
 }
 
 GIT_DIR=`git-dir.sh .`
@@ -46,6 +46,10 @@ useful commands:
         diff only modified files
 
     ${0##*/} status
+
+        status of added or modified files
+
+    ${0##*/} status -uno
 
         status of all known files
 
