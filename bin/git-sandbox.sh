@@ -71,9 +71,10 @@ EOF
     exit 1
 fi
 
-protect_command(){
+protect_command_add(){
     for arg in "$@"; do
         case "${arg}" in
+            -f) ;; # .gitignore shouldn't be in git-sandbox's way
             -*)
                 die 1 "ERROR: Use exec command for explicit git commands."
                 ;;
@@ -105,7 +106,7 @@ case "${#}_${1}" in
         shift
         # 'git add -u' has the ability to stage/confirm deleted files, this
         # don't match nicely with git-sandbox.sh intended workflow
-        protect_command "$@"
+        protect_command_add "$@"
         exec git "${cmd}" "$@"
         ;;
     *_commit | *_log | *_show | *_diff | *_status | *_ls-files | *_checkout | *_mv | *_rm)
