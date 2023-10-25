@@ -12,7 +12,7 @@ abs_canon_path(){
 
 # modified files
 files_m(){
-    git status --porcelain -uno | awk '/^[AM][M ]/{print$2}'
+    git status --porcelain -uno | awk '/^[ AM][M ]/{print$2}'
 }
 
 GIT_DIR=`git-dir.sh .`

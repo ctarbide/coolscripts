@@ -2,8 +2,6 @@
 set -eu
 thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
 thisdir=${thispath%/*}
-thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
-thisdir=${thispath%/*}
 exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
     sub ns ($) { length($_[0]) . qq{:} . $_[0] . q{,} }
     sub nsget ($) {
