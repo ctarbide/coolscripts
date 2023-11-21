@@ -26,3 +26,7 @@ fi
 <<usage example>>=
 docker-cwd.sh --rm docker.io/library/buildpack-deps:sid ./autogen.sh
 @
+
+<<usage example>>=
+run-pristine-environment.sh env DISPLAY=:0 xterm
+@
