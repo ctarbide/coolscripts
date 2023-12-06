@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# usage example: RESOLUTION=1912x1054x24 x11vnc-xvfb.sh
+
 set -eu #x
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
@@ -17,8 +19,7 @@ type xrdb >/dev/null 2>&1 || die 1 "error: command not found: xrdb"
 type Xvfb >/dev/null 2>&1 || die 1 "error: command not found: Xvfb"
 type x11vnc >/dev/null 2>&1 || die 1 "error: command not found: x11vnc"
 
-resolution=1600x1000x24
-# resolution=1600x1000x32  # TODO: test this
+resolution=${RESOLUTION:-1280x900x24}
 
 is_display_up(){
     xrdb -display "${1}" -query -all >/dev/null 2>&1
