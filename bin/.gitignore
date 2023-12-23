@@ -4,3 +4,6 @@
 /wc2
 /bytes-to-bits
 /bits-to-bytes
+/.compute.pl
+/.example.nw
+/example.sh

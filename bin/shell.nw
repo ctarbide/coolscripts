@@ -16,3 +16,11 @@ thisdir=${thispath%/*}
 <<function sha256>>=
 sha256(){ cat "$@" | sha256sum | perl -ane'print(pack(q{H*},$F[0]))'; }
 @
+
+<<zsh expansion fix>>=
+if [ x"${ZSH_VERSION:-}" != x ]; then
+    # let zsh behave like ash, ksh and other standard
+    # shells when expanding parameters
+    setopt sh_word_split
+fi
+@

@@ -1,0 +1,106 @@
+
+This has the ability to respond to both code (noweb file input) and data
+(standard input) changes simultaneously.
+
+<<*>>=
+CHMOD='chmod 0555' nofake.sh --error -Rnofake-exec.sh -onofake-exec.sh shell.nw temporary-files-shell.nw nofake-exec.nw
+seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw -- cat -vet -
+@
+
+<<nofake-exec.sh>>=
+<<sh preamble>>
+# generated from nofake-exec.nw
+<<function die>>
+<<zsh expansion fix>>
+<<function temporary_file>>
+
+SRC_PREFIX=${SRC_PREFIX:-}
+NOFAKE_SH=${NOFAKE_SH:-nofake.sh}
+NOFAKE_SH_FLAGS=${NOFAKE_SH_FLAGS:-}
+
+nargs= # nofake args
+eargs= # exec args
+
+for arg do
+    if [ x"${arg}" = x-- ]; then shift; break; fi
+    nargs="${nargs:+${nargs} }'${arg}'"
+    shift # 'for' is synchronized with 'shift'
+done
+
+if [ x$# = x0 ]; then
+    die 1 "Error, exec arguments are absent."
+fi
+
+for arg do eargs="${eargs:+${eargs} }'${arg}'"; done
+
+<<nofake.sh part>>
+<<exec part>>
+@
+
+<<nofake.sh part>>=
+eval "set -- ${nargs}"
+
+opts=
+chunks=
+sources=
+output=
+
+while [ $# -gt 0 ]; do
+    case "${1}" in
+        -L*|--error) opts="${opts:+${opts} }'${1}'" ;;
+        -R*) chunks="${chunks:+${chunks} }'${1}'" ;;
+
+        -o|--output) output=${2}; shift ;;
+        --output=*) output=${1#*=} ;;
+        -o*) output=${1#??} ;;
+
+        -) sources="${sources:+${sources} }'-'" ;;
+        -*)
+            ${ECHO} "${0##*/}: Unrecognized option '${1}'." 1>&2
+            exit 1
+            ;;
+        *) sources="${sources:+${sources} }'${SRC_PREFIX}${1}'" ;;
+    esac
+    shift
+done
+
+if [ x"${output}" = x ]; then
+    output=`temporary_file`
+    tmpfiles="${tmpfiles:+${tmpfiles} }'${output}'"
+fi
+
+eval "set -- ${opts} ${chunks} ${sources}"
+${NOFAKE_SH} ${NOFAKE_SH_FLAGS} "$@" -o"${output}"
+@
+
+<<exec part>>=
+eval "set -- ${eargs} '${output}'"
+exec "$@"
+@
+
+<<test>>=
+hello world!
+@
+
+nofake -R'test example.sh' nofake-exec.nw
+
+<<test example.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rexample.sh -oexample.sh nofake-exec.nw
+./example.sh | nofake-exec.sh -Rcompute.pl -o.compute.pl .example.nw -- perl -wl
+@
+
+<<example.sh>>=
+#!/bin/sh
+cat@<<EOF>.example.nw
+@<<compute.pl>>=
+my \$sum = $$;
+while(<>){
+    chomp;
+    \$sum += \$_;
+}
+print(\$sum);
+@@
+EOF
+
+exec seq 10
+@
