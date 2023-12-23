@@ -92,7 +92,7 @@ curl_head(){
 }
 
 do_gather_links(){
-    touch "gather__${script_id}.inc.sh"
+    test -r "gather__${script_id}.inc.sh" || die 1 "Error, run \"./${thisprog} list-all-html-links | tee gather__${script_id}.inc.sh\" first."
     . "${thisdir}/gather__${script_id}.inc.sh"
 }
 
