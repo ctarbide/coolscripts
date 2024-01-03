@@ -13,8 +13,13 @@ fi
 
 thisdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- .`
 
-sess=${thisdir##*/}
-sess=${sess:-/}
+if [ -n "${2:-}" ]; then
+    sess=${2}
+else
+    sess=${thisdir##*/}
+    sess=${sess:-/}
+fi
+
 
 # tmux does not allow '.' on a session name
 sess=`echo "${sess}" | sed 's,\.,_,g'`
