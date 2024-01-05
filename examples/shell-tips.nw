@@ -218,6 +218,9 @@ bind | split-window -h
 bind - split-window -v
 # Enable mouse support
 #set -g mouse on
-# Set different background color for active window
-set -g window-status-current-bg magenta
+
+# https://unix.stackexchange.com/questions/210174/set-the-active-tmux-tab-color
+# works with tmux 3.3a
+set-window-option -g window-status-style bg=green,fg=black
+set-window-option -g window-status-current-style bg=green,fg=blue
 @
