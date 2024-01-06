@@ -51,4 +51,4 @@ ${DOC_ID}
 
 EOF
 
-echo 'echo '"${DOCABSDIR}"' | first-line-to-clipboard.sh'
+echo 'echo '"'${DOCABSDIR}'"' | first-line-to-clipboard.sh'

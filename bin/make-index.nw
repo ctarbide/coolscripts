@@ -1,5 +1,7 @@
 
+<<*>>=
 nofake create-config.nw
+@
 
 <<make-index.sh>>=
 <<sh preamble>>

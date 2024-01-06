@@ -1,5 +1,7 @@
 
+<<*>>=
 nofake create-config.nw
+@
 
 <<find.sh>>=
 <<sh preamble>>

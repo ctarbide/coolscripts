@@ -141,10 +141,10 @@ alias medium-prompt='PS1='"'"'%F{blue}.../%2d%f %# '"'"
 alias large-prompt='PS1='"'"'%F{blue}%~%f %# '"'"
 alias 80cols-prompt='PS1='"'"'%F{blue}%80<...<%~%f %# '"'"
 
-alias substr20-prompt='PS1='"'"'%F{blue}%20>>%~%>> ... %20<<%2d%<<%f %# '"'"''
-alias substr30-prompt='PS1='"'"'%F{blue}%30>>%~%>> ... %30<<%2d%<<%f %# '"'"''
-alias substr40-prompt='PS1='"'"'%F{blue}%40>>%~%>> ... %40<<%2d%<<%f %# '"'"''
-alias substr50-prompt='PS1='"'"'%F{blue}%50>>%~%>> ... %50<<%2d%<<%f %# '"'"''
+alias substr20-prompt='PS1='"'"'%F{blue}%20>>%~%>>%F{gree}..%F{blue}%20<<%2d%<<%f %# '"'"''
+alias substr30-prompt='PS1='"'"'%F{blue}%30>>%~%>>%F{gree}..%F{blue}%30<<%2d%<<%f %# '"'"''
+alias substr40-prompt='PS1='"'"'%F{blue}%40>>%~%>>%F{gree}..%F{blue}%40<<%2d%<<%f %# '"'"''
+alias substr50-prompt='PS1='"'"'%F{blue}%50>>%~%>>%F{gree}..%F{blue}%50<<%2d%<<%f %# '"'"''
 @
 
 <<perl5 local::lib>>=
