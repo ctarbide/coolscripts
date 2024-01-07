@@ -6,7 +6,7 @@ die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 chunk=$1; shift
 nofake-split.pl "$@" | perl -le'$chunk = $ARGV[0]; while(<STDIN>){ chomp;
     do { $_=$1; s,<,&lt;,g; s,>,&gt;,g; print ; next } if m{^${id}_2: (.*)};
-    last if $id;
+    undef $id;
     next unless m{^([0-9a-f]*)_1: <<(.*)>>=\s*$};
     $id=$1 if $2 eq $chunk
 }' -- "${chunk}"
