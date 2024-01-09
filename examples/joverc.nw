@@ -1,5 +1,7 @@
 
-nofake.sh -L -R.joverc joverc.nw -o ~/.joverc
+<<*>>=
+CHMOD='chmod 0444' nofake.sh --error -L -R.joverc -o ~/.joverc joverc.nw
+@
 
 Reference:
 
@@ -20,4 +22,7 @@ bind-to-key i-search-reverse 
 
 # M-.
 bind-to-key find-tag .
+
+# C-x x
+bind-to-key shell-command ^Xx
 @
