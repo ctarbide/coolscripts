@@ -55,7 +55,7 @@ sub expand {
     map {$_[0]->{$_[1] . $_}} qw(.path .url .branch);
 }
 
-my $gitmodules = $ARGV[0];
+my $gitmodules = defined($ARGV[0]) ? $ARGV[0] : '-';
 
 my $conf = { read_configuration($gitmodules, '^submodule\.') };
 
@@ -63,7 +63,7 @@ my $conf = { read_configuration($gitmodules, '^submodule\.') };
     my @mods = map {s,\.path$,,; $_} grep {/\.path$/} keys(%{$conf});
     for my $i (@mods){
         my ($path, $url, $branch) = expand($conf, $i);
-        $branch //= q{master};
+        $branch = q{master} unless $branch;
         die unless $url =~ m{^(.*)/(.*)};
         my $urldn = $1;
         my $urlbn = $2;
