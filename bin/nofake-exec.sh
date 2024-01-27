@@ -49,7 +49,7 @@ for arg do
 done
 
 if [ x$# = x0 ]; then
-    die 1 "Error, exec arguments are absent."
+    die 1 "Error, wrong usage, exec arguments are absent."
 fi
 
 for arg do eargs="${eargs:+${eargs} }'${arg}'"; done
@@ -60,6 +60,7 @@ opts=
 chunks=
 sources=
 output=
+appendargs=
 
 while [ $# -gt 0 ]; do
     case "${1}" in
@@ -69,6 +70,12 @@ while [ $# -gt 0 ]; do
         -o|--output) output=${2}; shift ;;
         --output=*) output=${1#*=} ;;
         -o*) output=${1#??} ;;
+
+        --aa) appendargs="${appendargs:+${appendargs} }'${2}'"; shift ;;
+        --aa=*) appendargs="${appendargs:+${appendargs} }'${1#*=}'" ;;
+
+        # double-dash
+        --dd|--dd--) appendargs="${appendargs:+${appendargs} }'--'" ;;
 
         -) sources="${sources:+${sources} }'-'" ;;
         -*)
@@ -91,5 +98,5 @@ eval "set -- ${opts} ${chunks} ${sources}"
 ${NOFAKE_SH} ${NOFAKE_SH_FLAGS} "$@" -o"${output}"
 eval "set -- ${tmpfiles}"
 sh -c 'sleep 1; rm -f "$@"' -- "$@" &
-eval "set -- ${eargs} '${output}'"
+eval "set -- ${eargs} '${output}' ${appendargs}"
 exec "$@"

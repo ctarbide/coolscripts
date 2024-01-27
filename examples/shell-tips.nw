@@ -117,6 +117,10 @@ if can_be_added_to_ld_lib_path "${HOME}/local/lib"; then
     LD_LIBRARY_PATH=${HOME}/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 fi
 
+if can_be_added_to_ld_lib_path "${HOME}/local/lib64"; then
+    LD_LIBRARY_PATH=${HOME}/local/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+fi
+
 if can_be_added_to_manpath "${HOME}/local/share/man"; then
     MANPATH=${HOME}/local/share/man${MANPATH:+:${MANPATH}}
 fi
