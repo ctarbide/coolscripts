@@ -97,6 +97,6 @@ fi
 eval "set -- ${opts} ${chunks} ${sources}"
 ${NOFAKE_SH} ${NOFAKE_SH_FLAGS} "$@" -o"${output}"
 eval "set -- ${tmpfiles}"
-sh -c 'sleep 1; rm -f "$@"' -- "$@" &
+sh -c 'exec >&- 2>&-; sleep 1; rm -f "$@"' -- "$@" &
 eval "set -- ${eargs} '${output}' ${appendargs}"
 exec "$@"

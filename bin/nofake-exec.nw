@@ -86,9 +86,12 @@ ${NOFAKE_SH} ${NOFAKE_SH_FLAGS} "$@" -o"${output}"
 Schedule temporary files removal (due to losing trap due to 'exec') then
 'exec'. This, unlink operation, won't affect already opened files.
 
+Close stdout and stderr on cleaner subprocess, so original process do not hang
+on pipe redirection.
+
 <<exec part>>=
 eval "set -- ${tmpfiles}"
-sh -c 'sleep 1; rm -f "$@"' -- "$@" &
+sh -c 'exec >&- 2>&-; sleep 1; rm -f "$@"' -- "$@" &
 eval "set -- ${eargs} '${output}' ${appendargs}"
 exec "$@"
 @

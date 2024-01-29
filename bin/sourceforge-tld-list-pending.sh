@@ -26,7 +26,8 @@ filter_existing(){
 
 list_urls(){
     perl -lpe's,\015+$,,' -- listings_curl |
-        perl -lne'next unless m{^location: \s+ (.*)}xi; next if $1 =~ m{^https://downloads\.sourceforge\.net/}i; print($1)'
+        perl -lne'next unless m{^location: \s+ (.*)}xi; next if $1 =~ m{^https://downloads\.sourceforge\.net/}i; print($1)' |
+        filter_existing
 }
 
 list_urls

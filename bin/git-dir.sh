@@ -1,6 +1,10 @@
 #!/bin/sh
 
-set -eu #x
+# prioritize the use of these on newer scripts:
+# - git-top-level.sh
+# - git-prefix.sh
+
+set -eu
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
