@@ -35,7 +35,7 @@ fi
 for arg do eargs="${eargs:+${eargs} }'${arg}'"; done
 
 <<nofake.sh part>>
-<<exec part>>
+<<run part>>
 @
 
 <<nofake.sh part>>=
@@ -89,11 +89,24 @@ Schedule temporary files removal (due to losing trap due to 'exec') then
 Close stdout and stderr on cleaner subprocess, so original process do not hang
 on pipe redirection.
 
-<<exec part>>=
+May be fork and waitpid is more appropriate afterall, there are situations
+where the program startup takes longer than one second and by then the file is
+already gone, java is a good example.
+
+<<run part -- with exec>>=
 eval "set -- ${tmpfiles}"
-sh -c 'exec >&- 2>&-; sleep 1; rm -f "$@"' -- "$@" &
+sh -c 'exec >&- 2>&-; sleep 1; exec rm -f "$@"' -- "$@" &
 eval "set -- ${eargs} '${output}' ${appendargs}"
 exec "$@"
+@
+
+<<run part -- with fork and waitpid>>=
+eval "set -- ${eargs} '${output}' ${appendargs}"
+"$@"
+@
+
+<<run part>>=
+<<run part -- with fork and waitpid>>
 @
 
 <<test>>=

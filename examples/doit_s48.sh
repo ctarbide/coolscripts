@@ -28,8 +28,8 @@ do_help(){
     echo "usage: "
     echo ""
     cat <<EOF
-  ./${thisprog} gather-links
   ./${thisprog} list-all-html-links | tee gather__${script_id}.inc.sh
+  ./${thisprog} gather-links
   ./${thisprog} list-pending-dirs
   ./${thisprog} list-pending-files
   ./${thisprog} list-pending-files | download-full-dirs.sh
