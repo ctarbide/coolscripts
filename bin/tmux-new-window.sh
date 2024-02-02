@@ -10,10 +10,18 @@ fi
 
 targetdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${1:-.}"`
 
+exact_name_to_id_all_sessions(){
+    tmux lsw -a -F '#{session_name}/#{window_name}/#{window_id}' | perl -F/ -slane'print$F[2] if $F[1] eq $name' -- -name="${1}"
+}
+
+exact_name_to_id_current_session(){
+    tmux lsw -F '#{window_name}/#{window_id}' | perl -F/ -slane'print$F[1] if $F[0] eq $name' -- -name="${1}"
+}
+
 new_window_at(){
     name=$1
     where=$2
-    wid=`tmux display-message -p -F '#{window_id}' -t "${name}"`
+    wid=`exact_name_to_id_current_session "${name}"`
     if [ x"${wid}" = x ]; then
         tmux new-window -t ":" -n "${name}"
         tmux send-keys -t "${wid}" 'cd '"${where}" C-m clear C-m
