@@ -6,7 +6,7 @@ umask 022
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
-[ "$#" -eq 1 ] || die 1 "usage: ${0##*/} git-repos-url"
+[ "$#" -eq 1 -o "$#" -eq 2 ] || die 1 "usage: ${0##*/} git-repos-url [output.git]"
 
 repos=$1
 
@@ -16,22 +16,29 @@ elif echo "${repos}" | perl -ne'exit 0 if m{^\w+://gitlab\.com/} and not m{(\w[\
     repos=${repos}.git
 fi
 
-if perl -le'exit($ARGV[0] !~ m{^ https? :// git\.savannah\.gnu\.org /r/ [^/]+ \.git$}xi)' -- "${repos}"; then
-    # http://git.savannah.gnu.org/r/m4.git
-    outdir=org_gnu_savannah_`perl -le'print($ARGV[0] =~ m{^ https? :// git\.savannah\.gnu\.org /r/ ( [^/]+ ) \.git$}xi)' -- "${repos}"`
-elif echo "${repos}" | perl -ne'exit 1 unless m@^\w+://github\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@'; then
-    outdir=`echo "$repos" | perl -lpe's@^\w+://github\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@${1}_${2}@'`
-elif echo "${repos}" | perl -ne'exit 1 unless m@^\w+://gitlab\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@'; then
-    outdir=`echo "$repos" | perl -lpe's@^\w+://gitlab\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@${1}_${2}@'`
-elif echo "${repos}" | perl -ne'exit 1 unless m@/mainline\.git$@'; then
-    outdir=`echo "$repos" | perl -lpe's@.*/([_a-zA-Z0-9][_a-zA-Z0-9\-.]*)/(mainline\.git)$@${1}_${2}@'`
-else
-    outdir=`echo "$repos" | perl -pe's,/*$,,'`
-    outdir=${outdir##*/}
-fi
+outdir=${2:-}
 
-if [ x"${outdir##*.}" != x"git" ]; then
-    outdir="${outdir}.git"
+if [ x"${outdir}" = x ]; then
+    if perl -le'exit($ARGV[0] !~ m{^ https? :// git\.savannah\.gnu\.org /r/ [^/]+ \.git$}xi)' -- "${repos}"; then
+        # http://git.savannah.gnu.org/r/m4.git
+        outdir=org_gnu_savannah_`perl -le'print($ARGV[0] =~ m{^ https? :// git\.savannah\.gnu\.org /r/ ( [^/]+ ) \.git$}xi)' -- "${repos}"`
+    elif echo "${repos}" | perl -ne'exit 1 unless m@^\w+://github\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@'; then
+        outdir=`echo "$repos" | perl -lpe's@^\w+://github\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@${1}_${2}@'`
+    elif echo "${repos}" | perl -ne'exit 1 unless m@^\w+://gitlab\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@'; then
+        outdir=`echo "$repos" | perl -lpe's@^\w+://gitlab\.com/(\w[\w\-.]*)/([\w.][\w\-.]*)$@${1}_${2}@'`
+    elif echo "${repos}" | perl -ne'exit 1 unless m@/mainline\.git$@'; then
+        outdir=`echo "$repos" | perl -lpe's@.*/([_a-zA-Z0-9][_a-zA-Z0-9\-.]*)/(mainline\.git)$@${1}_${2}@'`
+    else
+        outdir=`echo "$repos" | perl -pe's,/*$,,'`
+        outdir=${outdir##*/}
+    fi
+    if [ x"${outdir##*.}" != x"git" ]; then
+        outdir="${outdir}.git"
+    fi
+else
+    if [ x"${outdir##*.}" != x"git" ]; then
+        die 1 "Error, output directory (bare git repository) has to end with \"\.git\"."
+    fi
 fi
 
 if test -d "${outdir}"; then
