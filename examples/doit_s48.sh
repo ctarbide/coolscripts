@@ -163,6 +163,11 @@ case "${cmd}" in
     resolve-locations)     do_resolve_locations;;
     download-files)        do_download_files;;
 
+    cycle)
+                           do_list_all_html_links > "gather__${script_id}.inc.sh"
+                           do_gather_links
+                           ;;
+
     help)                  do_help;;
     *)
         die 1 "error: unknown command: ${cmd}"

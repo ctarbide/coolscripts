@@ -57,13 +57,69 @@ kbdir=`"${thisdir}/show-config.sh" kbdir`
 test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
 @
 
+<<create-config:>>=
+create-config.sh shell.nw create-config.nw
+<<build create-config.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rcreate-config.sh -o<<create-config:>>
+@
+
+<<show-config.sh:>>=
+show-config.sh shell.nw create-config.nw
+<<build show-config.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rshow-config.sh -o<<show-config.sh:>>
+@
+
+<<new-item.sh:>>=
+new-item.sh shell.nw create-config.nw new-item.nw
+<<build new-item.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rnew-item.sh -o<<new-item.sh:>>
+@
+
+<<make-index.sh:>>=
+make-index.sh shell.nw create-config.nw make-index.nw
+<<build make-index.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rmake-index.sh -o<<make-index.sh:>>
+@
+
+<<find.sh:>>=
+find.sh shell.nw create-config.nw temporary-files-shell.nw find.nw
+<<build find.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rfind.sh -o<<find.sh:>>
+@
+
+<<head-README.sh:>>=
+head-README.sh shell.nw create-config.nw temporary-files-shell.nw head-README.nw
+<<build head-README.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rhead-README.sh -o<<head-README.sh:>>
+@
+
+<<show-README.sh:>>=
+show-README.sh shell.nw create-config.nw temporary-files-shell.nw show-README.nw
+<<build show-README.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rshow-README.sh -o<<show-README.sh:>>
+@
+
+<<cat-README.sh:>>=
+cat-README.sh shell.nw create-config.nw temporary-files-shell.nw cat-README.nw
+<<build cat-README.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rcat-README.sh -o<<cat-README.sh:>>
+@
+
+<<build all>>=
+<<build create-config.sh>>
+<<build show-config.sh>>
+<<build new-item.sh>>
+<<build make-index.sh>>
+<<build find.sh>>
+<<build head-README.sh>>
+<<build show-README.sh>>
+<<build cat-README.sh>>
+@
+
 <<*>>=
-CHMOD='chmod 0555' nofake.sh -Rcreate-config.sh -ocreate-config.sh shell.nw create-config.nw
-CHMOD='chmod 0555' nofake.sh -Rshow-config.sh -oshow-config.sh shell.nw create-config.nw
-CHMOD='chmod 0555' nofake.sh -Rnew-item.sh -onew-item.sh shell.nw create-config.nw new-item.nw
-CHMOD='chmod 0555' nofake.sh -Rmake-index.sh -omake-index.sh shell.nw create-config.nw make-index.nw
-CHMOD='chmod 0555' nofake.sh -Rfind.sh -ofind.sh shell.nw create-config.nw temporary-files-shell.nw find.nw
-CHMOD='chmod 0555' nofake.sh -Rhead-README.sh -ohead-README.sh shell.nw create-config.nw temporary-files-shell.nw head-README.nw
-CHMOD='chmod 0555' nofake.sh -Rshow-README.sh -oshow-README.sh shell.nw create-config.nw temporary-files-shell.nw show-README.nw
-CHMOD='chmod 0555' nofake.sh -Rcat-README.sh -ocat-README.sh shell.nw create-config.nw temporary-files-shell.nw cat-README.nw
+<<build all>>
+@
+
+<<Makefile>>=
+
 @

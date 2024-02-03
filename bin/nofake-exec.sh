@@ -17,18 +17,37 @@ rm_tmpfiles(){
 # 0:exit, 1:hup, 2:int, 3:quit, 15:term
 trap 'rm_tmpfiles' 0 1 2 3 15
 
-u0Aa(){ u0Aa.sh | head -n"${1}" | perl -pe chomp; }
-r0Aa(){ r0Aa.sh | head -n"${1}" | perl -pe chomp; }
+u0Aa(){
+perl -le'
+@map = map {chr} 48..57, 65..90, 97..122;
+while (read(STDIN,$d,64)) {
+    for $x (unpack(q{C*},$d)) {
+        next if $x >= @map;
+        print $map[$x];
+    }
+}' </dev/urandom |
+    head -n"${1}" | perl -pe chomp; }
+
+r0Aa(){
+perl -le'
+@map = map {chr} 48..57, 65..90, 97..122;
+sub r{int(rand(scalar(@map)))}
+for (;;) { print $map[r] }' |
+    head -n"${1}" | perl -pe chomp; }
+
+create_safe_file(){
+    ( umask 0177; : >"${1}" )
+}
 
 temporary_file(){
     if command -v mktemp >/dev/null 2>&1; then
         tmpfile=`mktemp`
     elif command -v perl >/dev/null 2>&1 && test -r /dev/urandom; then
         tmpfile="/tmp/tmp.`u0Aa 10`"
-        ( umask 0177; : > "${tmpfile}" )
+        create_safe_file "${tmpfile}"
     elif command -v perl >/dev/null 2>&1; then
         tmpfile="/tmp/tmp.`r0Aa 10`"
-        ( umask 0177; : > "${tmpfile}" )
+        create_safe_file "${tmpfile}"
     else
         die 1 'error: mktemp not found'
     fi
@@ -61,6 +80,7 @@ chunks=
 sources=
 output=
 appendargs=
+tmps=
 
 while [ $# -gt 0 ]; do
     case "${1}" in
@@ -70,6 +90,9 @@ while [ $# -gt 0 ]; do
         -o|--output) output=${2}; shift ;;
         --output=*) output=${1#*=} ;;
         -o*) output=${1#??} ;;
+
+        --tmp) tmps="${tmps:+${tmps} }'${2}'"; shift ;;
+        --tmp=*) tmps="${tmps:+${tmps} }'${1#*=}'" ;;
 
         --aa) appendargs="${appendargs:+${appendargs} }'${2}'"; shift ;;
         --aa=*) appendargs="${appendargs:+${appendargs} }'${1#*=}'" ;;
@@ -92,6 +115,17 @@ if [ x"${output}" = x ]; then
     output=`temporary_file`
     tmpfiles="${tmpfiles:+${tmpfiles} }'${output}'"
     tmpfiles="${tmpfiles:+${tmpfiles} }'${output}.stamp'"
+
+    eval "set -- ${tmps}"
+    for arg; do
+        if [ x"${arg}" = x ]; then
+            die 1 "Error, additional temporary file suffix cannot be empty."
+        fi
+        if [ x"${arg}" = x.stamp ]; then
+            die 1 "Error, additional temporary file suffix \".stamp\" is already used."
+        fi
+        tmpfiles="${tmpfiles:+${tmpfiles} }'${output}${arg}'"
+    done
 fi
 
 eval "set -- ${opts} ${chunks} ${sources}"
