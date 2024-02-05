@@ -58,6 +58,8 @@ SRC_PREFIX=${SRC_PREFIX:-}
 NOFAKE_SH=${NOFAKE_SH:-nofake.sh}
 NOFAKE_SH_FLAGS=${NOFAKE_SH_FLAGS:-}
 ECHO=${ECHO:-echo}
+ECHO_ERROR=${ECHO_ERROR:-echo}
+ECHO_INFO=${ECHO_INFO:-echo}
 
 nargs= # nofake args
 eargs= # exec args
@@ -111,7 +113,7 @@ while [ $# -gt 0 ]; do
 
         -) sources="${sources:+${sources} }'-'" ;;
         -*)
-            ${ECHO} "${0##*/}: Unrecognized option '${1}'." 1>&2
+            ${ECHO_ERROR} "${0##*/}: Unrecognized option '${1}'." 1>&2
             exit 1
             ;;
         *) sources="${sources:+${sources} }'${SRC_PREFIX}${1}'" ;;
@@ -138,6 +140,6 @@ if [ x"${output}" = x ]; then
 fi
 
 eval "set -- ${opts} ${chunks} ${sources}"
-${NOFAKE_SH} ${NOFAKE_SH_FLAGS} "$@" -o"${output}"
+ECHO_INFO=: ${NOFAKE_SH} ${NOFAKE_SH_FLAGS} "$@" -o"${output}"
 eval "set -- ${eargs} '${output}' ${appendargs}"
 "$@"
