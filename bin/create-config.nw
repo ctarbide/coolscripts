@@ -57,52 +57,68 @@ kbdir=`"${thisdir}/show-config.sh" kbdir`
 test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
 @
 
-<<create-config:>>=
+<<create-config.sh:>>=
 create-config.sh shell.nw create-config.nw
 <<build create-config.sh>>=
-CHMOD='chmod 0555' nofake.sh -Rcreate-config.sh -o<<create-config:>>
+CHMOD='chmod 0555' nofake.sh -Rcreate-config.sh -o<<create-config.sh:>>
+<<Makefile -R>>=
+set -- "$@" -Rcreate-config.sh:
 @
 
 <<show-config.sh:>>=
 show-config.sh shell.nw create-config.nw
 <<build show-config.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rshow-config.sh -o<<show-config.sh:>>
+<<Makefile -R>>=
+set -- "$@" -Rshow-config.sh:
 @
 
 <<new-item.sh:>>=
 new-item.sh shell.nw create-config.nw new-item.nw
 <<build new-item.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rnew-item.sh -o<<new-item.sh:>>
+<<Makefile -R>>=
+set -- "$@" -Rnew-item.sh:
 @
 
 <<make-index.sh:>>=
 make-index.sh shell.nw create-config.nw make-index.nw
 <<build make-index.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rmake-index.sh -o<<make-index.sh:>>
+<<Makefile -R>>=
+set -- "$@" -Rmake-index.sh:
 @
 
 <<find.sh:>>=
 find.sh shell.nw create-config.nw temporary-files-shell.nw find.nw
 <<build find.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rfind.sh -o<<find.sh:>>
+<<Makefile -R>>=
+set -- "$@" -Rfind.sh:
 @
 
 <<head-README.sh:>>=
 head-README.sh shell.nw create-config.nw temporary-files-shell.nw head-README.nw
 <<build head-README.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rhead-README.sh -o<<head-README.sh:>>
+<<Makefile -R>>=
+set -- "$@" -Rhead-README.sh:
 @
 
 <<show-README.sh:>>=
 show-README.sh shell.nw create-config.nw temporary-files-shell.nw show-README.nw
 <<build show-README.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rshow-README.sh -o<<show-README.sh:>>
+<<Makefile -R>>=
+set -- "$@" -Rshow-README.sh:
 @
 
 <<cat-README.sh:>>=
 cat-README.sh shell.nw create-config.nw temporary-files-shell.nw cat-README.nw
 <<build cat-README.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rcat-README.sh -o<<cat-README.sh:>>
+<<Makefile -R>>=
+set -- "$@" -Rcat-README.sh:
 @
 
 <<build all>>=
@@ -120,6 +136,10 @@ CHMOD='chmod 0555' nofake.sh -Rcat-README.sh -o<<cat-README.sh:>>
 <<build all>>
 @
 
-<<Makefile>>=
-
+<<generate Makefile>>=
+printf -- '@<<Makefile>>=\n'
+set --
+<<Makefile -R>>
+nofake "$@" create-config.nw | perl -lane'print(qq{$F[0]: },join(q{ },@F[1..$#F]))'
+printf -- '@\n'
 @

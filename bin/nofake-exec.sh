@@ -57,6 +57,7 @@ temporary_file(){
 SRC_PREFIX=${SRC_PREFIX:-}
 NOFAKE_SH=${NOFAKE_SH:-nofake.sh}
 NOFAKE_SH_FLAGS=${NOFAKE_SH_FLAGS:-}
+ECHO=${ECHO:-echo}
 
 nargs= # nofake args
 eargs= # exec args
@@ -91,14 +92,22 @@ while [ $# -gt 0 ]; do
         --output=*) output=${1#*=} ;;
         -o*) output=${1#??} ;;
 
-        --tmp) tmps="${tmps:+${tmps} }'${2}'"; shift ;;
-        --tmp=*) tmps="${tmps:+${tmps} }'${1#*=}'" ;;
+        --tmp--) tmps="${tmps:+${tmps} }'${2}'"; shift ;;
 
-        --aa) appendargs="${appendargs:+${appendargs} }'${2}'"; shift ;;
-        --aa=*) appendargs="${appendargs:+${appendargs} }'${1#*=}'" ;;
+        --aa--) appendargs="${appendargs:+${appendargs} }'${2}'"; shift ;;
+        --dd--) appendargs="${appendargs:+${appendargs} }'--'" ;;
 
-        # double-dash
-        --dd|--dd--) appendargs="${appendargs:+${appendargs} }'--'" ;;
+        --ba--) # begin args
+            shift
+            for arg; do
+                if [ x"${1}" = x--ea-- ]; then
+                    # end args
+                    break
+                fi
+                appendargs="${appendargs:+${appendargs} }'${1}'"
+                shift # 'for' is synchronized with 'shift'
+            done
+	    ;;
 
         -) sources="${sources:+${sources} }'-'" ;;
         -*)

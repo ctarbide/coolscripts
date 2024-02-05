@@ -6,10 +6,15 @@ This has the ability to respond to both code (noweb file input) and data
 CHMOD='chmod 0555' nofake.sh --error -Rnofake-exec.sh -onofake-exec.sh shell.nw temporary-files-shell.nw nofake-exec.nw
 @
 
+<<simple example>>=
+seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw -- cat -vet -
+seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw --aa-- - -- cat -vet
+seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw --ba-- - --ea-- -- cat -vet
+@
+
 <<*>>=
 <<build>>
-seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw -- cat -vet -
-seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw --aa - -- cat -vet
+<<simple example>>
 @
 
 <<nofake-exec.sh>>=
@@ -22,6 +27,7 @@ seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw --aa - -- cat -vet
 SRC_PREFIX=${SRC_PREFIX:-}
 NOFAKE_SH=${NOFAKE_SH:-nofake.sh}
 NOFAKE_SH_FLAGS=${NOFAKE_SH_FLAGS:-}
+ECHO=${ECHO:-echo}
 
 nargs= # nofake args
 eargs= # exec args
@@ -63,14 +69,22 @@ while [ $# -gt 0 ]; do
         --output=*) output=${1#*=} ;;
         -o*) output=${1#??} ;;
 
-        --tmp) tmps="${tmps:+${tmps} }'${2}'"; shift ;;
-        --tmp=*) tmps="${tmps:+${tmps} }'${1#*=}'" ;;
+        --tmp--) tmps="${tmps:+${tmps} }'${2}'"; shift ;;
 
-        --aa) appendargs="${appendargs:+${appendargs} }'${2}'"; shift ;;
-        --aa=*) appendargs="${appendargs:+${appendargs} }'${1#*=}'" ;;
+        --aa--) appendargs="${appendargs:+${appendargs} }'${2}'"; shift ;;
+        --dd--) appendargs="${appendargs:+${appendargs} }'--'" ;;
 
-        # double-dash
-        --dd|--dd--) appendargs="${appendargs:+${appendargs} }'--'" ;;
+        --ba--) # begin args
+            shift
+            for arg; do
+                if [ x"${1}" = x--ea-- ]; then
+                    # end args
+                    break
+                fi
+                appendargs="${appendargs:+${appendargs} }'${1}'"
+                shift # 'for' is synchronized with 'shift'
+            done
+	    ;;
 
         -) sources="${sources:+${sources} }'-'" ;;
         -*)
