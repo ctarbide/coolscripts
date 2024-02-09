@@ -1,5 +1,7 @@
 
-nofake shell-tips.nw
+../bin/nofake shell-tips.nw
+
+PATH=../bin:${PATH} sh -c 'nofake shell-tips.nw | sh'
 
 <<*>>=
 CHMOD='chmod 0444' nofake.sh --error -L -R.zshrc shell-tips.nw -o ~/.zshrc

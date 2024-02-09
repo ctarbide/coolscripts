@@ -2,8 +2,11 @@
 This has the ability to respond to both code (noweb file input) and data
 (standard input) changes simultaneously.
 
-<<build>>=
-CHMOD='chmod 0555' nofake.sh --error -Rnofake-exec.sh -onofake-exec.sh shell.nw temporary-files-shell.nw nofake-exec.nw
+<<build nofake-exec.sh>>=
+CHMOD='chmod 0555' nofake.sh --error -Rnofake-exec.sh -onofake-exec.sh \
+    <<nofake-exec.sh deps>>
+<<targets>>=
+set -- "$@" nofake-exec.sh
 @
 
 <<simple example>>=
@@ -13,8 +16,12 @@ seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw --ba-- - --ea-- -- cat -vet
 @
 
 <<*>>=
-<<build>>
+<<build nofake-exec.sh>>
 <<simple example>>
+@
+
+<<nofake-exec.sh deps>>=
+shell.nw temporary-files-shell.nw nofake-exec.nw
 @
 
 <<nofake-exec.sh>>=
