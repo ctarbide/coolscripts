@@ -71,7 +71,7 @@ for arg do
 done
 
 if [ x$# = x0 ]; then
-    die 1 "Error, wrong usage, exec arguments are absent."
+    die 1 "Error, wrong usage, exec arguments are absent." 1>&2
 fi
 
 for arg do eargs="${eargs:+${eargs} }'${arg}'"; done
@@ -130,10 +130,10 @@ if [ x"${output}" = x ]; then
     eval "set -- ${tmps}"
     for arg; do
         if [ x"${arg}" = x ]; then
-            die 1 "Error, additional temporary file suffix cannot be empty."
+            die 1 "Error, additional temporary file suffix cannot be empty." 1>&2
         fi
         if [ x"${arg}" = x.stamp ]; then
-            die 1 "Error, additional temporary file suffix \".stamp\" is already used."
+            die 1 "Error, additional temporary file suffix \".stamp\" is already used." 1>&2
         fi
         tmpfiles="${tmpfiles:+${tmpfiles} }'${output}${arg}'"
     done
