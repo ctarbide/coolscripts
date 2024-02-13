@@ -9,6 +9,10 @@ for file do
     other=`git ls-files -o -- "${file}"`
     [ x"${other}" = x ]
 
+    # diff-index also tracks file modification time, this prevents diff-index
+    # failing after a touch
+    git update-index --refresh -q
+
     # versioned and without differences to working copy?
     git diff-index --quiet HEAD -- "${file}"
 done
