@@ -7,7 +7,7 @@ To generate/update Makefile, simply do:
 	nofake Makefile.nw | sh | sh > Makefile
 
 <<sources>>=
-Makefile.nw create-config.nw nofake-exec.nw repl.nw
+Makefile.nw create-config.nw nofake-exec.nw repl.nw git-last-modified.nw
 @
 
 <<*>>=

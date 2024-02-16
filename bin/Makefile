@@ -2,6 +2,7 @@
 
 all: create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
   head-README.sh show-README.sh cat-README.sh nofake-exec.sh repl.c \
+  git-last-modified.sh \
  
 
 create-config.sh: shell.nw create-config.nw
@@ -33,5 +34,8 @@ nofake-exec.sh: shell.nw temporary-files-shell.nw nofake-exec.nw
 
 repl.c: repl.nw
 	nofake --error -R'build repl.c' $^ | sh -eu
+
+git-last-modified.sh: shell.nw git-last-modified.nw
+	nofake --error -R'build git-last-modified.sh' $^ | sh -eu
 
 

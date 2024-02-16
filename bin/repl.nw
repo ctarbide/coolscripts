@@ -218,7 +218,7 @@ repl.nw
 @
 
 <<build repl.c>>=
-CHMOD='chmod 0555' nofake.sh --error -L -Rrepl.c -orepl.c <<repl.c deps>>
+CHMOD='chmod 0444' nofake.sh --error -L -Rrepl.c -orepl.c <<repl.c deps>>
 @
 
 [[targets]] are used by automatic Makefile generation, see [[Makefile.nw]] for
