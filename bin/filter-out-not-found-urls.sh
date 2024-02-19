@@ -3,7 +3,7 @@ set -eu
 LC_ALL=C
 export LC_ALL
 filter(){
-    perl -lne's,^\047(.*)\047$,${1},; s,\047,%27,g; next if m{\?|/$}; print' -- "$@"
+    perl -lne's,^\047(.*)\047$,${1},; s,\047,%27,g; next if m{\?$}; print' -- "$@"
 }
 if [ -f not-found ]; then
     if [ ! -f not-found.sorted -o not-found -nt not-found.sorted ]; then

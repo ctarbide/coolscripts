@@ -105,7 +105,8 @@ do_list_all_html_links(){
 
 do_list_pending_dirs(){
     lynx-list-paths.sh listings | perl -lpe's,^\047(.*)\047$,${1},; s,\047,%27,g' | LC_ALL=C sort -u |
-        perl -lne'next unless m{:// ( '"${url_prefix}"' (?:.*/)? ) $}xi; print(qq{\047${_}\047}) unless -f qq{${1}/index.html}'
+        perl -lne'next unless m{:// ( '"${url_prefix}"' (?:.*/)? ) $}xi; print(qq{\047${_}\047}) unless -f qq{${1}/index.html}' |
+        filter-out-not-found-urls.sh
 }
 
 do_list_pending_dirs_force_https(){
@@ -161,11 +162,10 @@ case "${cmd}" in
     gather-links)          do_gather_links;;
     list-all-html-links)   do_list_all_html_links;;
     list-pending-dirs)     do_list_pending_dirs;;
-    list-pending-files)    do_list_pending_files;;
-    list-unrelated-files)  do_list_unrelated_files;;
-
     list-pending-dirs-force-https)     do_list_pending_dirs_force_https;;
+    list-pending-files)    do_list_pending_files;;
     list-pending-files-force-https)    do_list_pending_files_force_https;;
+    list-unrelated-files)  do_list_unrelated_files;;
 
     # github repositories cloning
     list-pending-repositories)     do_list_pending_repositories;;
