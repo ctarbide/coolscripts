@@ -4,6 +4,7 @@ thispath=`perl -MFile::Spec::Functions=rel2abs,canonpath -le'print(canonpath(rel
 thisdir=${thispath%/*}
 LC_ALL=C
 export LC_ALL
-"${thisdir}/filter-out-not-found-urls.sh" "$@" | perl -lpe's,^\047(.*)\047$,${1},; s,\047,%27,g' |
+"${thisdir}/filter-out-not-found-urls.sh" "$@" |
+    perl -lpe's,^\047(.*)\047$,${1},; s,\047,%27,g; s,\+,%2B,g' |
     perl -MCGI::Util=unescape -lne'next if m{%} and m{^\w+://(.*)$} and -f unescape($1); print' |
     perl -lne'next if m{^\w+://(.*)$} and -f $1; print'
