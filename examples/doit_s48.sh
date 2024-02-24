@@ -133,9 +133,9 @@ do_list_unrelated_files(){
 }
 
 do_list_pending_repositories(){
-    lynx-list-paths.sh listings | perl -lpe's,^\047(.*)\047$,${1},; s,\047,%27,g' | LC_ALL=C sort -u |
-        perl -lne'next unless m{^(https://github.com/ '"${github_userid}"' / [^/]+ ) $}xi; print(${1});' |
-        perl -lne'next unless m{^https://github.com/ (.+?) / (.+) $}xi; $dir=qq{${1}_${2}.git}; next if -d $dir or -f qq{${dir}.skip}; print' |
+    lynx-list-urls.sh listings | perl -lpe's,^\047(.*)\047$,${1},; s,\047,%27,g' | LC_ALL=C sort -u |
+        perl -lne'next unless m{^(https://github\.com/ '"${github_userid}"' / [^/]+ ) $}xi; print(${1});' |
+        perl -lne'next unless m{^https://github\.com/ (.+?) / (.+) $}xi; $dir=qq{${1}_${2}.git}; next if -d $dir or -f qq{${dir}.skip}; print' |
         perl -lne'print(qq{  git-clone-and-fetch-to-bare-repository.sh \047${_}\047})'
 }
 
