@@ -24,3 +24,21 @@ if [ x"${ZSH_VERSION:-}" != x ]; then
     setopt sh_word_split
 fi
 @
+
+<<function normalize_arg>>=
+normalize_arg(){
+    head=
+    tail=${1}
+    acc=
+    while true; do
+        head=${tail%%\'*}
+        tail=${tail#*\'}
+        acc=${acc:+${acc}"'\"'\"'"}${head}
+        if [ x"${tail}" = x"${head}" ]; then
+            # didn't advance
+            break;
+        fi
+    done
+    echo "${acc}"
+}
+@

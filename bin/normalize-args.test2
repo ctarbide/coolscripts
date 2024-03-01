@@ -1,0 +1,1 @@
+CHMOD='chmod 0555' nofake.sh --error -Rnofake-exec.sh -onofake-exec.sh shell.nw temporary-files-shell.nw nofake-exec.nw && ./nofake-exec.sh -R"a 'b c'" nofake-exec.nw -- cat
