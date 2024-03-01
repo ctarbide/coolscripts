@@ -16,6 +16,7 @@
 #   cat normalize-args.test2 | xargs ~/showargs-nl
 #
 exec perl -MURI::Escape -lne'
+next if m{^\s*#};
 #my $line = $_;
 s,\\\s*$,,;
 s,%,%25,g;
