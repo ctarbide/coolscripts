@@ -1,9 +1,6 @@
 #!/bin/sh
-
 set -eu
-
 umask 022
-
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
 [ "$#" -eq 1 -o "$#" -eq 2 ] || die 1 "usage: ${0##*/} git-repos-url [output.git]"
@@ -68,6 +65,8 @@ elif git rev-parse --quiet --verify --symbolic-full-name develop; then
     branch=develop
 elif git rev-parse --quiet --verify --symbolic-full-name dev; then
     branch=dev
+elif git rev-parse --quiet --verify --symbolic-full-name current; then
+    branch=current
 elif git rev-parse --quiet --verify --symbolic-full-name main; then
     # life finds a way.. to self select
     branch=main

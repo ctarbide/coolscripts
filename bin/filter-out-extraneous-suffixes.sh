@@ -5,6 +5,8 @@ set -eu; set -- "${0}" --ba-- "${0}" "$@" --ea--
 set -- "$@" --tmp-- .input
 SH=${SH:-sh}; export SH
 PERL=${PERL:-perl}; export PERL
+SUFFIX=${SUFFIX:-/download}; export SUFFIX
+INCLUDEPREFIX=${INCLUDEPREFIX:-yes}; export INCLUDEPREFIX
 exec nofake-exec.sh --error -Rprog "$@" -- "${SH}" -eu
 exit 1
 
@@ -12,7 +14,8 @@ exit 1
 thisprog=${1}; shift # the initial script
 <<slurp to .input>>
 set -- "${thisprog}" --aa-- "${0}.input"
-nofake-exec.sh --error -Rlynx-list-paths "$@" -- "${PERL}" | LC_ALL=C sort -u
+nofake-exec.sh --error -Rfilter-out-extraneous-suffixes "$@" -- "${PERL}" |
+    LC_ALL=C sort -u
 @
 
 Must slurp and save input because two passes are needed.
@@ -21,41 +24,44 @@ Must slurp and save input because two passes are needed.
 cat -- "$@" >"${0}.input"
 @
 
-<<lynx-list-paths>>=
+<<filter-out-extraneous-suffixes>>=
 use 5.008; # perl v5.8.0 was released on July 18, 2002
 use strict;
 use warnings FATAL => qw{uninitialized void inplace};
-use Carp ();
 
 local $\ = "\n";
 
-my %dirs;
+my $suffix = $ENV{SUFFIX};
 
-my @args = @ARGV;
+my @prefixes;
+my %prefixes;
 
-Carp::croak("Error, no input file") unless @args;
+my @saveargs = @ARGV;
 
-# STDIN is a pipe and cannot be rewinded/reopened
-Carp::croak("Error, input file cannot be standard input") if grep { $_ eq '-' } @args;
-
-@ARGV = @args;
 while (<>) {
     chomp;
-    next unless m{^ \s* \d+ \. \s+ ([hf][tps]+ :// .*) $}xi;
-    $_ = $1;
-    s,^(.*/)(.*?)$,${1},; # dirname
-    $dirs{${1}}++;
-}
-
-print "'${_}'" for keys %dirs;
-
-@ARGV = @args;
-while (<>) {
-    chomp;
-    s,#.+$,,;
-    next unless m{^ \s* \d+ \. \s+ ([hf][tps]+ :// .* [^/]) $}xi;
-    unless ($dirs{"${1}/"}) {
-        print "'${1}'";
+    $_ = $1 if m{^\047(.*)\047$};
+    if (m{^(.*)\Q${suffix}\E$}) {
+        push(@prefixes, $1);
     }
 }
+
+if ($ENV{INCLUDEPREFIX} eq 'yes') {
+    print "'${_}'" for @prefixes;
+}
+
+@ARGV = @saveargs;
+LINE: while (<>) {
+    chomp;
+    $_ = $1 if m{^\047(.*)\047$};
+    next if m{^(.*)\Q${suffix}\E$};
+    for my $prefix (@prefixes) {
+        next LINE if <<starts with ${prefix}>>;
+    }
+    print "'${_}'";
+}
+@
+
+<<starts with ${prefix}>>=
+rindex($_, $prefix, 0) == 0
 @
