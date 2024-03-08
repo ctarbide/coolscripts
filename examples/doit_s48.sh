@@ -134,8 +134,11 @@ do_list_pending_files(){
     list_filtered_urls |
         perl -lne'next unless m{^ \w+ :// .+? / (?:.*/)? [^/.]* \. (?:.*\.)? [^/.]+ $}xi; print' |
         filter-out-existing-urls.sh |
-        perl -lne'($p = $_) =~ s,^\w+://(.*),$1,; print($_) unless -f qq{${p}/.listing}' |
-        perl -lne'print(qq{\047${_}\047})'
+        perl -lne'
+            s,^\047(.*)\047$,${1},;
+            ($p = $_) =~ s,^\w+://(.*),${1},;
+            print(qq{\047${_}\047}) unless -f qq{${p}/.listing};
+        '
 }
 
 do_list_pending_files_force_https(){
@@ -174,7 +177,7 @@ do_list_files(){
 }
 
 do_resolve_locations(){
-    touch "locations__${script_id}.inc.sh"
+    test -f "locations__${script_id}.inc.sh" || touch "locations__${script_id}.inc.sh"
     . "${thisdir}/locations__${script_id}.inc.sh"
 }
 
