@@ -8,6 +8,19 @@ seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw --aa-- - -- cat -vet
 seq 3 | ./nofake-exec.sh -R'test' nofake-exec.nw --ba-- - --ea-- -- cat -vet
 @
 
+another example of a fundamental difference:
+
+    ./nofake         -R'is fd 0 a tty?' nofake-exec.nw |  sh -eu
+    ./nofake-exec.sh -R'is fd 0 a tty?' nofake-exec.nw -- sh -eu
+
+<<is fd 0 a tty?>>=
+if [ -t 0 ]; then
+    echo 'fd 0 (stdin) is a tty'
+else
+    echo 'fd 0 (stdin) is likely a pipe'
+fi
+@
+
 <<*>>=
 <<build nofake-exec.sh>>
 <<simple example>>
