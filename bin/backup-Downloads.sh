@@ -17,7 +17,13 @@ fi
 for dir in `perl -lane'next unless $F[1] =~ m{^/media/}; print($F[1])' /proc/mounts`; do
     if [ -d "${dir}/${dname}" ]; then
         echo ""
-        echo "**************** syncing '${dir}/${dname}/'"
+        echo -n "**** syncing '${dir}/${dname}/'"
+        sleep 1
+        for i in `seq 3 | tac`; do
+            echo -n " ${i}"
+            sleep 1
+        done
+        echo
         rsync-dry-run.sh -av --delete-after "${srcdir}/" "${dir}/${dname}/" || true
     fi
 done

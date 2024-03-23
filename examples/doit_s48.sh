@@ -99,9 +99,12 @@ do_gather_links(){
     . "${thisdir}/gather__${script_id}.inc.sh"
 }
 
+list_all_urls(){
+    lynx-list-paths.sh listings | perl -lpe's,^\047(.*)\047$,${1},; s,\047,%27,g' | LC_ALL=C sort -u
+}
+
 list_filtered_urls(){
-    lynx-list-paths.sh listings | perl -lpe's,^\047(.*)\047$,${1},; s,\047,%27,g' | LC_ALL=C sort -u |
-        perl -lne'next unless m{^ \w+ :// '"${url_prefix}"' }xi; print'
+    list_all_urls | perl -lne'next unless m{^ \w+ :// '"${url_prefix}"' }xi; print'
 }
 
 list_unrelated_urls(){
@@ -159,7 +162,7 @@ do_list_pending_repositories(){
 }
 
 do_list_dirs(){
-    list_filtered_urls | SUFFIX=/download INCLUDEPREFIX=no \
+    list_all_urls | SUFFIX=/download INCLUDEPREFIX=no \
         filter-out-extraneous-suffixes.sh |
         perl -lne'
             next unless m{^ \047 \w+ :// sourceforge\.net /projects/ '"${project_name}"' /files/ .* / \047 $}xi;
