@@ -62,11 +62,12 @@ my $conf = { read_configuration($gitmodules, '^submodule\.') };
 {
     my @mods = map {s,\.path$,,; $_} grep {/\.path$/} keys(%{$conf});
     for my $i (@mods){
+	(my $id = $i) =~ s,^submodule\.,,;
         my ($path, $url, $branch) = expand($conf, $i);
         $branch = q{master} unless $branch;
         die unless $url =~ m{^(.*)/(.*)};
         my $urldn = $1;
         my $urlbn = $2;
-        print("$url $urldn $urlbn $branch $path");
+        print("$url $urldn $urlbn $branch $path $id");
     }
 }

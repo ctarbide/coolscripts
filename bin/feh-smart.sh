@@ -4,6 +4,9 @@
 
 set -eu #x
 
+FEH_OPTS=${FEH_OPTS:-}
+export FEH_OPTS
+
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
 LC_ALL=C
@@ -66,7 +69,7 @@ if [ x"${args0}" != x ]; then
     IFS=${oldIFS}
 fi
 
-exec feh -. -d -G --on-last-slide hold \
+exec feh ${FEH_OPTS} -. -d -G --on-last-slide hold \
      --action 'echo "you pressed return, right?"' \
      --action1 'echo -n "move: "; mv-to-cwd-let-no-spaces-nor-colon.sh %F .' \
      --action2 'echo -n "copy: "; cp-to-cwd-let-no-spaces-nor-colon.sh %F .' \
