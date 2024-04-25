@@ -124,7 +124,7 @@ if (ptr >= buf_end) {
 	nc = read(fd, ptr, buf_size);
 	if (nc <= 0) break;
 	char_count += nc;
-	buf_end = buffer + nc;
+	buf_end = ptr + nc;
 }
 @
 

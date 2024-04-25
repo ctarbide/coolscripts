@@ -1,5 +1,5 @@
-#line 38 "repl.nw"
-#line 46 "repl.nw"
+#line 79 "nwsplit.nw"
+#line 87 "nwsplit.nw"
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
 #endif
@@ -15,8 +15,8 @@
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
 #endif
-#line 39 "repl.nw"
-#line 64 "repl.nw"
+#line 80 "nwsplit.nw"
+#line 105 "nwsplit.nw"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -24,28 +24,37 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
-#line 40 "repl.nw"
-#line 89 "repl.nw"
+#line 81 "nwsplit.nw"
+#line 15 "nwsplit.nw"
+#define STATE_DOCUMENTATION 0
+#define STATE_FOUND_CHUNK 1
+#define STATE_CHUNK_LINE 2
+#define STATE_FOUND_END_OF_CHUNK 3
+#line 126 "nwsplit.nw"
 #define OK                  0   /* status code for successful run */
 #define CANNOT_OPEN_FILE    1   /* status code for file access error */
 #define LINE_TOO_LONG       2   /* line longer than BUF_SIZE - 1 */
 #define READ_ONLY           0   /* read access code for system open */
-#line 85 "repl.nw"
-#define BUF_SIZE            10
-#line 94 "repl.nw"
-#line 11 "repl.nw"
+#line 118 "nwsplit.nw"
+#if BUFSIZ >= 512
+#define BUF_SIZE            BUFSIZ
+#else
+#define BUF_SIZE            512
+#endif
+#line 131 "nwsplit.nw"
+#line 11 "nwsplit.nw"
 #define CONVERT_CRLF_TO_LF 1
-#line 41 "repl.nw"
-#line 98 "repl.nw"
+#line 82 "nwsplit.nw"
+#line 135 "nwsplit.nw"
 int status = OK;    /* exit status of command, initially OK */
 char *prog_name;    /* who we are */
 /* total number of lines */
 long tot_line_count;
-#line 42 "repl.nw"
-#line 27 "repl.nw"
+#line 83 "nwsplit.nw"
+#line 68 "nwsplit.nw"
 int main(int argc, char **argv)
 {
-#line 235 "repl.nw"
+#line 272 "nwsplit.nw"
     int file_count;         /* how many files there are */
     char *file_name;        /* Used to differentiate between *argv and '-' */
     int fd;                 /* file descriptor */
@@ -58,17 +67,17 @@ int main(int argc, char **argv)
     long line_count;        /* # of words, lines, and chars so far */
     int got_eof = 0;        /* read got EOF */
     int got_cr = 0;         /* previous char was '\r' */
-#line 30 "repl.nw"
-#line 250 "repl.nw"
+#line 71 "nwsplit.nw"
+#line 287 "nwsplit.nw"
     prog_name = argv[0];
-#line 31 "repl.nw"
-#line 231 "repl.nw"
+#line 72 "nwsplit.nw"
+#line 268 "nwsplit.nw"
     file_count = argc - 1;
-#line 32 "repl.nw"
-#line 220 "repl.nw"
+#line 73 "nwsplit.nw"
+#line 257 "nwsplit.nw"
     argc--;
     do {
-#line 201 "repl.nw"
+#line 238 "nwsplit.nw"
         if (file_count > 0) {
             file_name = *(++argv);
             if (strcmp(file_name, "-") == 0) {
@@ -85,19 +94,19 @@ int main(int argc, char **argv)
             fd = 0; /* stdin */
             file_name = "-";
         }
-#line 223 "repl.nw"
-#line 196 "repl.nw"
+#line 260 "nwsplit.nw"
+#line 233 "nwsplit.nw"
         line_start = ptr = buffer;
         line_count = 0;
-#line 224 "repl.nw"
-#line 187 "repl.nw"
+#line 261 "nwsplit.nw"
+#line 224 "nwsplit.nw"
         line_start = ptr = buffer;
         nc = read(fd, ptr, BUF_SIZE);
         if (nc > 0) {
             buf_end = buffer + nc;
-#line 157 "repl.nw"
+#line 194 "nwsplit.nw"
             while (got_eof == 0) {
-#line 115 "repl.nw"
+#line 152 "nwsplit.nw"
                 if (ptr >= buf_end) {
                     size_t consumed = ptr - buffer;
                     size_t remaining = BUF_SIZE - consumed;
@@ -137,7 +146,7 @@ int main(int argc, char **argv)
                         buf_end = ptr + nc;
                     }
                 }
-#line 159 "repl.nw"
+#line 196 "nwsplit.nw"
                 c = *ptr++;
                 if (c == '\n') {
                     /* lf or cr-lf */
@@ -147,15 +156,30 @@ int main(int argc, char **argv)
             #endif
                     line_count++;
                     {
-#line 19 "repl.nw"
-#line 15 "repl.nw"
+#line 54 "nwsplit.nw"
+#line 45 "nwsplit.nw"
                         size_t line_length = ptr - line_start;
-#line 20 "repl.nw"
+                        int state = STATE_DOCUMENTATION;
+#line 55 "nwsplit.nw"
+                        if (line_length == 0) {
+                            fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+                            exit(1);
+                        }
+#line 50 "nwsplit.nw"
+                        line_start[--line_length] = '\0';
+#line 60 "nwsplit.nw"
                         printf("**** line %s:%lu has %lu bytes: [", file_name, line_count,
                             (unsigned long)line_length);
                         fwrite(line_start, line_length, 1, stdout);
                         printf("]\n");
-#line 169 "repl.nw"
+#line 32 "nwsplit.nw"
+#line 28 "nwsplit.nw"
+                        if (1) {
+#line 33 "nwsplit.nw"
+                            state = STATE_FOUND_CHUNK;
+                            (void)state;
+                        }
+#line 206 "nwsplit.nw"
                     }
             #if CONVERT_CRLF_TO_LF
                     ptr += got_cr;
@@ -171,19 +195,19 @@ int main(int argc, char **argv)
                     got_cr = c == '\r';
                 }
             }
-#line 192 "repl.nw"
+#line 229 "nwsplit.nw"
         }
-#line 225 "repl.nw"
-#line 111 "repl.nw"
+#line 262 "nwsplit.nw"
+#line 148 "nwsplit.nw"
         close(fd);
-#line 226 "repl.nw"
-#line 107 "repl.nw"
+#line 263 "nwsplit.nw"
+#line 144 "nwsplit.nw"
         tot_line_count += line_count;
-#line 227 "repl.nw"
+#line 264 "nwsplit.nw"
     } while (--argc > 0);
-#line 33 "repl.nw"
-#line 254 "repl.nw"
+#line 74 "nwsplit.nw"
+#line 291 "nwsplit.nw"
     exit(status);
     return 0;
-#line 34 "repl.nw"
+#line 75 "nwsplit.nw"
 }

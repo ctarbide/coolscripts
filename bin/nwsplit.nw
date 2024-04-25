@@ -5,22 +5,63 @@ A REPL example inspired by [WCNI], made to be paired with [RLWRAP].
 
 [RLWRAP]: https://github.com/hanslub42/rlwrap
 
-'nofake repl.nw' for build instructions
+'nofake nwsplit.nw' for build instructions
 
 <<Define CONVERT_CRLF_TO_LF>>=
 #define CONVERT_CRLF_TO_LF 1
 @
 
+<<Definitions>>=
+#define STATE_DOCUMENTATION 0
+#define STATE_FOUND_CHUNK 1
+#define STATE_CHUNK_LINE 2
+#define STATE_FOUND_END_OF_CHUNK 3
+@
+
+smallest start of chunk:
+
+    [[<<?>>=]]
+
+, 7 bytes (plus new line) in length
+
+<<found chunk?>>=
+1
+@
+
+<<identify and set state>>=
+if (<<found chunk?>>) {
+    state = STATE_FOUND_CHUNK;
+    (void)state;
+}
+@
+
+cr-lf -> lf
+cr -> lf
+
+printf -- 'a\ncr\rb\n' | hexdump -Cv
+printf -- 'a\ncr\rb\n' | ./nwsplit
+
 <<Process Line - vars>>=
 size_t line_length = ptr - line_start;
+int state = STATE_DOCUMENTATION;
+@
+
+<<chop>>=
+line_start[--line_length] = '\0';
 @
 
 <<Process Line>>=
 <<Process Line - vars>>
+if (line_length == 0) {
+    fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+    exit(1);
+}
+<<chop>>
 printf("**** line %s:%lu has %lu bytes: [", file_name, line_count,
     (unsigned long)line_length);
 fwrite(line_start, line_length, 1, stdout);
 printf("]\n");
+<<identify and set state>>
 @
 
 <<The main program>>=
@@ -34,7 +75,7 @@ int main(int argc, char **argv)
 }
 @
 
-<<repl.c>>=
+<<nwsplit.c>>=
 <<C Standards>>
 <<Header files to include>>
 <<Definitions>>
@@ -73,16 +114,12 @@ int main(int argc, char **argv)
 stdio.h BUFSIZ chosen for efficiency, BUF_SIZE also dictates the maximum line
 length
 
-<<Define BUF_SIZE SKIP>>=
+<<Define BUF_SIZE>>=
 #if BUFSIZ >= 512
 #define BUF_SIZE            BUFSIZ
 #else
 #define BUF_SIZE            512
 #endif
-@
-
-<<Define BUF_SIZE>>=
-#define BUF_SIZE            10
 @
 
 <<Definitions>>=
@@ -255,41 +292,41 @@ exit(status);
 return 0;
 @
 
-nofake repl.nw | sh -x
+nofake nwsplit.nw | sh -x
 
 <<*>>=
 #!/bin/sh
 set -eu
-<<build repl.c>>
-<<build repl>>
+<<build nwsplit.c>>
+<<build nwsplit>>
 @
 
 [[targets]] are used by automatic Makefile generation, see [[Makefile.nw]] for
 details.
 
 <<targets>>=
-set -- "$@" repl.c
-set -- "$@" repl
+set -- "$@" nwsplit.c
+set -- "$@" nwsplit
 @
 
-<<repl.c deps>>=
-repl.nw
+<<nwsplit.c deps>>=
+nwsplit.nw
 @
 
-<<repl deps>>=
-repl.c
+<<nwsplit deps>>=
+nwsplit.c
 @
 
-<<build repl.c>>=
-CHMOD='chmod 0444' nofake.sh --error -L -Rrepl.c -orepl.c <<repl.c deps>>
+<<build nwsplit.c>>=
+CHMOD='chmod 0444' nofake.sh --error -L -Rnwsplit.c -onwsplit.c <<nwsplit.c deps>>
 @
 
-<<build repl - DEBUG>>=
-gcc -O0 -g -Wall -ansi -pedantic -o repl repl.c
+<<build nwsplit - DEBUG>>=
+gcc -O0 -g -Wall -ansi -pedantic -o nwsplit nwsplit.c
 @
 
-<<build repl - STANDARD>>=
-gcc -O2 -Wall -ansi -pedantic -o repl repl.c
+<<build nwsplit - STANDARD>>=
+gcc -O2 -Wall -ansi -pedantic -o nwsplit nwsplit.c
 @
 
 <<set build PEDANTIC>>=
@@ -303,63 +340,16 @@ set -- "$@" -Wno-unused-parameter
 set -- "$@" -Werror -fmax-errors=3
 @
 
-<<build repl - PEDANTIC>>=
+<<build nwsplit - PEDANTIC>>=
 set --
 <<set build PEDANTIC>>
-gcc -O2 "$@" -o repl repl.c
+gcc -O2 "$@" -o nwsplit nwsplit.c
 @
 
-<<build repl>>=
+<<build nwsplit>>=
 #!/bin/sh
 set -eu
-#@<<build repl - DEBUG>>
-#@<<build repl - STANDARD>>
-<<build repl - PEDANTIC>>
-@
-
-<<tests.sh>>=
-#!/bin/sh
-set -eux
-make repl
-<<tests.sh - 1>>
-<<tests.sh - 2>>
-<<tests.sh - 3>>
-<<tests.sh - 4>>
-<<tests.sh - 5>>
-@
-
-Tests 1 to 4 only makes sense when using artificially small buffer (10 bytes)
-exclusively for testing.
-
-<<tests.sh - 1>>=
-printf -- '12345678\n' | ./repl | cat -vet
-printf -- '123456789\n' | ./repl | cat -vet
-printf -- '1234\n6789\n' | ./repl | cat -vet
-printf -- '1234567890\n' | ./repl | cat -vet
-@
-
-<<tests.sh - 2>>=
-printf -- '12345678' | ./repl | cat -vet
-printf -- '123456789' | ./repl | cat -vet
-printf -- '1234567890' | ./repl | cat -vet
-@
-
-<<tests.sh - 3>>=
-printf -- 'abc\ndef\n' | ./repl | cat -vet
-printf -- 'abc\ndef\nghi\n' | ./repl | cat -vet
-@
-
-<<tests.sh - 4>>=
-printf -- 'abc\ndef' | ./repl | cat -vet
-printf -- 'abc\ndef\nghi' | ./repl | cat -vet
-@
-
-<<tests.sh - 5>>=
-printf -- 'a\nb\nc\n' | ./repl | cat -vet
-printf -- 'a\r\nb\r\nc\r\n' | ./repl | cat -vet
-printf -- 'a\nb\nc' | ./repl | cat -vet
-printf -- 'a\rb\rc\r' | ./repl | cat -vet
-printf -- 'a\rb\rc' | ./repl | cat -vet
-printf -- 'a\rb\rc\rd\n' | ./repl | cat -vet
-printf -- 'a\rb\rc\rd\re\r' | ./repl | cat -vet
+#@<<build nwsplit - DEBUG>>
+#@<<build nwsplit - STANDARD>>
+<<build nwsplit - PEDANTIC>>
 @

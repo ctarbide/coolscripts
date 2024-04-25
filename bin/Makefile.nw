@@ -4,33 +4,54 @@ sh/nofake as soon as possible.
 
 To generate/update Makefile, simply do:
 
-    nofake Makefile.nw | sh > Makefile
+    nofake Makefile.nw | sh
 
 <<sources>>=
-Makefile.nw create-config.nw nofake-exec.nw repl.nw git-last-modified.nw
+Makefile.nw create-config.nw nofake-exec.nw
+repl.nw git-last-modified.nw nwsplit.nw
 @
 
 <<*>>=
 #!/bin/sh
 set -eu
 SH=${SH:-sh}; export SH
-nofake --error -R'generate Makefile' <<sources>> | "${SH}" -eu
+nofake --error -Rgenerate Makefile.nw | "${SH}" -eu >Makefile
+@
+
+<<generate>>=
+#!/bin/sh
+set -eu
+SH=${SH:-sh}; export SH
+set_sources=`nofake --error -Rsources Makefile.nw | normalize-args.sh |
+    perl -lpe'$_=qq{set -- \042\\\$\@\042 ${_};}'`
+eval "set --; ${set_sources}"
+nofake --error -R'generate Makefile' "$@" | "${SH}" -eu
 @
 
 <<generate Makefile>>=
 #!/bin/sh
 set -eu
+SH=${SH:-sh}; export SH
 printf -- '\n# automatically generated from Makefile.nw\n\n'
-printf -- 'all: \\\n'
+set_sources=`nofake --error -Rsources Makefile.nw | normalize-args.sh |
+    perl -lpe'$_=qq{set -- \042\\\$\@\042 ${_};}'`
+eval "set --; ${set_sources}"
+printf -- 'SH = %s\n\nSOURCES = \\\n' "${SH}"
+<<indent "$@">>
 set --
 <<targets>>
+printf -- '\nTARGETS = \\\n'
 <<indent "$@">>
-printf -- "\n"
+printf -- '\nall: $(TARGETS)\n\n'
 for target; do
     printf '%s: ' "${target}"
-    nofake --error -R"${target} deps" <<sources>>
-    printf "\tnofake --error -R'build ${target}' \$^ | sh -eu\n\n"
+    (
+        eval "set --; ${set_sources}"
+        nofake --error -R"${target} deps" "$@"
+        printf -- '\t@nofake --error -R'"'"'build '"${target}'"' $(SOURCES) | $(SH) -eu\n\n'
+    )
 done
+printf -- 'clean:\n\t-rm -f $(TARGETS)\n\n'
 @
 
 <<indent "$@">>=
