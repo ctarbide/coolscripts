@@ -1,5 +1,5 @@
-#line 132 "tokenize.nw"
-#line 143 "tokenize.nw"
+#line 139 "tokenize.nw"
+#line 150 "tokenize.nw"
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
 #endif
@@ -12,8 +12,8 @@
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
 #endif
-#line 133 "tokenize.nw"
-#line 158 "tokenize.nw"
+#line 140 "tokenize.nw"
+#line 165 "tokenize.nw"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -22,34 +22,34 @@
 #include <inttypes.h>
 #include <string.h>
 #include <ctype.h>
-#line 134 "tokenize.nw"
-#line 180 "tokenize.nw"
+#line 141 "tokenize.nw"
+#line 187 "tokenize.nw"
 #define OK                  0   /* status code for successful run */
 #define CANNOT_OPEN_FILE    1   /* status code for file access error */
 #define LINE_TOO_LONG       2   /* line longer than BUF_SIZE - 1 */
 #define READ_ONLY           0   /* read access code for system open */
-#line 172 "tokenize.nw"
+#line 179 "tokenize.nw"
 #if BUFSIZ >= 512
 #define BUF_SIZE            BUFSIZ
 #else
 #define BUF_SIZE            512
 #endif
-#line 185 "tokenize.nw"
-#line 84 "tokenize.nw"
+#line 192 "tokenize.nw"
+#line 91 "tokenize.nw"
 #define CONVERT_CRLF_TO_LF 1
-#line 349 "tokenize.nw"
+#line 356 "tokenize.nw"
 #line 16 "strscan.nw"
 #define STRSCAN_PTR(ctx) ((ctx)->beg + (ctx)->pos)
 #define STRSCAN_LEN(ctx) ((ctx)->end - STRSCAN_PTR(ctx))
-#line 135 "tokenize.nw"
-#line 351 "tokenize.nw"
+#line 142 "tokenize.nw"
+#line 358 "tokenize.nw"
 #line 9 "strscan.nw"
 struct strscan {
     char *beg, *end;
     int pos, fail;
 };
-#line 136 "tokenize.nw"
-#line 355 "tokenize.nw"
+#line 143 "tokenize.nw"
+#line 362 "tokenize.nw"
 #line 21 "strscan.nw"
 void
 strscan(struct strscan *ctx, char *s, size_t len);
@@ -67,13 +67,13 @@ exact1(struct strscan *ctx, int x);
 #line 123 "strscan.nw"
 int
 hasatleast(struct strscan *ctx, size_t len);
-#line 137 "tokenize.nw"
-#line 189 "tokenize.nw"
+#line 144 "tokenize.nw"
+#line 196 "tokenize.nw"
 int status = OK;        /* exit status of command, initially OK */
 char *prog_name;        /* who we are */
 long tot_line_count;    /* total number of lines */
-#line 138 "tokenize.nw"
-#line 353 "tokenize.nw"
+#line 145 "tokenize.nw"
+#line 360 "tokenize.nw"
 #line 26 "strscan.nw"
 void
 strscan(struct strscan *ctx, char *s, size_t len)
@@ -152,13 +152,13 @@ hasatleast(struct strscan *ctx, size_t len)
     }
     return 0;
 }
-#line 139 "tokenize.nw"
-#line 121 "tokenize.nw"
+#line 146 "tokenize.nw"
+#line 128 "tokenize.nw"
 int main(int argc, char **argv)
 {
 #line 29 "tokenize.nw"
     int need_nl = 0;
-#line 325 "tokenize.nw"
+#line 332 "tokenize.nw"
     int file_count;         /* how many files there are */
     char *file_name;        /* Used to differentiate between *argv and '-' */
     int fd;                 /* file descriptor */
@@ -171,17 +171,17 @@ int main(int argc, char **argv)
     long line_count;        /* # of words, lines, and chars so far */
     int got_eof = 0;        /* read got EOF */
     int got_cr = 0;         /* previous char was '\r' */
-#line 124 "tokenize.nw"
-#line 340 "tokenize.nw"
+#line 131 "tokenize.nw"
+#line 347 "tokenize.nw"
     prog_name = argv[0];
-#line 125 "tokenize.nw"
-#line 321 "tokenize.nw"
+#line 132 "tokenize.nw"
+#line 328 "tokenize.nw"
     file_count = argc - 1;
-#line 126 "tokenize.nw"
-#line 310 "tokenize.nw"
+#line 133 "tokenize.nw"
+#line 317 "tokenize.nw"
     argc--;
     do {
-#line 291 "tokenize.nw"
+#line 298 "tokenize.nw"
         if (file_count > 0) {
             file_name = *(++argv);
             if (strcmp(file_name, "-") == 0) {
@@ -198,17 +198,17 @@ int main(int argc, char **argv)
             fd = 0; /* stdin */
             file_name = "-";
         }
-#line 313 "tokenize.nw"
-#line 286 "tokenize.nw"
+#line 320 "tokenize.nw"
+#line 293 "tokenize.nw"
         line_start = ptr = buffer;
         line_count = 0;
-#line 314 "tokenize.nw"
-#line 277 "tokenize.nw"
+#line 321 "tokenize.nw"
+#line 284 "tokenize.nw"
         line_start = ptr = buffer;
         nc = read(fd, ptr, BUF_SIZE);
         if (nc > 0) {
             buf_end = buffer + nc;
-#line 245 "tokenize.nw"
+#line 252 "tokenize.nw"
 #line 15 "tokenize.nw"
 #line 37 "tokenize.nw"
             if (need_nl) {
@@ -217,9 +217,9 @@ int main(int argc, char **argv)
             }
 #line 16 "tokenize.nw"
             printf("0 %s\n", file_name);
-#line 246 "tokenize.nw"
+#line 253 "tokenize.nw"
             while (got_eof == 0) {
-#line 203 "tokenize.nw"
+#line 210 "tokenize.nw"
                 if (ptr >= buf_end) {
                     size_t consumed = ptr - buffer;
                     size_t remaining = BUF_SIZE - consumed;
@@ -259,7 +259,7 @@ int main(int argc, char **argv)
                         buf_end = ptr + nc;
                     }
                 }
-#line 248 "tokenize.nw"
+#line 255 "tokenize.nw"
                 c = *ptr++;
                 if (c == '\n') {
                     /* lf or cr-lf */
@@ -269,23 +269,23 @@ int main(int argc, char **argv)
             #endif
                     line_count++;
                     {
-#line 105 "tokenize.nw"
+#line 112 "tokenize.nw"
 #line 33 "tokenize.nw"
                         char *b, *e;
-#line 96 "tokenize.nw"
+#line 103 "tokenize.nw"
                         size_t line_length = ptr - line_start;
                         struct strscan ctx[1];
-#line 106 "tokenize.nw"
-#line 88 "tokenize.nw"
+#line 113 "tokenize.nw"
+#line 95 "tokenize.nw"
                         if (line_length == 0) {
                             fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
                             exit(1);
                         }
                         line_length--;
-#line 107 "tokenize.nw"
-#line 101 "tokenize.nw"
-                        strscan(ctx, line_start, line_length);
+#line 114 "tokenize.nw"
 #line 108 "tokenize.nw"
+                        strscan(ctx, line_start, line_length);
+#line 115 "tokenize.nw"
                         /*<<show line>>*/
 #line 44 "tokenize.nw"
                         b = ctx->beg;
@@ -319,15 +319,22 @@ int main(int argc, char **argv)
                                     need_nl = 0;
                                 }
 #line 70 "tokenize.nw"
-                                printf("5 %c\n", c);
+                                putc('5', stdout);
+                                putc(' ', stdout);
+                                putc(c, stdout);
+                                putc('\n', stdout);
                             } else if (c <= 127) {
 #line 37 "tokenize.nw"
                                 if (need_nl) {
                                     putc('\n', stdout);
                                     need_nl = 0;
                                 }
-#line 73 "tokenize.nw"
-                                printf("6 %02x\n", c);
+#line 76 "tokenize.nw"
+                                putc('6', stdout);
+                                putc(' ', stdout);
+                                putc(((c >> 4) & 0xf) | 0x40, stdout);
+                                putc((c & 0xf) | 0x40, stdout);
+                                putc('\n', stdout);
                             } else {
                                 /* maybe utf-8, decode later */
                                 fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
@@ -339,7 +346,7 @@ int main(int argc, char **argv)
                             putc('\n', stdout);
                             need_nl = 0;
                         }
-#line 110 "tokenize.nw"
+#line 117 "tokenize.nw"
 #line 20 "tokenize.nw"
 #line 37 "tokenize.nw"
                         if (need_nl) {
@@ -348,7 +355,7 @@ int main(int argc, char **argv)
                         }
 #line 21 "tokenize.nw"
                         printf("1 %ld\n", line_count);
-#line 258 "tokenize.nw"
+#line 265 "tokenize.nw"
                     }
             #if CONVERT_CRLF_TO_LF
                     ptr += got_cr;
@@ -366,19 +373,19 @@ int main(int argc, char **argv)
             }
 #line 25 "tokenize.nw"
             printf("2 \n");
-#line 282 "tokenize.nw"
+#line 289 "tokenize.nw"
         }
-#line 315 "tokenize.nw"
-#line 199 "tokenize.nw"
+#line 322 "tokenize.nw"
+#line 206 "tokenize.nw"
         close(fd);
-#line 316 "tokenize.nw"
-#line 195 "tokenize.nw"
+#line 323 "tokenize.nw"
+#line 202 "tokenize.nw"
         tot_line_count += line_count;
-#line 317 "tokenize.nw"
+#line 324 "tokenize.nw"
     } while (--argc > 0);
-#line 127 "tokenize.nw"
-#line 344 "tokenize.nw"
+#line 134 "tokenize.nw"
+#line 351 "tokenize.nw"
     exit(status);
     return 0;
-#line 128 "tokenize.nw"
+#line 135 "tokenize.nw"
 }

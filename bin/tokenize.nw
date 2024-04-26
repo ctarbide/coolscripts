@@ -67,10 +67,17 @@ while (b < e) {
         need_nl = 2;
     } else if (ispunct(c)) {
         <<maybe put nl>>
-        printf("5 %c\n", c);
+        putc('5', stdout);
+        putc(' ', stdout);
+        putc(c, stdout);
+        putc('\n', stdout);
     } else if (c <= 127) {
         <<maybe put nl>>
-        printf("6 %02x\n", c);
+        putc('6', stdout);
+        putc(' ', stdout);
+        putc(((c >> 4) & 0xf) | 0x40, stdout);
+        putc((c & 0xf) | 0x40, stdout);
+        putc('\n', stdout);
     } else {
         /* maybe utf-8, decode later */
         fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);

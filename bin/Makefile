@@ -5,13 +5,13 @@ SH = sh -eu
 
 SOURCES = \
     Makefile.nw create-config.nw detokenize.nw git-last-modified.nw nofake-exec.nw \
-    nwsplit.nw repl.nw tokenize.nw
+    nwsplit.nw parse.nw repl.nw tokenize.nw
 
 TARGETS = \
     create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
     head-README.sh show-README.sh cat-README.sh detokenize.c detokenize \
-    git-last-modified.sh nofake-exec.sh nwsplit.c nwsplit repl.c \
-    repl tokenize.c tokenize
+    git-last-modified.sh nofake-exec.sh nwsplit.c nwsplit parse.c \
+    parse repl.c repl tokenize.c tokenize
 
 all: $(TARGETS)
 
@@ -70,6 +70,14 @@ nwsplit.c: \
 nwsplit: \
     nwsplit.c
 	@nofake --error -R'build nwsplit' $(SOURCES) | $(SH)
+
+parse.c: \
+    parse.nw tkscan.nw
+	@nofake --error -R'build parse.c' $(SOURCES) | $(SH)
+
+parse: \
+    parse.c
+	@nofake --error -R'build parse' $(SOURCES) | $(SH)
 
 repl.c: \
     repl.nw

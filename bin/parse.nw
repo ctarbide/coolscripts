@@ -1,91 +1,20 @@
 
-nofake -RWIP detokenize.nw | sh
-
-<<WIP>>=
-#!/bin/sh
-set -eu
-make tokenize detokenize
-./tokenize nofake.nw | ./detokenize 2>/dev/null | sha256sum
-sha256sum nofake.nw
-@
-
-'nofake detokenize.nw' for build instructions
+'nofake parse.nw' for build instructions
 
 <<Define CONVERT_CRLF_TO_LF>>=
 #define CONVERT_CRLF_TO_LF 1
 @
 
-<<chop nl>>=
-if (line_length < 3) { /* CATEGORY RESERVED [ DATA ] LF */
-    fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
-    exit(1);
-}
-line_length--;
-@
-
 <<Process Line - vars>>=
 size_t line_length = ptr - line_start;
-struct strscan ctx[1];
-char *b;
-@
-
-<<set strscan context>>=
-strscan(ctx, line_start, line_length);
-@
-
-<<Variables local to [[main]]>>=
-long input_line_number = 0;
 @
 
 <<Process Line>>=
 <<Process Line - vars>>
-<<chop nl>>
-<<set strscan context>>
-b = ctx->beg;
-switch (*b) {
-    case '0':
-        ctx->pos += 2;
-        fprintf(stderr, "file name: [");
-        fwrite(STRSCAN_PTR(ctx), 1, STRSCAN_LEN(ctx), stderr);
-        fprintf(stderr, "]\n");
-        input_line_number = 1;
-        break;
-    case '1':
-        putc('\n', stdout);
-        ctx->pos += 2;
-        fprintf(stderr, "done with line ");
-        fwrite(STRSCAN_PTR(ctx), 1, STRSCAN_LEN(ctx), stderr);
-        fprintf(stderr, " (%ld)\n", input_line_number);
-        input_line_number++;
-        break;
-    case '2': /* EOF */
-        break;
-    case '3': /* isalnum(c) || c == '_' */
-        ctx->pos += 2;
-        fwrite(STRSCAN_PTR(ctx), 1, STRSCAN_LEN(ctx), stdout);
-        break;
-    case '4': /* c == ' ' || c == '\t' */
-        ctx->pos += 2;
-        fwrite(STRSCAN_PTR(ctx), 1, STRSCAN_LEN(ctx), stdout);
-        break;
-    case '5': /* ispunct(c) */
-        putc(b[2], stdout);
-        break;
-    case '6': { /* c <= 127 */
-            ctx->pos += 2;
-            if (STRSCAN_LEN(ctx) != 2) {
-                fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
-                exit(1);
-            }
-            c = (b[2] & ~0x40) << 4 | (b[3] & ~0x40);
-            putc(c, stdout);
-        }
-        break;
-    default:
-        fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
-        exit(1);
-        break;
-}
+printf("**** line %s:%lu has %lu bytes: [", file_name, line_count,
+    (unsigned long)line_length);
+fwrite(line_start, line_length, 1, stdout);
+printf("]\n");
 @
 
 <<The main program>>=
@@ -99,7 +28,7 @@ int main(int argc, char **argv)
 }
 @
 
-<<detokenize.c>>=
+<<parse.c>>=
 <<C Standards>>
 <<Header files to include>>
 <<Definitions>>
@@ -324,41 +253,41 @@ return 0;
 <<protos>>
 @
 
-nofake detokenize.nw | sh -eux
+nofake parse.nw | sh -eux
 
 <<*>>=
 #!/bin/sh
 set -eu
-<<build detokenize.c>>
-<<build detokenize>>
+<<build parse.c>>
+<<build parse>>
 @
 
 [[targets]] are used by automatic Makefile generation, see [[Makefile.nw]] for
 details.
 
 <<targets>>=
-set -- "$@" detokenize.c
-set -- "$@" detokenize
+set -- "$@" parse.c
+set -- "$@" parse
 @
 
-<<detokenize.c deps>>=
-detokenize.nw strscan.nw
+<<parse.c deps>>=
+parse.nw tkscan.nw
 @
 
-<<detokenize deps>>=
-detokenize.c
+<<parse deps>>=
+parse.c
 @
 
-<<build detokenize.c>>=
-CHMOD='chmod 0444' nofake.sh --error -L -Rdetokenize.c -odetokenize.c <<detokenize.c deps>>
+<<build parse.c>>=
+CHMOD='chmod 0444' nofake.sh --error -L -Rparse.c -oparse.c <<parse.c deps>>
 @
 
-<<build detokenize - DEBUG>>=
-gcc -O0 -g -Wall -ansi -pedantic -o detokenize detokenize.c
+<<build parse - DEBUG>>=
+gcc -O0 -g -Wall -ansi -pedantic -o parse parse.c
 @
 
-<<build detokenize - STANDARD>>=
-gcc -O2 -Wall -ansi -pedantic -o detokenize detokenize.c
+<<build parse - STANDARD>>=
+gcc -O2 -Wall -ansi -pedantic -o parse parse.c
 @
 
 <<set build PEDANTIC>>=
@@ -372,22 +301,22 @@ set -- "$@" -Wno-unused-parameter
 set -- "$@" -Werror -fmax-errors=3
 @
 
-<<build detokenize - PEDANTIC>>=
+<<build parse - PEDANTIC>>=
 set --
 <<set build PEDANTIC>>
-gcc -O2 "$@" -o detokenize detokenize.c
+gcc -O2 "$@" -o parse parse.c
 @
 
-<<build detokenize>>=
+<<build parse>>=
 #!/bin/sh
 set -eu
-#@<<build detokenize - DEBUG>>
-#@<<build detokenize - STANDARD>>
-<<build detokenize - PEDANTIC>>
+#@<<build parse - DEBUG>>
+#@<<build parse - STANDARD>>
+<<build parse - PEDANTIC>>
 @
 
 <<tests.sh>>=
 #!/bin/sh
 set -eux
-make detokenize
+make parse
 @
