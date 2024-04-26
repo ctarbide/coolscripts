@@ -4,13 +4,14 @@
 SH = sh -eu
 
 SOURCES = \
-    Makefile.nw create-config.nw git-last-modified.nw nofake-exec.nw nwsplit.nw \
-    repl.nw
+    Makefile.nw create-config.nw detokenize.nw git-last-modified.nw nofake-exec.nw \
+    nwsplit.nw repl.nw tokenize.nw
 
 TARGETS = \
     create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
-    head-README.sh show-README.sh cat-README.sh git-last-modified.sh nofake-exec.sh \
-    nwsplit.c nwsplit repl.c repl
+    head-README.sh show-README.sh cat-README.sh detokenize.c detokenize \
+    git-last-modified.sh nofake-exec.sh nwsplit.c nwsplit repl.c \
+    repl tokenize.c tokenize
 
 all: $(TARGETS)
 
@@ -46,6 +47,14 @@ cat-README.sh: \
     cat-README.nw create-config.nw shell.nw temporary-files-shell.nw
 	@nofake --error -R'build cat-README.sh' $(SOURCES) | $(SH)
 
+detokenize.c: \
+    detokenize.nw strscan.nw
+	@nofake --error -R'build detokenize.c' $(SOURCES) | $(SH)
+
+detokenize: \
+    detokenize.c
+	@nofake --error -R'build detokenize' $(SOURCES) | $(SH)
+
 git-last-modified.sh: \
     git-last-modified.nw shell.nw
 	@nofake --error -R'build git-last-modified.sh' $(SOURCES) | $(SH)
@@ -69,6 +78,14 @@ repl.c: \
 repl: \
     repl.c
 	@nofake --error -R'build repl' $(SOURCES) | $(SH)
+
+tokenize.c: \
+    strscan.nw tokenize.nw
+	@nofake --error -R'build tokenize.c' $(SOURCES) | $(SH)
+
+tokenize: \
+    tokenize.c
+	@nofake --error -R'build tokenize' $(SOURCES) | $(SH)
 
 clean:
 	-rm -f $(TARGETS)

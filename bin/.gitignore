@@ -9,3 +9,5 @@
 /example.sh
 /repl
 /nwsplit
+/tokenize
+/detokenize

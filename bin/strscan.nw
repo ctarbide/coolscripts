@@ -43,7 +43,7 @@ void rtrim(struct strscan *ctx)
     char *b = ctx->beg + ctx->pos;
     char *e = ctx->end - 1;
     if (ctx->fail) return;
-    while (e >= b && isblank(*e)) {
+    while (e >= b && (*e == ' ' || *e == '\t')) {
         e--;
     }
     ctx->end = e + 1;
