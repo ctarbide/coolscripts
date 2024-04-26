@@ -1,22 +1,19 @@
-#line 79 "nwsplit.nw"
-#line 87 "nwsplit.nw"
+#line 110 "nwsplit.nw"
+#line 121 "nwsplit.nw"
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
 #endif
-
 #ifndef _ISOC99_SOURCE
 #define _ISOC99_SOURCE
 #endif
-
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
 #endif
-
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
 #endif
-#line 80 "nwsplit.nw"
-#line 105 "nwsplit.nw"
+#line 111 "nwsplit.nw"
+#line 136 "nwsplit.nw"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -24,37 +21,169 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
-#line 81 "nwsplit.nw"
-#line 15 "nwsplit.nw"
-#define STATE_DOCUMENTATION 0
-#define STATE_FOUND_CHUNK 1
-#define STATE_CHUNK_LINE 2
-#define STATE_FOUND_END_OF_CHUNK 3
-#line 126 "nwsplit.nw"
+#include <ctype.h>
+#line 112 "nwsplit.nw"
+#line 158 "nwsplit.nw"
 #define OK                  0   /* status code for successful run */
 #define CANNOT_OPEN_FILE    1   /* status code for file access error */
 #define LINE_TOO_LONG       2   /* line longer than BUF_SIZE - 1 */
 #define READ_ONLY           0   /* read access code for system open */
-#line 118 "nwsplit.nw"
+#line 150 "nwsplit.nw"
 #if BUFSIZ >= 512
 #define BUF_SIZE            BUFSIZ
 #else
 #define BUF_SIZE            512
 #endif
-#line 131 "nwsplit.nw"
+#line 163 "nwsplit.nw"
 #line 11 "nwsplit.nw"
 #define CONVERT_CRLF_TO_LF 1
-#line 82 "nwsplit.nw"
-#line 135 "nwsplit.nw"
-int status = OK;    /* exit status of command, initially OK */
-char *prog_name;    /* who we are */
-/* total number of lines */
-long tot_line_count;
-#line 83 "nwsplit.nw"
-#line 68 "nwsplit.nw"
+#line 325 "nwsplit.nw"
+#line 16 "strscan.nw"
+#define STRSCAN_PTR(ctx) ((ctx)->beg + (ctx)->pos)
+#define STRSCAN_LEN(ctx) ((ctx)->end - STRSCAN_PTR(ctx))
+#line 113 "nwsplit.nw"
+#line 327 "nwsplit.nw"
+#line 9 "strscan.nw"
+struct strscan {
+    char *beg, *end;
+    int pos, fail;
+};
+#line 114 "nwsplit.nw"
+#line 331 "nwsplit.nw"
+#line 50 "nwsplit.nw"
+static int found_chunk(struct strscan *ctx);
+#line 69 "nwsplit.nw"
+static int found_end_of_chunk(struct strscan *ctx);
+#line 21 "strscan.nw"
+void
+strscan(struct strscan *ctx, char *s, size_t len);
+#line 37 "strscan.nw"
+void rtrim(struct strscan *ctx);
+#line 54 "strscan.nw"
+int
+startswith2(struct strscan *ctx, int x, int y);
+#line 77 "strscan.nw"
+int
+endswith3(struct strscan *ctx, int x, int y, int z);
+#line 100 "strscan.nw"
+int
+exact1(struct strscan *ctx, int x);
+#line 123 "strscan.nw"
+int
+hasatleast(struct strscan *ctx, size_t len);
+#line 115 "nwsplit.nw"
+#line 167 "nwsplit.nw"
+int status = OK;        /* exit status of command, initially OK */
+char *prog_name;        /* who we are */
+long tot_line_count;    /* total number of lines */
+#line 116 "nwsplit.nw"
+#line 329 "nwsplit.nw"
+#line 54 "nwsplit.nw"
+static int found_chunk(struct strscan *ctx)
+{
+    struct strscan save = *ctx;
+    int res =
+        startswith2(ctx, '<', '<') &&
+        endswith3(ctx, '>', '>', '=') &&
+        hasatleast(ctx, 1);
+    if (!res) {
+        *ctx = save;
+    }
+    return res;
+}
+#line 73 "nwsplit.nw"
+static int found_end_of_chunk(struct strscan *ctx)
+{
+    return
+        exact1(ctx, '@') ||
+        startswith2(ctx, '@', ' ');
+}
+#line 26 "strscan.nw"
+void
+strscan(struct strscan *ctx, char *s, size_t len)
+{
+    ctx->beg = s;
+    ctx->end = s + len;
+    ctx->pos = 0;
+    ctx->fail = 0;
+}
+#line 41 "strscan.nw"
+void rtrim(struct strscan *ctx)
+{
+    char *b = ctx->beg + ctx->pos;
+    char *e = ctx->end - 1;
+    if (ctx->fail) return;
+    while (e >= b && isblank(*e)) {
+        e--;
+    }
+    ctx->end = e + 1;
+}
+#line 59 "strscan.nw"
+int
+startswith2(struct strscan *ctx, int x, int y)
+{
+    char *b = ctx->beg + ctx->pos;
+    size_t l = ctx->end - b;
+    if (ctx->fail) return 0;
+    if (l < 2) {
+        return 0;
+    }
+    if (b[0] == x && b[1] == y) {
+        ctx->pos += 2;
+        return 1;
+    }
+    return 0;
+}
+#line 82 "strscan.nw"
+int
+endswith3(struct strscan *ctx, int x, int y, int z)
+{
+    char *e = ctx->end;
+    size_t l = e - (ctx->beg + ctx->pos);
+    if (ctx->fail) return 0;
+    if (l < 3) {
+        return 0;
+    }
+    if (e[-3] == x && e[-2] == y && e[-1] == z) {
+        ctx->end = e - 3;
+        return 1;
+    }
+    return 0;
+}
+#line 105 "strscan.nw"
+int
+exact1(struct strscan *ctx, int x)
+{
+    char *b = ctx->beg + ctx->pos;
+    size_t l = ctx->end - b;
+    if (ctx->fail) return 0;
+    if (l != 1) {
+        return 0;
+    }
+    if (b[0] == x) {
+        ctx->pos++;
+        return 1;
+    }
+    return 0;
+}
+#line 128 "strscan.nw"
+int
+hasatleast(struct strscan *ctx, size_t len)
+{
+    if (ctx->fail) return 0;
+    if ((ctx->end - (ctx->beg + ctx->pos)) >= (ssize_t)len) {
+        return 1;
+    }
+    return 0;
+}
+#line 117 "nwsplit.nw"
+#line 99 "nwsplit.nw"
 int main(int argc, char **argv)
 {
-#line 272 "nwsplit.nw"
+#line 45 "nwsplit.nw"
+    int inside_chunk = 0;
+    long id = 0;
+#line 301 "nwsplit.nw"
     int file_count;         /* how many files there are */
     char *file_name;        /* Used to differentiate between *argv and '-' */
     int fd;                 /* file descriptor */
@@ -67,17 +196,17 @@ int main(int argc, char **argv)
     long line_count;        /* # of words, lines, and chars so far */
     int got_eof = 0;        /* read got EOF */
     int got_cr = 0;         /* previous char was '\r' */
-#line 71 "nwsplit.nw"
-#line 287 "nwsplit.nw"
+#line 102 "nwsplit.nw"
+#line 316 "nwsplit.nw"
     prog_name = argv[0];
-#line 72 "nwsplit.nw"
-#line 268 "nwsplit.nw"
+#line 103 "nwsplit.nw"
+#line 297 "nwsplit.nw"
     file_count = argc - 1;
-#line 73 "nwsplit.nw"
-#line 257 "nwsplit.nw"
+#line 104 "nwsplit.nw"
+#line 286 "nwsplit.nw"
     argc--;
     do {
-#line 238 "nwsplit.nw"
+#line 267 "nwsplit.nw"
         if (file_count > 0) {
             file_name = *(++argv);
             if (strcmp(file_name, "-") == 0) {
@@ -94,19 +223,19 @@ int main(int argc, char **argv)
             fd = 0; /* stdin */
             file_name = "-";
         }
-#line 260 "nwsplit.nw"
-#line 233 "nwsplit.nw"
+#line 289 "nwsplit.nw"
+#line 262 "nwsplit.nw"
         line_start = ptr = buffer;
         line_count = 0;
-#line 261 "nwsplit.nw"
-#line 224 "nwsplit.nw"
+#line 290 "nwsplit.nw"
+#line 253 "nwsplit.nw"
         line_start = ptr = buffer;
         nc = read(fd, ptr, BUF_SIZE);
         if (nc > 0) {
             buf_end = buffer + nc;
-#line 194 "nwsplit.nw"
+#line 223 "nwsplit.nw"
             while (got_eof == 0) {
-#line 152 "nwsplit.nw"
+#line 181 "nwsplit.nw"
                 if (ptr >= buf_end) {
                     size_t consumed = ptr - buffer;
                     size_t remaining = BUF_SIZE - consumed;
@@ -146,7 +275,7 @@ int main(int argc, char **argv)
                         buf_end = ptr + nc;
                     }
                 }
-#line 196 "nwsplit.nw"
+#line 225 "nwsplit.nw"
                 c = *ptr++;
                 if (c == '\n') {
                     /* lf or cr-lf */
@@ -156,30 +285,46 @@ int main(int argc, char **argv)
             #endif
                     line_count++;
                     {
-#line 54 "nwsplit.nw"
-#line 45 "nwsplit.nw"
+#line 15 "nwsplit.nw"
+#line 90 "nwsplit.nw"
                         size_t line_length = ptr - line_start;
-                        int state = STATE_DOCUMENTATION;
-#line 55 "nwsplit.nw"
+                        struct strscan ctx[1];
+#line 16 "nwsplit.nw"
+#line 82 "nwsplit.nw"
                         if (line_length == 0) {
                             fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
                             exit(1);
                         }
-#line 50 "nwsplit.nw"
-                        line_start[--line_length] = '\0';
-#line 60 "nwsplit.nw"
-                        printf("**** line %s:%lu has %lu bytes: [", file_name, line_count,
-                            (unsigned long)line_length);
-                        fwrite(line_start, line_length, 1, stdout);
-                        printf("]\n");
-#line 32 "nwsplit.nw"
-#line 28 "nwsplit.nw"
-                        if (1) {
-#line 33 "nwsplit.nw"
-                            state = STATE_FOUND_CHUNK;
-                            (void)state;
+                        line_length--;
+#line 17 "nwsplit.nw"
+#line 95 "nwsplit.nw"
+                        strscan(ctx, line_start, line_length);
+#line 18 "nwsplit.nw"
+                        if (found_chunk(ctx)) {
+                            inside_chunk = 1;
+                            fprintf(stdout, "%08lx_1: ", ++id);
+                            fwrite(line_start, 1, line_length, stdout);
+                            fprintf(stdout, "\n");
+                        } else if (inside_chunk) {
+                            if (found_end_of_chunk(ctx)) {
+                                inside_chunk = 0;
+                                fprintf(stdout, "%08lx_3: ", id++);
+                                fwrite(line_start, 1, line_length, stdout);
+                                fprintf(stdout, "\n");
+                            } else {
+                                if (startswith2(ctx, '@', '@')) {
+                                    ctx->pos--;
+                                }
+                                fprintf(stdout, "%08lx_2: ", id);
+                                fwrite(STRSCAN_PTR(ctx), 1, STRSCAN_LEN(ctx), stdout);
+                                fprintf(stdout, "\n");
+                            }
+                        } else {
+                            fprintf(stdout, "%08lx_0: ", id);
+                            fwrite(line_start, 1, line_length, stdout);
+                            fprintf(stdout, "\n");
                         }
-#line 206 "nwsplit.nw"
+#line 235 "nwsplit.nw"
                     }
             #if CONVERT_CRLF_TO_LF
                     ptr += got_cr;
@@ -195,19 +340,19 @@ int main(int argc, char **argv)
                     got_cr = c == '\r';
                 }
             }
-#line 229 "nwsplit.nw"
+#line 258 "nwsplit.nw"
         }
-#line 262 "nwsplit.nw"
-#line 148 "nwsplit.nw"
-        close(fd);
-#line 263 "nwsplit.nw"
-#line 144 "nwsplit.nw"
-        tot_line_count += line_count;
-#line 264 "nwsplit.nw"
-    } while (--argc > 0);
-#line 74 "nwsplit.nw"
 #line 291 "nwsplit.nw"
+#line 177 "nwsplit.nw"
+        close(fd);
+#line 292 "nwsplit.nw"
+#line 173 "nwsplit.nw"
+        tot_line_count += line_count;
+#line 293 "nwsplit.nw"
+    } while (--argc > 0);
+#line 105 "nwsplit.nw"
+#line 320 "nwsplit.nw"
     exit(status);
     return 0;
-#line 75 "nwsplit.nw"
+#line 106 "nwsplit.nw"
 }

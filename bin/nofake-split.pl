@@ -36,13 +36,9 @@ sub read_file {
             } else {
                 # regular line inside chunk
                 $line =~ s,^\@\@,\@,;
-		print("${chunk}_2: " . $line);
+                print("${chunk}_2: " . $line);
             }
         } else {
-            if ($line =~ m{^(|.*?[^\@])<<} and $1 !~ m{\[\[}) {
-                $carp_or_croak->("WARNING: Unescaped << in documentation" .
-                    " chunk at line ${ARGV}:${.}.");
-            }
             print("${chunk}_0: " . $line);
         }
     }
@@ -77,4 +73,4 @@ while ($_ = shift(@ARGV)) {
     else { push(@files, $_) }
 }
 
-read_file($_) for @files;
+read_file($_) for @files ? @files : qw{-};

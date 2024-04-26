@@ -14,24 +14,24 @@ repl.nw git-last-modified.nw nwsplit.nw
 <<*>>=
 #!/bin/sh
 set -eu
-SH=${SH:-sh}; export SH
-nofake --error -Rgenerate Makefile.nw | "${SH}" -eu >Makefile
+SH=${SH:-sh -eu}; export SH
+nofake --error -Rgenerate Makefile.nw | ${SH} >Makefile
 @
 
 <<generate>>=
 #!/bin/sh
 set -eu
-SH=${SH:-sh}; export SH
+SH=${SH:-sh -eu}; export SH
 set_sources=`nofake --error -Rsources Makefile.nw | normalize-args.sh |
     perl -lpe'$_=qq{set -- \042\\\$\@\042 ${_};}'`
 eval "set --; ${set_sources}"
-nofake --error -R'generate Makefile' "$@" | "${SH}" -eu
+nofake --error -R'generate Makefile' "$@" | ${SH}
 @
 
 <<generate Makefile>>=
 #!/bin/sh
 set -eu
-SH=${SH:-sh}; export SH
+SH=${SH:-sh -eu}; export SH
 printf -- '\n# automatically generated from Makefile.nw\n\n'
 set_sources=`nofake --error -Rsources Makefile.nw | normalize-args.sh |
     perl -lpe'$_=qq{set -- \042\\\$\@\042 ${_};}'`
@@ -44,11 +44,13 @@ printf -- '\nTARGETS = \\\n'
 <<indent "$@">>
 printf -- '\nall: $(TARGETS)\n\n'
 for target; do
-    printf '%s: ' "${target}"
+    printf '%s: \\\n' "${target}"
     (
         eval "set --; ${set_sources}"
-        nofake --error -R"${target} deps" "$@"
-        printf -- '\t@nofake --error -R'"'"'build '"${target}'"' $(SOURCES) | $(SH) -eu\n\n'
+        set_deps=`nofake --error -R"${target} deps" "$@" | normalize-args.sh | perl -lpe'$_=qq{set -- \042\\\$\@\042 ${_};}'`
+        eval "set --; ${set_deps}"
+        <<indent "$@">>
+        printf -- '\t@nofake --error -R'"'"'build '"${target}'"' $(SOURCES) | $(SH)\n\n'
     )
 done
 printf -- 'clean:\n\t-rm -f $(TARGETS)\n\n'
