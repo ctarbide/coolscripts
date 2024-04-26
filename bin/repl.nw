@@ -38,7 +38,10 @@ int main(int argc, char **argv)
 <<C Standards>>
 <<Header files to include>>
 <<Definitions>>
+<<Types>>
+<<Protos>>
 <<Global variables>>
+<<Auxiliary Functions>>
 <<The main program>>
 @
 
@@ -65,6 +68,7 @@ int main(int argc, char **argv)
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
+#include <ctype.h>
 @
 
 stdio.h BUFSIZ chosen for efficiency, BUF_SIZE also dictates the maximum line
@@ -245,7 +249,17 @@ exit(status);
 return 0;
 @
 
-nofake repl.nw | sh -x
+<<Definitions>>=
+/* @<<definitions>> */
+<<Types>>=
+/* @<<structs>> */
+<<Auxiliary Functions>>=
+/* @<<impl>> */
+<<Protos>>=
+/* @<<protos>> */
+@
+
+nofake repl.nw | sh -eux
 
 <<*>>=
 #!/bin/sh

@@ -1,5 +1,5 @@
 #line 38 "repl.nw"
-#line 46 "repl.nw"
+#line 49 "repl.nw"
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
 #endif
@@ -13,7 +13,7 @@
 #define _POSIX_C_SOURCE 200112L
 #endif
 #line 39 "repl.nw"
-#line 61 "repl.nw"
+#line 64 "repl.nw"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -21,31 +21,43 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
+#include <ctype.h>
 #line 40 "repl.nw"
-#line 82 "repl.nw"
+#line 86 "repl.nw"
 #define OK                  0   /* status code for successful run */
 #define CANNOT_OPEN_FILE    1   /* status code for file access error */
 #define LINE_TOO_LONG       2   /* line longer than BUF_SIZE - 1 */
 #define READ_ONLY           0   /* read access code for system open */
-#line 74 "repl.nw"
+#line 78 "repl.nw"
 #if BUFSIZ >= 512
 #define BUF_SIZE            BUFSIZ
 #else
 #define BUF_SIZE            512
 #endif
-#line 87 "repl.nw"
+#line 91 "repl.nw"
 #line 11 "repl.nw"
 #define CONVERT_CRLF_TO_LF 1
+#line 253 "repl.nw"
+/* <<definitions>> */
 #line 41 "repl.nw"
-#line 91 "repl.nw"
+#line 255 "repl.nw"
+/* <<structs>> */
+#line 42 "repl.nw"
+#line 259 "repl.nw"
+/* <<protos>> */
+#line 43 "repl.nw"
+#line 95 "repl.nw"
 int status = OK;        /* exit status of command, initially OK */
 char *prog_name;        /* who we are */
 long tot_line_count;    /* total number of lines */
-#line 42 "repl.nw"
+#line 44 "repl.nw"
+#line 257 "repl.nw"
+/* <<impl>> */
+#line 45 "repl.nw"
 #line 27 "repl.nw"
 int main(int argc, char **argv)
 {
-#line 225 "repl.nw"
+#line 229 "repl.nw"
     int file_count;         /* how many files there are */
     char *file_name;        /* Used to differentiate between *argv and '-' */
     int fd;                 /* file descriptor */
@@ -59,16 +71,16 @@ int main(int argc, char **argv)
     int got_eof = 0;        /* read got EOF */
     int got_cr = 0;         /* previous char was '\r' */
 #line 30 "repl.nw"
-#line 240 "repl.nw"
+#line 244 "repl.nw"
     prog_name = argv[0];
 #line 31 "repl.nw"
-#line 221 "repl.nw"
+#line 225 "repl.nw"
     file_count = argc - 1;
 #line 32 "repl.nw"
-#line 210 "repl.nw"
+#line 214 "repl.nw"
     argc--;
     do {
-#line 191 "repl.nw"
+#line 195 "repl.nw"
         if (file_count > 0) {
             file_name = *(++argv);
             if (strcmp(file_name, "-") == 0) {
@@ -85,19 +97,19 @@ int main(int argc, char **argv)
             fd = 0; /* stdin */
             file_name = "-";
         }
-#line 213 "repl.nw"
-#line 186 "repl.nw"
+#line 217 "repl.nw"
+#line 190 "repl.nw"
         line_start = ptr = buffer;
         line_count = 0;
-#line 214 "repl.nw"
-#line 177 "repl.nw"
+#line 218 "repl.nw"
+#line 181 "repl.nw"
         line_start = ptr = buffer;
         nc = read(fd, ptr, BUF_SIZE);
         if (nc > 0) {
             buf_end = buffer + nc;
-#line 147 "repl.nw"
+#line 151 "repl.nw"
             while (got_eof == 0) {
-#line 105 "repl.nw"
+#line 109 "repl.nw"
                 if (ptr >= buf_end) {
                     size_t consumed = ptr - buffer;
                     size_t remaining = BUF_SIZE - consumed;
@@ -137,7 +149,7 @@ int main(int argc, char **argv)
                         buf_end = ptr + nc;
                     }
                 }
-#line 149 "repl.nw"
+#line 153 "repl.nw"
                 c = *ptr++;
                 if (c == '\n') {
                     /* lf or cr-lf */
@@ -155,7 +167,7 @@ int main(int argc, char **argv)
                             (unsigned long)line_length);
                         fwrite(line_start, line_length, 1, stdout);
                         printf("]\n");
-#line 159 "repl.nw"
+#line 163 "repl.nw"
                     }
             #if CONVERT_CRLF_TO_LF
                     ptr += got_cr;
@@ -171,18 +183,18 @@ int main(int argc, char **argv)
                     got_cr = c == '\r';
                 }
             }
-#line 182 "repl.nw"
+#line 186 "repl.nw"
         }
-#line 215 "repl.nw"
-#line 101 "repl.nw"
+#line 219 "repl.nw"
+#line 105 "repl.nw"
         close(fd);
-#line 216 "repl.nw"
-#line 97 "repl.nw"
+#line 220 "repl.nw"
+#line 101 "repl.nw"
         tot_line_count += line_count;
-#line 217 "repl.nw"
+#line 221 "repl.nw"
     } while (--argc > 0);
 #line 33 "repl.nw"
-#line 244 "repl.nw"
+#line 248 "repl.nw"
     exit(status);
     return 0;
 #line 34 "repl.nw"
