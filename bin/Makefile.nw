@@ -6,8 +6,12 @@ To generate/update Makefile, simply do:
 
     nofake Makefile.nw | sh
 
+<<Makefile prefix>>=
+Makefile
+@
+
 <<sources>>=
-Makefile.nw create-config.nw nofake-exec.nw
+<<Makefile prefix>>.nw create-config.nw nofake-exec.nw
 repl.nw git-last-modified.nw nwsplit.nw
 @
 
@@ -15,51 +19,95 @@ repl.nw git-last-modified.nw nwsplit.nw
 #!/bin/sh
 set -eu
 SH=${SH:-sh -eu}; export SH
-nofake --error -Rgenerate Makefile.nw | ${SH} >Makefile
+<<function cmd_push_to_argv>>
+<<function list_set_sources>>
+# set -- <<Makefile prefix>>.nw
+# nofake --error -R'generate build.sh' "$@" | ${SH}
+eval "set --; `list_set_sources`"
+nofake --error -R'generate Makefile' "$@" | ${SH} ><<Makefile prefix>>
 @
 
-<<generate>>=
-#!/bin/sh
-set -eu
-SH=${SH:-sh -eu}; export SH
-set_sources=`nofake --error -Rsources Makefile.nw | normalize-args.sh |
-    perl -lpe'$_=qq{set -- \042\\\$\@\042 ${_};}'`
+<<function cmd_push_to_argv>>=
+cmd_push_to_argv(){
+    normalize-args.sh | perl -lpe'$_=qq{set -- \042\$\@\042 ${_};}'
+}
+@
+
+<<function list_set_sources>>=
+list_set_sources(){
+    cat<<'EOF' | cmd_push_to_argv
+<<sources>>
+EOF
+}
+@
+
+<<function indent_args>>=
+indent_args(){
+    perl -le'
+        sub backslash(){ scalar(@ARGV) ? q{ \\} : q{} }
+        while (my @a = splice(@ARGV, 0, 5)) {
+            print(q{    }, join(q{ }, @a), backslash);
+        }' -- "$@"
+}
+@
+
+<<indent "$@">>=
+indent_args "$@"
+@
+
+<<output SH= and SOURCES=>>=
 eval "set --; ${set_sources}"
-nofake --error -R'generate Makefile' "$@" | ${SH}
+printf -- 'SH = %s\n\nSOURCES = \\\n' "${SH}"
+<<indent "$@">>
+@
+
+<<output TARGETS=>>=
+set --
+<<targets>>
+printf -- '\nTARGETS = \\\n'
+<<indent "$@">>
+@
+
+<<output all:>>=
+printf -- '\nall: $(TARGETS)\n\n'
+for target; do
+    printf '%s: \\\n' "${target}"
+    (
+        eval "set --; ${set_sources}"
+        set_deps=`nofake --error -R"${target} deps" "$@" | cmd_push_to_argv`
+        eval "set --; ${set_deps}"
+        <<indent "$@">>
+        printf -- '\t@nofake --error -R'"'"'build '"${target}'"' $(SOURCES) | $(SH)\n\n'
+    )
+done
 @
 
 <<generate Makefile>>=
 #!/bin/sh
 set -eu
 SH=${SH:-sh -eu}; export SH
-printf -- '\n# automatically generated from Makefile.nw\n\n'
-set_sources=`nofake --error -Rsources Makefile.nw | normalize-args.sh |
-    perl -lpe'$_=qq{set -- \042\\\$\@\042 ${_};}'`
-eval "set --; ${set_sources}"
-printf -- 'SH = %s\n\nSOURCES = \\\n' "${SH}"
-<<indent "$@">>
-set --
-<<targets>>
-printf -- '\nTARGETS = \\\n'
-<<indent "$@">>
-printf -- '\nall: $(TARGETS)\n\n'
-for target; do
-    printf '%s: \\\n' "${target}"
-    (
-        eval "set --; ${set_sources}"
-        set_deps=`nofake --error -R"${target} deps" "$@" | normalize-args.sh | perl -lpe'$_=qq{set -- \042\\\$\@\042 ${_};}'`
-        eval "set --; ${set_deps}"
-        <<indent "$@">>
-        printf -- '\t@nofake --error -R'"'"'build '"${target}'"' $(SOURCES) | $(SH)\n\n'
-    )
-done
+<<function cmd_push_to_argv>>
+<<function list_set_sources>>
+<<function indent_args>>
+printf -- '\n# automatically generated from <<Makefile prefix>>.nw\n\n'
+set_sources=`list_set_sources`
+<<output SH= and SOURCES=>>
+<<output TARGETS=>>
+<<output all:>>
 printf -- 'clean:\n\t-rm -f $(TARGETS)\n\n'
 @
 
-<<indent "$@">>=
-perl -le'
-    sub backslash(){ scalar(@ARGV) ? q{ \\} : q{} }
-    while (my @a = splice(@ARGV, 0, 3)) {
-        print(q{    }, join(q{ }, @a), backslash);
-    }' -- "$@"
+<<generate build.sh>>=
+#!/bin/sh
+set -eu
+CHMOD='chmod 0555' nofake.sh --error -Rbuild.sh -obuild.sh <<Makefile prefix>>.nw
+@
+
+<<build.sh>>=
+#!/bin/sh
+# automatically generated from <<Makefile prefix>>.nw
+set -eu
+SH=${SH:-sh -eu}; export SH
+nofake --error <<Makefile prefix>>.nw | ${SH}
+make -f <<Makefile prefix>>
 @

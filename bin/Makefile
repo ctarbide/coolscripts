@@ -4,15 +4,13 @@
 SH = sh -eu
 
 SOURCES = \
-    Makefile.nw create-config.nw nofake-exec.nw \
-    repl.nw git-last-modified.nw nwsplit.nw
+    Makefile.nw create-config.nw nofake-exec.nw repl.nw git-last-modified.nw \
+    nwsplit.nw
 
 TARGETS = \
-    create-config.sh show-config.sh new-item.sh \
-    make-index.sh find.sh head-README.sh \
-    show-README.sh cat-README.sh nofake-exec.sh \
-    repl.c repl git-last-modified.sh \
-    nwsplit.c nwsplit
+    create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
+    head-README.sh show-README.sh cat-README.sh nofake-exec.sh repl.c \
+    repl git-last-modified.sh nwsplit.c nwsplit
 
 all: $(TARGETS)
 
@@ -33,23 +31,19 @@ make-index.sh: \
 	@nofake --error -R'build make-index.sh' $(SOURCES) | $(SH)
 
 find.sh: \
-    shell.nw create-config.nw temporary-files-shell.nw \
-    find.nw
+    shell.nw create-config.nw temporary-files-shell.nw find.nw
 	@nofake --error -R'build find.sh' $(SOURCES) | $(SH)
 
 head-README.sh: \
-    shell.nw create-config.nw temporary-files-shell.nw \
-    head-README.nw
+    shell.nw create-config.nw temporary-files-shell.nw head-README.nw
 	@nofake --error -R'build head-README.sh' $(SOURCES) | $(SH)
 
 show-README.sh: \
-    shell.nw create-config.nw temporary-files-shell.nw \
-    show-README.nw
+    shell.nw create-config.nw temporary-files-shell.nw show-README.nw
 	@nofake --error -R'build show-README.sh' $(SOURCES) | $(SH)
 
 cat-README.sh: \
-    shell.nw create-config.nw temporary-files-shell.nw \
-    cat-README.nw
+    shell.nw create-config.nw temporary-files-shell.nw cat-README.nw
 	@nofake --error -R'build cat-README.sh' $(SOURCES) | $(SH)
 
 nofake-exec.sh: \
