@@ -29,7 +29,8 @@ nofake --error -R'generate Makefile' "$@" | ${SH} ><<Makefile prefix>>
 
 <<function cmd_push_to_argv>>=
 cmd_push_to_argv(){
-    normalize-args.sh | perl -lpe'$_=qq{set -- \042\$\@\042 ${_};}'
+    normalize-args.sh | perl -lpe'$_=qq{set -- \042\$\@\042 ${_};}' |
+        LC_ALL=C sort -u
 }
 @
 
