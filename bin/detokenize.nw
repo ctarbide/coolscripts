@@ -77,7 +77,9 @@ switch (*b) {
                 fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
                 exit(1);
             }
-            c = (b[2] & ~0x40) << 4 | (b[3] & ~0x40);
+            /* 0x00..0xFF -> 0y@@..0yOO */
+            /* 0xBF = ~0x40 & 0xFF */
+            c = (b[2] & 0xBF) << 4 | (b[3] & 0xBF);
             putc(c, stdout);
         }
         break;

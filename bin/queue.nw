@@ -1,0 +1,388 @@
+
+Copyright (c) 2024 by C. Tarbide. You may do as you please with
+this code as long as you do not remove this copyright notice or
+hold me liable for its use.
+
+<<definitions>>=
+#define QUEUE_STRUCT(Q) ((struct queue*)(Q))
+#define QUEUE_SIZE(Q) QUEUE_STRUCT(Q)->size
+#define QUEUE_LENGTH(Q) QUEUE_STRUCT(Q)->tally
+@
+
+<<structs>>=
+struct queue {
+    int size;
+    int tally;
+    unsigned int mask;
+    unsigned int front;
+    unsigned int rear;
+};
+@
+
+<<protos>>=
+struct queue *
+new_queue(int size);
+@
+
+<<impl>>=
+struct queue *
+new_queue(int size)
+{
+    struct queue *res;
+    if (size & (size - 1)) {
+        fprintf(stderr, "Error, size must be a power of two.\n");
+        exit(1);
+    }
+    res = calloc(1, sizeof(*res) + size * sizeof(void*));
+    res->size = size;
+    res->mask = size - 1;
+    return res;
+}
+@
+
+'struct queue__check_alignment' is not meant to be used by client code.
+
+All 'struct queue_${size}' MUST follow the same layout as
+'struct queue__check_alignment' up to the 'items' member.
+
+<<structs>>=
+struct queue__check_alignment {
+    struct queue queue[1];
+    void *items[1];
+};
+struct queue_2 {
+    struct queue queue[1];
+    void *items_2[2];
+};
+struct queue_4 {
+    struct queue queue[1];
+    void *items_4[4];
+};
+struct queue_8 {
+    struct queue queue[1];
+    void *items_8[8];
+};
+struct queue_16 {
+    struct queue queue[1];
+    void *items_16[16];
+};
+struct queue_32 {
+    struct queue queue[1];
+    void *items_32[32];
+};
+struct queue_64 {
+    struct queue queue[1];
+    void *items_64[64];
+};
+@
+
+When queue is full (and empty also) [[front]] equals [[rear]].
+
+Param 'S' MUST be a power of two.
+
+<<definitions>>=
+#define SETUP_QUEUE(Q, S, T)    \
+    (Q)->size = S;              \
+    (Q)->tally = T;             \
+    (Q)->mask = (S) - 1;        \
+    (Q)->front = 0;             \
+    (Q)->rear = T;
+@
+
+<<definitions>>=
+#define SETUP_QUEUE_1(Q, A0) do {           \
+        struct queue *__s__ = (Q).queue;    \
+        void **__items__ = (Q).items_2;     \
+        __items__[0] = A0;                  \
+        SETUP_QUEUE(__s__, 2, 1);           \
+    } while (0)
+#define SETUP_QUEUE_2(Q, A0, A1) do {       \
+        struct queue *__s__ = (Q).queue;    \
+        void **__items__ = (Q).items_2;     \
+        __items__[0] = A0;                  \
+        __items__[1] = A1;                  \
+        SETUP_QUEUE(__s__, 2, 2);           \
+    } while (0)
+#define SETUP_QUEUE_3(Q, A0, A1, A2) do {   \
+        struct queue *__s__ = (Q).queue;    \
+        void **__items__ = (Q).items_4;     \
+        __items__[0] = A0;                  \
+        __items__[1] = A1;                  \
+        __items__[2] = A2;                  \
+        SETUP_QUEUE(__s__, 4, 3);           \
+    } while (0)
+#define SETUP_QUEUE_4(Q, A0, A1, A2, A3) do {   \
+        struct queue *__s__ = (Q).queue;        \
+        void **__items__ = (Q).items_4;         \
+        __items__[0] = A0;                      \
+        __items__[1] = A1;                      \
+        __items__[2] = A2;                      \
+        __items__[3] = A3;                      \
+        SETUP_QUEUE(__s__, 4, 4);               \
+    } while (0)
+#define SETUP_QUEUE_5(Q, A0, A1, A2, A3, A4) do {   \
+        struct queue *__s__ = (Q).queue;            \
+        void **__items__ = (Q).items_8;             \
+        __items__[0] = A0;                          \
+        __items__[1] = A1;                          \
+        __items__[2] = A2;                          \
+        __items__[3] = A3;                          \
+        __items__[4] = A4;                          \
+        SETUP_QUEUE(__s__, 8, 5);                   \
+    } while (0)
+#define SETUP_QUEUE_6(Q, A0, A1, A2, A3, A4, A5) do {   \
+        struct queue *__s__ = (Q).queue;                \
+        void **__items__ = (Q).items_8;                 \
+        __items__[0] = A0;                              \
+        __items__[1] = A1;                              \
+        __items__[2] = A2;                              \
+        __items__[3] = A3;                              \
+        __items__[4] = A4;                              \
+        __items__[5] = A5;                              \
+        SETUP_QUEUE(__s__, 8, 6);                       \
+    } while (0)
+#define SETUP_QUEUE_7(Q, A0, A1, A2, A3, A4, A5, A6) do {   \
+        struct queue *__s__ = (Q).queue;                    \
+        void **__items__ = (Q).items_8;                     \
+        __items__[0] = A0;                                  \
+        __items__[1] = A1;                                  \
+        __items__[2] = A2;                                  \
+        __items__[3] = A3;                                  \
+        __items__[4] = A4;                                  \
+        __items__[5] = A5;                                  \
+        __items__[6] = A6;                                  \
+        SETUP_QUEUE(__s__, 8, 7);                           \
+    } while (0)
+#define SETUP_QUEUE_8(Q, A0, A1, A2, A3, A4, A5, A6, A7) do {   \
+        struct queue *__s__ = (Q).queue;                        \
+        void **__items__ = (Q).items_8;                         \
+        __items__[0] = A0;                                      \
+        __items__[1] = A1;                                      \
+        __items__[2] = A2;                                      \
+        __items__[3] = A3;                                      \
+        __items__[4] = A4;                                      \
+        __items__[5] = A5;                                      \
+        __items__[6] = A6;                                      \
+        __items__[7] = A7;                                      \
+        SETUP_QUEUE(__s__, 8, 8);                               \
+    } while (0)
+#define SETUP_QUEUE_16(Q) setup_queue((Q).queue, (Q).items_16, 16)
+#define SETUP_QUEUE_32(Q) setup_queue((Q).queue, (Q).items_32, 32)
+#define SETUP_QUEUE_64(Q) setup_queue((Q).queue, (Q).items_64, 64)
+@
+
+<<protos>>=
+void
+setup_queue(struct queue *q, void **items, int size);
+@
+
+<<impl>>=
+void
+setup_queue(struct queue *q, void **items, int size)
+{
+    struct queue__check_alignment *qca = (void*)q;
+    q->size = size;
+    q->tally = 0;
+    q->front = q->rear = 0;
+    q->mask = size - 1;
+    if ((void*)(qca->items) != items) {
+        <<EXHAUSTION>>
+    }
+}
+@
+
+<<protos>>=
+void *
+enqueue(struct queue *queue, void *v);
+void *
+dequeue(struct queue *queue);
+void *
+push_front(struct queue *queue, void *v);
+void *
+pop_rear(struct queue *queue);
+@
+
+<<definitions>>=
+#define DECLARE_QUEUE_AND_ITEMS(Q,S,I)  \
+    struct queue *S = Q;                \
+    void **I = (void*)(S + 1)
+#define ENQUEUE_NO_CHECK(S,I,V)         \
+    do {                                \
+        struct queue *__tmp__s = S;     \
+        (I)[__tmp__s->rear] = V;        \
+        __tmp__s->rear = (__tmp__s->rear + 1) & __tmp__s->mask; \
+        __tmp__s->tally++;              \
+    } while (0)
+#define PUSH_FRONT_NO_CHECK(S,I,V)      \
+    do {                                \
+        struct queue *__tmp__s = S;     \
+        __tmp__s->front = (__tmp__s->front - 1) & __tmp__s->mask; \
+        (I)[__tmp__s->front] = V;       \
+        __tmp__s->tally++;              \
+    } while (0)
+#define DEQUEUE_NO_CHECK(L,S,I)         \
+    do {                                \
+        struct queue *__tmp__s = S;     \
+        L (I)[__tmp__s->front];         \
+        __tmp__s->front = (__tmp__s->front + 1) & __tmp__s->mask; \
+        __tmp__s->tally--;              \
+    } while (0)
+#define POP_REAR_NO_CHECK(S)            \
+    do {                                \
+        struct queue *__tmp__s = S;     \
+        __tmp__s->rear = (__tmp__s->rear - 1) & __tmp__s->mask; \
+        __tmp__s->tally--;              \
+    } while (0)
+@
+
+<<impl>>=
+void *
+enqueue(struct queue *queue, void *v)
+{
+    DECLARE_QUEUE_AND_ITEMS(queue, q, items);
+    if (q->tally == q->size) {
+        fprintf(stderr, "Error, queue is full.\n");
+        exit(1);
+    }
+    ENQUEUE_NO_CHECK(q, items, v);
+    return v;
+}
+@
+
+<<impl>>=
+void *
+dequeue(struct queue *queue)
+{
+    void *res;
+    DECLARE_QUEUE_AND_ITEMS(queue, q, items);
+    if (q->tally == 0) {
+        fprintf(stderr, "Error, queue is empty.\n");
+        exit(1);
+    }
+    DEQUEUE_NO_CHECK(res =, q, items);
+    return res;
+}
+@
+
+<<impl>>=
+void *
+push_front(struct queue *queue, void *v)
+{
+    DECLARE_QUEUE_AND_ITEMS(queue, q, items);
+    if (q->tally == q->size) {
+        fprintf(stderr, "Error, queue is full.\n");
+        exit(1);
+    }
+    PUSH_FRONT_NO_CHECK(q, items, v);
+    return v;
+}
+@
+
+<<impl>>=
+void *
+pop_rear(struct queue *queue)
+{
+    DECLARE_QUEUE_AND_ITEMS(queue, q, items);
+    if (q->tally == 0) {
+        fprintf(stderr, "Error, queue is empty.\n");
+        exit(1);
+    }
+    POP_REAR_NO_CHECK(q);
+    return items[q->rear];
+}
+@
+
+<<protos>>=
+void
+queue_debug(struct queue *queue);
+@
+
+<<impl>>=
+void
+queue_debug(struct queue *queue)
+{
+    struct queue *q = QUEUE_STRUCT(queue);
+    unsigned int mask = q->size - 1;
+    printf("**** queue debug: s=%i, t=%i, f=%i, r=%i, mask=0x%x\n",
+        q->size, q->tally, q->front, q->rear, mask);
+}
+@
+
+<<dequeue all>>=
+while (q->tally) {
+    printf("**** dequeue %p\n", dequeue(q));
+}
+@
+
+<<definitions>>=
+#define create_uint32(v) (void*)((uintptr_t)(v))
+@
+
+<<main impl>>=
+{
+    struct queue *q = new_queue(4);
+    enqueue(q, create_uint32(1));
+    enqueue(q, create_uint32(2));
+    enqueue(q, create_uint32(3));
+    printf("****     pop %p\n", pop_rear(q));
+    printf("****     pop %p\n", pop_rear(q));
+    push_front(q, create_uint32(0));
+    <<dequeue all>>
+}
+@
+
+<<main impl>>=
+{
+    struct queue *q = new_queue(4);
+    enqueue(q, create_uint32(1));
+    enqueue(q, create_uint32(2));
+    enqueue(q, create_uint32(3));
+    queue_debug(q);
+    printf("**** dequeue %p\n", dequeue(q));
+    enqueue(q, create_uint32(0x11));
+    printf("**** dequeue %p\n", dequeue(q));
+    enqueue(q, create_uint32(0x22));
+    <<dequeue all>>
+}
+@
+
+<<main impl>>=
+{
+    struct queue_64 s_q;
+    SETUP_QUEUE_64(s_q);
+    enqueue(s_q.queue, create_uint32(0x100));
+    enqueue(s_q.queue, create_uint32(0x200));
+    queue_debug(s_q.queue);
+    printf("**** dequeue %p\n", dequeue(s_q.queue));
+    enqueue(s_q.queue, create_uint32(0x11));
+    printf("**** dequeue %p\n", dequeue(s_q.queue));
+    enqueue(s_q.queue, create_uint32(0x22));
+    {
+        struct queue *q = s_q.queue;
+        <<dequeue all>>
+    }
+}
+@
+
+<<main impl>>=
+{
+    struct queue_4 s_q;
+    SETUP_QUEUE_3(s_q,
+        create_uint32(1),
+        create_uint32(2),
+        create_uint32(3)
+    );
+
+    queue_debug(s_q.queue);
+    printf("**** dequeue %p\n", dequeue(s_q.queue));
+
+    enqueue(s_q.queue, create_uint32(0x11));
+    printf("**** dequeue %p\n", dequeue(s_q.queue));
+
+    enqueue(s_q.queue, create_uint32(0x22));
+    {
+        struct queue *q = s_q.queue;
+        <<dequeue all>>
+    }
+}
+@

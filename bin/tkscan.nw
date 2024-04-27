@@ -6,20 +6,20 @@ hold me liable for its use.
 'end' is exclusive, i.e., len = end - beg
 
 <<structs>>=
-struct token_file_name {
-    char *filename;
+struct tkinfo_file_name {
+    char *file_name;
 };
-struct token_line_number {
-    struct token_file_name *file_name;
+struct tkinfo_line_number {
+    struct tkinfo_file_name *file_name;
     int line_number;
 };
 struct token {
-    struct token_line_number *line_number;
+    struct tkinfo_line_number *line_number;
     char *image;
-    char cat;
-    union {
+    int category;
+    union tkvalue {
         char punct;     /* cat 5 */
-        char hilo[2];   /* cat 6 */
+        char hi_lo[2];  /* cat 6 (0x00..0xFF -> 0y@@..0yOO) */
     } value;
 };
 struct tkscan {
@@ -46,6 +46,110 @@ tkscan(struct tkscan *ctx, struct token *s, size_t len)
     ctx->end = s + len;
     ctx->pos = 0;
     ctx->fail = 0;
+}
+@
+
+<<protos>>=
+struct tkinfo_file_name *
+new_tkinfo_file_name(struct strscan *ctx);
+@
+
+<<impl>>=
+struct tkinfo_file_name *
+new_tkinfo_file_name(struct strscan *ctx)
+{
+    struct tkinfo_file_name *res;
+    res = calloc(1, sizeof(*res));
+    res->file_name = strscan_strdup(ctx);
+    return res;
+}
+@
+
+<<protos>>=
+struct tkinfo_line_number *
+new_tkinfo_line_number(
+    struct tkinfo_file_name *file_name,
+    int line_number);
+@
+
+<<impl>>=
+struct tkinfo_line_number *
+new_tkinfo_line_number(
+    struct tkinfo_file_name *file_name,
+    int line_number)
+{
+    struct tkinfo_line_number *res;
+    res = calloc(1, sizeof(*res));
+    res->file_name = file_name;
+    res->line_number = line_number;
+    return res;
+}
+@
+
+<<alloc and set token line_number and category>>=
+res = calloc(1, sizeof(*res));
+res->line_number = line_number;
+res->category = category;
+@
+
+<<protos>>=
+struct token *
+new_token_image(
+    struct tkinfo_line_number *line_number,
+    int category, struct strscan *ctx);
+@
+
+<<impl>>=
+struct token *
+new_token_image(
+    struct tkinfo_line_number *line_number,
+    int category, struct strscan *ctx)
+{
+    struct token *res;
+    <<alloc and set token line_number and category>>
+    res->image = strscan_strdup(ctx);
+    return res;
+}
+@
+
+<<protos>>=
+struct token *
+new_token_punct(
+    struct tkinfo_line_number *line_number,
+    int category, int punct);
+@
+
+<<impl>>=
+struct token *
+new_token_punct(
+    struct tkinfo_line_number *line_number,
+    int category, int punct)
+{
+    struct token *res;
+    <<alloc and set token line_number and category>>
+    res->value.punct = punct;
+    return res;
+}
+@
+
+<<protos>>=
+struct token *
+new_token_hi_lo(
+    struct tkinfo_line_number *line_number,
+    int category, int hi, int lo);
+@
+
+<<impl>>=
+struct token *
+new_token_hi_lo(
+    struct tkinfo_line_number *line_number,
+    int category, int hi, int lo)
+{
+    struct token *res;
+    <<alloc and set token line_number and category>>
+    res->value.hi_lo[0] = hi;
+    res->value.hi_lo[1] = lo;
+    return res;
 }
 @
 

@@ -1,0 +1,178 @@
+
+Copyright (c) 2024 by C. Tarbide. You may do as you please with
+this code as long as you do not remove this copyright notice or
+hold me liable for its use.
+
+<<globals>>=
+static int so_far = 0;
+@
+
+<<globals initialization>>=
+(void)so_far;
+@
+
+<<SO_FAR>>=
+100
+@
+
+<<TRACE BEGIN>>=
+fprintf(stderr, "TRACE:%s:%i: step %i: "
+@
+
+<<TRACE INITIAL ARGS>>=
+    "\n", __FILE__, (int)__LINE__, so_far++
+@
+
+<<TRACE INITIAL ARGS, LINE - 1>>=
+    "\n", __FILE__, (int)__LINE__ - 1, so_far++
+@
+
+<<TRACE INITIAL ARGS, LINE - 2>>=
+    "\n", __FILE__, (int)__LINE__ - 2, so_far++
+@
+
+<<TRACE NO ARGS>>=
+<<TRACE INITIAL ARGS>>
+@
+
+<<TRACE NO ARGS, LINE - 1>>=
+<<TRACE INITIAL ARGS, LINE - 1>>
+@
+
+<<TRACE NO ARGS, LINE - 2>>=
+<<TRACE INITIAL ARGS, LINE - 2>>
+@
+
+<<TRACE ARGS:>>=
+<<TRACE INITIAL ARGS>>,
+@
+
+<<TRACE END>>=
+    );
+if (so_far > <<SO_FAR>>) {
+    fprintf(stderr, "Time is up Cinderella.\n");
+    exit(1);
+}
+@
+
+<<TRACE HERE, LINE - 1>>=
+<<TRACE BEGIN>> "here"
+<<TRACE NO ARGS, LINE - 1>>
+<<TRACE END>>
+@
+
+<<TRACE HERE, LINE - 2>>=
+<<TRACE BEGIN>> "here"
+<<TRACE NO ARGS, LINE - 2>>
+<<TRACE END>>
+@
+
+<<TRACE HERE>>=
+<<TRACE HERE, LINE - 1>>
+@
+
+<<TODO, LINE - 1>>=
+<<TRACE BEGIN>> "TODO"
+<<TRACE NO ARGS, LINE - 1>>
+<<TRACE END>>
+@
+
+<<TODO, LINE - 2>>=
+<<TRACE BEGIN>> "TODO"
+<<TRACE NO ARGS, LINE - 2>>
+<<TRACE END>>
+@
+
+<<TODO>>=
+<<TODO, LINE - 1>>
+@
+
+<<WIP, LINE - 1>>=
+<<TRACE BEGIN>> "WIP"
+<<TRACE NO ARGS, LINE - 1>>
+<<TRACE END>>
+@
+
+<<WIP, LINE - 2>>=
+<<TRACE BEGIN>> "WIP"
+<<TRACE NO ARGS, LINE - 2>>
+<<TRACE END>>
+@
+
+<<WIP>>=
+<<WIP, LINE - 1>>
+@
+
+<<EXHAUSTION>>=
+<<TRACE BEGIN>> "exhaustion"
+<<TRACE NO ARGS, LINE - 1>>
+<<TRACE END>>
+exit(1);
+@
+
+<<globals>>=
+static struct {
+    struct {
+        int size, tally;
+        char **names;
+        void **pointers;
+    } pointers;
+    char buf[100];
+} g_debug_data = {0};
+@
+
+<<protos>>=
+int
+debug_set_pointer_name(void *ptr, char *name);
+@
+
+<<impl>>=
+int
+debug_set_pointer_name(void *ptr, char *name)
+{
+    int i;
+    for (i = 0; i < g_debug_data.pointers.tally; ++i) {
+        if (strcmp(g_debug_data.pointers.names[i], name) == 0) {
+            g_debug_data.pointers.pointers[i] = ptr;
+            return i;
+        }
+    }
+    if (g_debug_data.pointers.size == 0) {
+        g_debug_data.pointers.size = 64;
+        g_debug_data.pointers.tally = 0;
+        g_debug_data.pointers.names = calloc(g_debug_data.pointers.size, sizeof(char*));
+        g_debug_data.pointers.pointers = calloc(g_debug_data.pointers.size, sizeof(void*));
+    } else if (g_debug_data.pointers.tally == g_debug_data.pointers.size) {
+        g_debug_data.pointers.size *= 2;
+        g_debug_data.pointers.names = xreallocarray(g_debug_data.pointers.names, g_debug_data.pointers.size, sizeof(char*));
+        g_debug_data.pointers.pointers = xreallocarray(g_debug_data.pointers.pointers, g_debug_data.pointers.size, sizeof(void*));
+    }
+    g_debug_data.pointers.names[g_debug_data.pointers.tally] = strdup(name);
+    g_debug_data.pointers.pointers[g_debug_data.pointers.tally] = ptr;
+    return g_debug_data.pointers.tally++;
+}
+@
+
+<<protos>>=
+char *
+debug_get_pointer_name(void *ptr);
+@
+
+<<impl>>=
+char *
+debug_get_pointer_name(void *ptr)
+{
+    int i;
+    for (i = 0; i < g_debug_data.pointers.tally; ++i) {
+        if (g_debug_data.pointers.pointers[i] == ptr) {
+            return g_debug_data.pointers.names[i];
+        }
+    }
+    snprintf(g_debug_data.buf, sizeof(g_debug_data.buf), "(unknown %p)", ptr);
+    return g_debug_data.buf;
+}
+@
+
+<<definitions>>=
+#define DEBUG_POINTER_NAME(PTR) debug_get_pointer_name(PTR)
+@

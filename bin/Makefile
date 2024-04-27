@@ -72,7 +72,8 @@ nwsplit: \
 	@nofake --error -R'build nwsplit' $(SOURCES) | $(SH)
 
 parse.c: \
-    parse.nw tkscan.nw
+    debug.nw parse.nw queue.nw reallocarray.nw strscan.nw \
+    tkscan.nw
 	@nofake --error -R'build parse.c' $(SOURCES) | $(SH)
 
 parse: \

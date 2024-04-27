@@ -18,6 +18,26 @@ struct strscan {
 @
 
 <<protos>>=
+char *
+strscan_strdup(struct strscan *ctx);
+@
+
+<<impl>>=
+char *
+strscan_strdup(struct strscan *ctx)
+{
+    char *res, *src;
+    size_t len;
+    src = STRSCAN_PTR(ctx);
+    len = ctx->end - src;
+    res = malloc(len + 1);
+    memcpy(res, src, len);
+    res[len] = '\0';
+    return res;
+}
+@
+
+<<protos>>=
 void
 strscan(struct strscan *ctx, char *s, size_t len);
 @

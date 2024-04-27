@@ -1,20 +1,123 @@
 
+nofake -RWIP parse.nw | sh
+
+<<WIP>>=
+#!/bin/sh
+set -eu
+make tokenize parse
+./tokenize nofake.nw | ./parse
+@
+
 'nofake parse.nw' for build instructions
 
 <<Define CONVERT_CRLF_TO_LF>>=
 #define CONVERT_CRLF_TO_LF 1
 @
 
+<<chop nl>>=
+if (line_length < 3) { /* CATEGORY RESERVED [ DATA ] LF */
+    fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+    exit(1);
+}
+line_length--;
+@
+
+<<Variables local to [[main]]>>=
+long input_line_number = 0;
+struct tkinfo_file_name *tkinfo_file_name = NULL;
+struct tkinfo_line_number *tkinfo_line_number = NULL;
+struct queue_64 tokens;
+@
+
+<<Local variables initialization>>=
+SETUP_QUEUE_64(tokens);
+@
+
+<<initialize tokens queue>>=
+
+@
+
 <<Process Line - vars>>=
 size_t line_length = ptr - line_start;
+struct strscan ctx[1];
+char *b;
+struct token *token = NULL;
+@
+
+<<set strscan context>>=
+strscan(ctx, line_start, line_length);
 @
 
 <<Process Line>>=
 <<Process Line - vars>>
-printf("**** line %s:%lu has %lu bytes: [", file_name, line_count,
-    (unsigned long)line_length);
-fwrite(line_start, line_length, 1, stdout);
-printf("]\n");
+<<chop nl>>
+<<set strscan context>>
+b = ctx->beg;
+switch (*b) {
+    case '0':
+        ctx->pos += 2;
+        input_line_number = 1;
+        tkinfo_file_name = new_tkinfo_file_name(ctx);
+        tkinfo_line_number = new_tkinfo_line_number(tkinfo_file_name,
+            input_line_number);
+        break;
+    case '1':
+        ctx->pos += 2;
+        input_line_number++;
+        tkinfo_line_number = new_tkinfo_line_number(tkinfo_file_name,
+            input_line_number);
+        break;
+    case '2': /* EOF */
+        break;
+    case '3': /* isalnum(c) || c == '_' */
+        ctx->pos += 2;
+        token = new_token_image(tkinfo_line_number, 3, ctx);
+        break;
+    case '4': /* c == ' ' || c == '\t' */
+        ctx->pos += 2;
+        token = new_token_image(tkinfo_line_number, 4, ctx);
+        break;
+    case '5': /* ispunct(c) */
+        token = new_token_punct(tkinfo_line_number, 5, b[2]);
+        break;
+    case '6': { /* c <= 127 */
+            ctx->pos += 2;
+            if (STRSCAN_LEN(ctx) != 2) {
+                fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+                exit(1);
+            }
+            token = new_token_hi_lo(tkinfo_line_number, 6, b[2], b[3]);
+        }
+        break;
+    default:
+        fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+        exit(1);
+        break;
+}
+if (token) {
+    enqueue(tokens.queue, token);
+    if (token->image) {
+        printf("token category %d, line %d: [%s]\n",
+            token->category, token->line_number->line_number,
+            token->image);
+    } else if (token->category == 5) {
+        printf("token category %d, line %d: '%c'\n",
+            token->category, token->line_number->line_number,
+            token->value.punct);
+    } else if (token->category == 6) {
+        char *hi_lo;
+        hi_lo = token->value.hi_lo;
+        /* 0x00..0xFF -> 0y@@..0yOO */
+        /* 0xBF = ~0x40 & 0xFF */
+        c = (hi_lo[0] & 0xBF) << 4 | (hi_lo[1] & 0xBF);
+        printf("token category %d, line %d: 0x%02x (0y%c%c)\n",
+            token->category, token->line_number->line_number,
+            c, hi_lo[0], hi_lo[1]);
+    } else {
+        fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+        exit(1);
+    }
+}
 @
 
 <<The main program>>=
@@ -251,6 +354,10 @@ return 0;
 <<impl>>
 <<Protos>>=
 <<protos>>
+<<Global variables>>=
+<<globals>>
+<<Local variables initialization>>=
+<<globals initialization>>
 @
 
 nofake parse.nw | sh -eux
@@ -271,7 +378,7 @@ set -- "$@" parse
 @
 
 <<parse.c deps>>=
-parse.nw tkscan.nw
+parse.nw strscan.nw tkscan.nw queue.nw debug.nw reallocarray.nw
 @
 
 <<parse deps>>=

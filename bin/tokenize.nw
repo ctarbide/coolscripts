@@ -75,6 +75,7 @@ while (b < e) {
         <<maybe put nl>>
         putc('6', stdout);
         putc(' ', stdout);
+        /* 0x00..0xFF -> 0y@@..0yOO */
         putc(((c >> 4) & 0xf) | 0x40, stdout);
         putc((c & 0xf) | 0x40, stdout);
         putc('\n', stdout);

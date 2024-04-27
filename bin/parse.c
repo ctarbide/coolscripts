@@ -1,5 +1,5 @@
-#line 32 "parse.nw"
-#line 43 "parse.nw"
+#line 135 "parse.nw"
+#line 146 "parse.nw"
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
 #endif
@@ -12,8 +12,8 @@
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
 #endif
-#line 33 "parse.nw"
-#line 58 "parse.nw"
+#line 136 "parse.nw"
+#line 161 "parse.nw"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -22,60 +22,410 @@
 #include <inttypes.h>
 #include <string.h>
 #include <ctype.h>
-#line 34 "parse.nw"
-#line 80 "parse.nw"
+#line 137 "parse.nw"
+#line 183 "parse.nw"
 #define OK                  0   /* status code for successful run */
 #define CANNOT_OPEN_FILE    1   /* status code for file access error */
 #define LINE_TOO_LONG       2   /* line longer than BUF_SIZE - 1 */
 #define READ_ONLY           0   /* read access code for system open */
-#line 72 "parse.nw"
+#line 175 "parse.nw"
 #if BUFSIZ >= 512
 #define BUF_SIZE            BUFSIZ
 #else
 #define BUF_SIZE            512
 #endif
-#line 85 "parse.nw"
-#line 5 "parse.nw"
+#line 188 "parse.nw"
+#line 14 "parse.nw"
 #define CONVERT_CRLF_TO_LF 1
-#line 247 "parse.nw"
+#line 350 "parse.nw"
+#line 16 "strscan.nw"
+#define STRSCAN_PTR(ctx) ((ctx)->beg + (ctx)->pos)
+#define STRSCAN_LEN(ctx) ((ctx)->end - STRSCAN_PTR(ctx))
 #line 32 "tkscan.nw"
 #define TKSCAN_PTR(ctx) ((ctx)->beg + (ctx)->pos)
 #define TKSCAN_LEN(ctx) ((ctx)->end - TKSCAN_PTR(ctx))
-#line 35 "parse.nw"
-#line 249 "parse.nw"
-#line 9 "tkscan.nw"
-struct token_file_name {
-    char *filename;
+#line 7 "queue.nw"
+#define QUEUE_STRUCT(Q) ((struct queue*)(Q))
+#define QUEUE_SIZE(Q) QUEUE_STRUCT(Q)->size
+#define QUEUE_LENGTH(Q) QUEUE_STRUCT(Q)->tally
+#line 84 "queue.nw"
+#define SETUP_QUEUE(Q, S, T)    \
+    (Q)->size = S;              \
+    (Q)->tally = T;             \
+    (Q)->mask = (S) - 1;        \
+    (Q)->front = 0;             \
+    (Q)->rear = T;
+#line 93 "queue.nw"
+#define SETUP_QUEUE_1(Q, A0) do {           \
+        struct queue *__s__ = (Q).queue;    \
+        void **__items__ = (Q).items_2;     \
+        __items__[0] = A0;                  \
+        SETUP_QUEUE(__s__, 2, 1);           \
+    } while (0)
+#define SETUP_QUEUE_2(Q, A0, A1) do {       \
+        struct queue *__s__ = (Q).queue;    \
+        void **__items__ = (Q).items_2;     \
+        __items__[0] = A0;                  \
+        __items__[1] = A1;                  \
+        SETUP_QUEUE(__s__, 2, 2);           \
+    } while (0)
+#define SETUP_QUEUE_3(Q, A0, A1, A2) do {   \
+        struct queue *__s__ = (Q).queue;    \
+        void **__items__ = (Q).items_4;     \
+        __items__[0] = A0;                  \
+        __items__[1] = A1;                  \
+        __items__[2] = A2;                  \
+        SETUP_QUEUE(__s__, 4, 3);           \
+    } while (0)
+#define SETUP_QUEUE_4(Q, A0, A1, A2, A3) do {   \
+        struct queue *__s__ = (Q).queue;        \
+        void **__items__ = (Q).items_4;         \
+        __items__[0] = A0;                      \
+        __items__[1] = A1;                      \
+        __items__[2] = A2;                      \
+        __items__[3] = A3;                      \
+        SETUP_QUEUE(__s__, 4, 4);               \
+    } while (0)
+#define SETUP_QUEUE_5(Q, A0, A1, A2, A3, A4) do {   \
+        struct queue *__s__ = (Q).queue;            \
+        void **__items__ = (Q).items_8;             \
+        __items__[0] = A0;                          \
+        __items__[1] = A1;                          \
+        __items__[2] = A2;                          \
+        __items__[3] = A3;                          \
+        __items__[4] = A4;                          \
+        SETUP_QUEUE(__s__, 8, 5);                   \
+    } while (0)
+#define SETUP_QUEUE_6(Q, A0, A1, A2, A3, A4, A5) do {   \
+        struct queue *__s__ = (Q).queue;                \
+        void **__items__ = (Q).items_8;                 \
+        __items__[0] = A0;                              \
+        __items__[1] = A1;                              \
+        __items__[2] = A2;                              \
+        __items__[3] = A3;                              \
+        __items__[4] = A4;                              \
+        __items__[5] = A5;                              \
+        SETUP_QUEUE(__s__, 8, 6);                       \
+    } while (0)
+#define SETUP_QUEUE_7(Q, A0, A1, A2, A3, A4, A5, A6) do {   \
+        struct queue *__s__ = (Q).queue;                    \
+        void **__items__ = (Q).items_8;                     \
+        __items__[0] = A0;                                  \
+        __items__[1] = A1;                                  \
+        __items__[2] = A2;                                  \
+        __items__[3] = A3;                                  \
+        __items__[4] = A4;                                  \
+        __items__[5] = A5;                                  \
+        __items__[6] = A6;                                  \
+        SETUP_QUEUE(__s__, 8, 7);                           \
+    } while (0)
+#define SETUP_QUEUE_8(Q, A0, A1, A2, A3, A4, A5, A6, A7) do {   \
+        struct queue *__s__ = (Q).queue;                        \
+        void **__items__ = (Q).items_8;                         \
+        __items__[0] = A0;                                      \
+        __items__[1] = A1;                                      \
+        __items__[2] = A2;                                      \
+        __items__[3] = A3;                                      \
+        __items__[4] = A4;                                      \
+        __items__[5] = A5;                                      \
+        __items__[6] = A6;                                      \
+        __items__[7] = A7;                                      \
+        SETUP_QUEUE(__s__, 8, 8);                               \
+    } while (0)
+#define SETUP_QUEUE_16(Q) setup_queue((Q).queue, (Q).items_16, 16)
+#define SETUP_QUEUE_32(Q) setup_queue((Q).queue, (Q).items_32, 32)
+#define SETUP_QUEUE_64(Q) setup_queue((Q).queue, (Q).items_64, 64)
+#line 206 "queue.nw"
+#define DECLARE_QUEUE_AND_ITEMS(Q,S,I)  \
+    struct queue *S = Q;                \
+    void **I = (void*)(S + 1)
+#define ENQUEUE_NO_CHECK(S,I,V)         \
+    do {                                \
+        struct queue *__tmp__s = S;     \
+        (I)[__tmp__s->rear] = V;        \
+        __tmp__s->rear = (__tmp__s->rear + 1) & __tmp__s->mask; \
+        __tmp__s->tally++;              \
+    } while (0)
+#define PUSH_FRONT_NO_CHECK(S,I,V)      \
+    do {                                \
+        struct queue *__tmp__s = S;     \
+        __tmp__s->front = (__tmp__s->front - 1) & __tmp__s->mask; \
+        (I)[__tmp__s->front] = V;       \
+        __tmp__s->tally++;              \
+    } while (0)
+#define DEQUEUE_NO_CHECK(L,S,I)         \
+    do {                                \
+        struct queue *__tmp__s = S;     \
+        L (I)[__tmp__s->front];         \
+        __tmp__s->front = (__tmp__s->front + 1) & __tmp__s->mask; \
+        __tmp__s->tally--;              \
+    } while (0)
+#define POP_REAR_NO_CHECK(S)            \
+    do {                                \
+        struct queue *__tmp__s = S;     \
+        __tmp__s->rear = (__tmp__s->rear - 1) & __tmp__s->mask; \
+        __tmp__s->tally--;              \
+    } while (0)
+#line 318 "queue.nw"
+#define create_uint32(v) (void*)((uintptr_t)(v))
+#line 177 "debug.nw"
+#define DEBUG_POINTER_NAME(PTR) debug_get_pointer_name(PTR)
+#line 22 "reallocarray.nw"
+/*
+ * This is sqrt(SIZE_MAX+1), as s1*s2 <= SIZE_MAX
+ * if both s1 < MUL_NO_OVERFLOW and s2 < MUL_NO_OVERFLOW
+ */
+#define MUL_NO_OVERFLOW ((size_t)1 << (sizeof(size_t) * 4))
+#line 138 "parse.nw"
+#line 352 "parse.nw"
+#line 9 "strscan.nw"
+struct strscan {
+    char *beg, *end;
+    int pos, fail;
 };
-struct token_line_number {
-    struct token_file_name *file_name;
+#line 9 "tkscan.nw"
+struct tkinfo_file_name {
+    char *file_name;
+};
+struct tkinfo_line_number {
+    struct tkinfo_file_name *file_name;
     int line_number;
 };
 struct token {
-    struct token_line_number *line_number;
+    struct tkinfo_line_number *line_number;
     char *image;
-    char cat;
-    union {
+    int category;
+    union tkvalue {
         char punct;     /* cat 5 */
-        char hilo[2];   /* cat 6 */
+        char hi_lo[2];  /* cat 6 (0x00..0xFF -> 0y@@..0yOO) */
     } value;
 };
 struct tkscan {
     struct token *beg, *end;
     int pos, fail;
 };
-#line 36 "parse.nw"
-#line 253 "parse.nw"
+#line 13 "queue.nw"
+struct queue {
+    int size;
+    int tally;
+    unsigned int mask;
+    unsigned int front;
+    unsigned int rear;
+};
+#line 49 "queue.nw"
+struct queue__check_alignment {
+    struct queue queue[1];
+    void *items[1];
+};
+struct queue_2 {
+    struct queue queue[1];
+    void *items_2[2];
+};
+struct queue_4 {
+    struct queue queue[1];
+    void *items_4[4];
+};
+struct queue_8 {
+    struct queue queue[1];
+    void *items_8[8];
+};
+struct queue_16 {
+    struct queue queue[1];
+    void *items_16[16];
+};
+struct queue_32 {
+    struct queue queue[1];
+    void *items_32[32];
+};
+struct queue_64 {
+    struct queue queue[1];
+    void *items_64[64];
+};
+#line 139 "parse.nw"
+#line 356 "parse.nw"
+#line 21 "strscan.nw"
+char *
+strscan_strdup(struct strscan *ctx);
+#line 41 "strscan.nw"
+void
+strscan(struct strscan *ctx, char *s, size_t len);
+#line 57 "strscan.nw"
+void rtrim(struct strscan *ctx);
+#line 74 "strscan.nw"
+int
+startswith2(struct strscan *ctx, int x, int y);
+#line 97 "strscan.nw"
+int
+endswith3(struct strscan *ctx, int x, int y, int z);
+#line 120 "strscan.nw"
+int
+exact1(struct strscan *ctx, int x);
+#line 143 "strscan.nw"
+int
+hasatleast(struct strscan *ctx, size_t len);
 #line 37 "tkscan.nw"
 void
 tkscan(struct tkscan *ctx, struct token *s, size_t len);
-#line 37 "parse.nw"
-#line 89 "parse.nw"
+#line 53 "tkscan.nw"
+struct tkinfo_file_name *
+new_tkinfo_file_name(struct strscan *ctx);
+#line 69 "tkscan.nw"
+struct tkinfo_line_number *
+new_tkinfo_line_number(
+    struct tkinfo_file_name *file_name,
+    int line_number);
+#line 96 "tkscan.nw"
+struct token *
+new_token_image(
+    struct tkinfo_line_number *line_number,
+    int category, struct strscan *ctx);
+#line 116 "tkscan.nw"
+struct token *
+new_token_punct(
+    struct tkinfo_line_number *line_number,
+    int category, int punct);
+#line 136 "tkscan.nw"
+struct token *
+new_token_hi_lo(
+    struct tkinfo_line_number *line_number,
+    int category, int hi, int lo);
+#line 23 "queue.nw"
+struct queue *
+new_queue(int size);
+#line 175 "queue.nw"
+void
+setup_queue(struct queue *q, void **items, int size);
+#line 195 "queue.nw"
+void *
+enqueue(struct queue *queue, void *v);
+void *
+dequeue(struct queue *queue);
+void *
+push_front(struct queue *queue, void *v);
+void *
+pop_rear(struct queue *queue);
+#line 296 "queue.nw"
+void
+queue_debug(struct queue *queue);
+#line 125 "debug.nw"
+int
+debug_set_pointer_name(void *ptr, char *name);
+#line 157 "debug.nw"
+char *
+debug_get_pointer_name(void *ptr);
+#line 30 "reallocarray.nw"
+void *
+xreallocarray(void *optr, size_t nmemb, size_t size);
+#line 140 "parse.nw"
+#line 192 "parse.nw"
 int status = OK;        /* exit status of command, initially OK */
 char *prog_name;        /* who we are */
 long tot_line_count;    /* total number of lines */
-#line 38 "parse.nw"
-#line 251 "parse.nw"
+#line 358 "parse.nw"
+#line 7 "debug.nw"
+static int so_far = 0;
+#line 114 "debug.nw"
+static struct {
+    struct {
+        int size, tally;
+        char **names;
+        void **pointers;
+    } pointers;
+    char buf[100];
+} g_debug_data = {0};
+#line 141 "parse.nw"
+#line 354 "parse.nw"
+#line 26 "strscan.nw"
+char *
+strscan_strdup(struct strscan *ctx)
+{
+    char *res, *src;
+    size_t len;
+    src = STRSCAN_PTR(ctx);
+    len = ctx->end - src;
+    res = malloc(len + 1);
+    memcpy(res, src, len);
+    res[len] = '\0';
+    return res;
+}
+#line 46 "strscan.nw"
+void
+strscan(struct strscan *ctx, char *s, size_t len)
+{
+    ctx->beg = s;
+    ctx->end = s + len;
+    ctx->pos = 0;
+    ctx->fail = 0;
+}
+#line 61 "strscan.nw"
+void rtrim(struct strscan *ctx)
+{
+    char *b = ctx->beg + ctx->pos;
+    char *e = ctx->end - 1;
+    if (ctx->fail) return;
+    while (e >= b && (*e == ' ' || *e == '\t')) {
+        e--;
+    }
+    ctx->end = e + 1;
+}
+#line 79 "strscan.nw"
+int
+startswith2(struct strscan *ctx, int x, int y)
+{
+    char *b = ctx->beg + ctx->pos;
+    size_t l = ctx->end - b;
+    if (ctx->fail) return 0;
+    if (l < 2) {
+        return 0;
+    }
+    if (b[0] == x && b[1] == y) {
+        ctx->pos += 2;
+        return 1;
+    }
+    return 0;
+}
+#line 102 "strscan.nw"
+int
+endswith3(struct strscan *ctx, int x, int y, int z)
+{
+    char *e = ctx->end;
+    size_t l = e - (ctx->beg + ctx->pos);
+    if (ctx->fail) return 0;
+    if (l < 3) {
+        return 0;
+    }
+    if (e[-3] == x && e[-2] == y && e[-1] == z) {
+        ctx->end = e - 3;
+        return 1;
+    }
+    return 0;
+}
+#line 125 "strscan.nw"
+int
+exact1(struct strscan *ctx, int x)
+{
+    char *b = ctx->beg + ctx->pos;
+    size_t l = ctx->end - b;
+    if (ctx->fail) return 0;
+    if (l != 1) {
+        return 0;
+    }
+    if (b[0] == x) {
+        ctx->pos++;
+        return 1;
+    }
+    return 0;
+}
+#line 148 "strscan.nw"
+int
+hasatleast(struct strscan *ctx, size_t len)
+{
+    if (ctx->fail) return 0;
+    if ((ctx->end - (ctx->beg + ctx->pos)) >= (ssize_t)len) {
+        return 1;
+    }
+    return 0;
+}
 #line 42 "tkscan.nw"
 void
 tkscan(struct tkscan *ctx, struct token *s, size_t len)
@@ -85,11 +435,237 @@ tkscan(struct tkscan *ctx, struct token *s, size_t len)
     ctx->pos = 0;
     ctx->fail = 0;
 }
-#line 39 "parse.nw"
-#line 21 "parse.nw"
+#line 58 "tkscan.nw"
+struct tkinfo_file_name *
+new_tkinfo_file_name(struct strscan *ctx)
+{
+    struct tkinfo_file_name *res;
+    res = calloc(1, sizeof(*res));
+    res->file_name = strscan_strdup(ctx);
+    return res;
+}
+#line 76 "tkscan.nw"
+struct tkinfo_line_number *
+new_tkinfo_line_number(
+    struct tkinfo_file_name *file_name,
+    int line_number)
+{
+    struct tkinfo_line_number *res;
+    res = calloc(1, sizeof(*res));
+    res->file_name = file_name;
+    res->line_number = line_number;
+    return res;
+}
+#line 103 "tkscan.nw"
+struct token *
+new_token_image(
+    struct tkinfo_line_number *line_number,
+    int category, struct strscan *ctx)
+{
+    struct token *res;
+#line 90 "tkscan.nw"
+    res = calloc(1, sizeof(*res));
+    res->line_number = line_number;
+    res->category = category;
+#line 110 "tkscan.nw"
+    res->image = strscan_strdup(ctx);
+    return res;
+}
+#line 123 "tkscan.nw"
+struct token *
+new_token_punct(
+    struct tkinfo_line_number *line_number,
+    int category, int punct)
+{
+    struct token *res;
+#line 90 "tkscan.nw"
+    res = calloc(1, sizeof(*res));
+    res->line_number = line_number;
+    res->category = category;
+#line 130 "tkscan.nw"
+    res->value.punct = punct;
+    return res;
+}
+#line 143 "tkscan.nw"
+struct token *
+new_token_hi_lo(
+    struct tkinfo_line_number *line_number,
+    int category, int hi, int lo)
+{
+    struct token *res;
+#line 90 "tkscan.nw"
+    res = calloc(1, sizeof(*res));
+    res->line_number = line_number;
+    res->category = category;
+#line 150 "tkscan.nw"
+    res->value.hi_lo[0] = hi;
+    res->value.hi_lo[1] = lo;
+    return res;
+}
+#line 28 "queue.nw"
+struct queue *
+new_queue(int size)
+{
+    struct queue *res;
+    if (size & (size - 1)) {
+        fprintf(stderr, "Error, size must be a power of two.\n");
+        exit(1);
+    }
+    res = calloc(1, sizeof(*res) + size * sizeof(void*));
+    res->size = size;
+    res->mask = size - 1;
+    return res;
+}
+#line 180 "queue.nw"
+void
+setup_queue(struct queue *q, void **items, int size)
+{
+    struct queue__check_alignment *qca = (void*)q;
+    q->size = size;
+    q->tally = 0;
+    q->front = q->rear = 0;
+    q->mask = size - 1;
+    if ((void*)(qca->items) != items) {
+#line 107 "debug.nw"
+#line 19 "debug.nw"
+        fprintf(stderr, "TRACE:%s:%i: step %i: " "exhaustion"
+#line 108 "debug.nw"
+#line 39 "debug.nw"
+#line 27 "debug.nw"
+            "\n", __FILE__, (int)__LINE__ - 1, so_far++
+#line 109 "debug.nw"
+#line 51 "debug.nw"
+            );
+#line 15 "debug.nw"
+        if (so_far > 100) {
+#line 53 "debug.nw"
+            fprintf(stderr, "Time is up Cinderella.\n");
+            exit(1);
+        }
+#line 110 "debug.nw"
+        exit(1);
+#line 190 "queue.nw"
+    }
+}
+#line 239 "queue.nw"
+void *
+enqueue(struct queue *queue, void *v)
+{
+    DECLARE_QUEUE_AND_ITEMS(queue, q, items);
+    if (q->tally == q->size) {
+        fprintf(stderr, "Error, queue is full.\n");
+        exit(1);
+    }
+    ENQUEUE_NO_CHECK(q, items, v);
+    return v;
+}
+#line 253 "queue.nw"
+void *
+dequeue(struct queue *queue)
+{
+    void *res;
+    DECLARE_QUEUE_AND_ITEMS(queue, q, items);
+    if (q->tally == 0) {
+        fprintf(stderr, "Error, queue is empty.\n");
+        exit(1);
+    }
+    DEQUEUE_NO_CHECK(res =, q, items);
+    return res;
+}
+#line 268 "queue.nw"
+void *
+push_front(struct queue *queue, void *v)
+{
+    DECLARE_QUEUE_AND_ITEMS(queue, q, items);
+    if (q->tally == q->size) {
+        fprintf(stderr, "Error, queue is full.\n");
+        exit(1);
+    }
+    PUSH_FRONT_NO_CHECK(q, items, v);
+    return v;
+}
+#line 282 "queue.nw"
+void *
+pop_rear(struct queue *queue)
+{
+    DECLARE_QUEUE_AND_ITEMS(queue, q, items);
+    if (q->tally == 0) {
+        fprintf(stderr, "Error, queue is empty.\n");
+        exit(1);
+    }
+    POP_REAR_NO_CHECK(q);
+    return items[q->rear];
+}
+#line 301 "queue.nw"
+void
+queue_debug(struct queue *queue)
+{
+    struct queue *q = QUEUE_STRUCT(queue);
+    unsigned int mask = q->size - 1;
+    printf("**** queue debug: s=%i, t=%i, f=%i, r=%i, mask=0x%x\n",
+        q->size, q->tally, q->front, q->rear, mask);
+}
+#line 130 "debug.nw"
+int
+debug_set_pointer_name(void *ptr, char *name)
+{
+    int i;
+    for (i = 0; i < g_debug_data.pointers.tally; ++i) {
+        if (strcmp(g_debug_data.pointers.names[i], name) == 0) {
+            g_debug_data.pointers.pointers[i] = ptr;
+            return i;
+        }
+    }
+    if (g_debug_data.pointers.size == 0) {
+        g_debug_data.pointers.size = 64;
+        g_debug_data.pointers.tally = 0;
+        g_debug_data.pointers.names = calloc(g_debug_data.pointers.size, sizeof(char*));
+        g_debug_data.pointers.pointers = calloc(g_debug_data.pointers.size, sizeof(void*));
+    } else if (g_debug_data.pointers.tally == g_debug_data.pointers.size) {
+        g_debug_data.pointers.size *= 2;
+        g_debug_data.pointers.names = xreallocarray(g_debug_data.pointers.names, g_debug_data.pointers.size, sizeof(char*));
+        g_debug_data.pointers.pointers = xreallocarray(g_debug_data.pointers.pointers, g_debug_data.pointers.size, sizeof(void*));
+    }
+    g_debug_data.pointers.names[g_debug_data.pointers.tally] = strdup(name);
+    g_debug_data.pointers.pointers[g_debug_data.pointers.tally] = ptr;
+    return g_debug_data.pointers.tally++;
+}
+#line 162 "debug.nw"
+char *
+debug_get_pointer_name(void *ptr)
+{
+    int i;
+    for (i = 0; i < g_debug_data.pointers.tally; ++i) {
+        if (g_debug_data.pointers.pointers[i] == ptr) {
+            return g_debug_data.pointers.names[i];
+        }
+    }
+    snprintf(g_debug_data.buf, sizeof(g_debug_data.buf), "(unknown %p)", ptr);
+    return g_debug_data.buf;
+}
+#line 35 "reallocarray.nw"
+void *
+xreallocarray(void *optr, size_t nmemb, size_t size)
+{
+    if ((nmemb >= MUL_NO_OVERFLOW || size >= MUL_NO_OVERFLOW) &&
+        nmemb > 0 && SIZE_MAX / nmemb < size) {
+        fprintf(stderr, "Error, cannot re-allocate array, size too large.");
+        exit(1);
+        /* errno = ENOMEM; */
+        /* return NULL; */
+    }
+    return realloc(optr, size * nmemb);
+}
+#line 142 "parse.nw"
+#line 124 "parse.nw"
 int main(int argc, char **argv)
 {
-#line 223 "parse.nw"
+#line 26 "parse.nw"
+    long input_line_number = 0;
+    struct tkinfo_file_name *tkinfo_file_name = NULL;
+    struct tkinfo_line_number *tkinfo_line_number = NULL;
+    struct queue_64 tokens;
+#line 326 "parse.nw"
     int file_count;         /* how many files there are */
     char *file_name;        /* Used to differentiate between *argv and '-' */
     int fd;                 /* file descriptor */
@@ -102,17 +678,22 @@ int main(int argc, char **argv)
     long line_count;        /* # of words, lines, and chars so far */
     int got_eof = 0;        /* read got EOF */
     int got_cr = 0;         /* previous char was '\r' */
-#line 24 "parse.nw"
-#line 238 "parse.nw"
+#line 127 "parse.nw"
+#line 33 "parse.nw"
+    SETUP_QUEUE_64(tokens);
+#line 341 "parse.nw"
     prog_name = argv[0];
-#line 25 "parse.nw"
-#line 219 "parse.nw"
+#line 360 "parse.nw"
+#line 11 "debug.nw"
+    (void)so_far;
+#line 128 "parse.nw"
+#line 322 "parse.nw"
     file_count = argc - 1;
-#line 26 "parse.nw"
-#line 208 "parse.nw"
+#line 129 "parse.nw"
+#line 311 "parse.nw"
     argc--;
     do {
-#line 189 "parse.nw"
+#line 292 "parse.nw"
         if (file_count > 0) {
             file_name = *(++argv);
             if (strcmp(file_name, "-") == 0) {
@@ -129,19 +710,19 @@ int main(int argc, char **argv)
             fd = 0; /* stdin */
             file_name = "-";
         }
-#line 211 "parse.nw"
-#line 184 "parse.nw"
+#line 314 "parse.nw"
+#line 287 "parse.nw"
         line_start = ptr = buffer;
         line_count = 0;
-#line 212 "parse.nw"
-#line 175 "parse.nw"
+#line 315 "parse.nw"
+#line 278 "parse.nw"
         line_start = ptr = buffer;
         nc = read(fd, ptr, BUF_SIZE);
         if (nc > 0) {
             buf_end = buffer + nc;
-#line 145 "parse.nw"
+#line 248 "parse.nw"
             while (got_eof == 0) {
-#line 103 "parse.nw"
+#line 206 "parse.nw"
                 if (ptr >= buf_end) {
                     size_t consumed = ptr - buffer;
                     size_t remaining = BUF_SIZE - consumed;
@@ -181,7 +762,7 @@ int main(int argc, char **argv)
                         buf_end = ptr + nc;
                     }
                 }
-#line 147 "parse.nw"
+#line 250 "parse.nw"
                 c = *ptr++;
                 if (c == '\n') {
                     /* lf or cr-lf */
@@ -191,15 +772,90 @@ int main(int argc, char **argv)
             #endif
                     line_count++;
                     {
-#line 13 "parse.nw"
-#line 9 "parse.nw"
+#line 52 "parse.nw"
+#line 41 "parse.nw"
                         size_t line_length = ptr - line_start;
-#line 14 "parse.nw"
-                        printf("**** line %s:%lu has %lu bytes: [", file_name, line_count,
-                            (unsigned long)line_length);
-                        fwrite(line_start, line_length, 1, stdout);
-                        printf("]\n");
-#line 157 "parse.nw"
+                        struct strscan ctx[1];
+                        char *b;
+                        struct token *token = NULL;
+#line 53 "parse.nw"
+#line 18 "parse.nw"
+                        if (line_length < 3) { /* CATEGORY RESERVED [ DATA ] LF */
+                            fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+                            exit(1);
+                        }
+                        line_length--;
+#line 54 "parse.nw"
+#line 48 "parse.nw"
+                        strscan(ctx, line_start, line_length);
+#line 55 "parse.nw"
+                        b = ctx->beg;
+                        switch (*b) {
+                            case '0':
+                                ctx->pos += 2;
+                                input_line_number = 1;
+                                tkinfo_file_name = new_tkinfo_file_name(ctx);
+                                tkinfo_line_number = new_tkinfo_line_number(tkinfo_file_name,
+                                    input_line_number);
+                                break;
+                            case '1':
+                                ctx->pos += 2;
+                                input_line_number++;
+                                tkinfo_line_number = new_tkinfo_line_number(tkinfo_file_name,
+                                    input_line_number);
+                                break;
+                            case '2': /* EOF */
+                                break;
+                            case '3': /* isalnum(c) || c == '_' */
+                                ctx->pos += 2;
+                                token = new_token_image(tkinfo_line_number, 3, ctx);
+                                break;
+                            case '4': /* c == ' ' || c == '\t' */
+                                ctx->pos += 2;
+                                token = new_token_image(tkinfo_line_number, 4, ctx);
+                                break;
+                            case '5': /* ispunct(c) */
+                                token = new_token_punct(tkinfo_line_number, 5, b[2]);
+                                break;
+                            case '6': { /* c <= 127 */
+                                    ctx->pos += 2;
+                                    if (STRSCAN_LEN(ctx) != 2) {
+                                        fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+                                        exit(1);
+                                    }
+                                    token = new_token_hi_lo(tkinfo_line_number, 6, b[2], b[3]);
+                                }
+                                break;
+                            default:
+                                fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+                                exit(1);
+                                break;
+                        }
+                        if (token) {
+                            enqueue(tokens.queue, token);
+                            if (token->image) {
+                                printf("token category %d, line %d: [%s]\n",
+                                    token->category, token->line_number->line_number,
+                                    token->image);
+                            } else if (token->category == 5) {
+                                printf("token category %d, line %d: '%c'\n",
+                                    token->category, token->line_number->line_number,
+                                    token->value.punct);
+                            } else if (token->category == 6) {
+                                char *hi_lo;
+                                hi_lo = token->value.hi_lo;
+                                /* 0x00..0xFF -> 0y@@..0yOO */
+                                /* 0xBF = ~0x40 & 0xFF */
+                                c = (hi_lo[0] & 0xBF) << 4 | (hi_lo[1] & 0xBF);
+                                printf("token category %d, line %d: 0x%02x (0y%c%c)\n",
+                                    token->category, token->line_number->line_number,
+                                    c, hi_lo[0], hi_lo[1]);
+                            } else {
+                                fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+                                exit(1);
+                            }
+                        }
+#line 260 "parse.nw"
                     }
             #if CONVERT_CRLF_TO_LF
                     ptr += got_cr;
@@ -215,19 +871,19 @@ int main(int argc, char **argv)
                     got_cr = c == '\r';
                 }
             }
-#line 180 "parse.nw"
+#line 283 "parse.nw"
         }
-#line 213 "parse.nw"
-#line 99 "parse.nw"
+#line 316 "parse.nw"
+#line 202 "parse.nw"
         close(fd);
-#line 214 "parse.nw"
-#line 95 "parse.nw"
+#line 317 "parse.nw"
+#line 198 "parse.nw"
         tot_line_count += line_count;
-#line 215 "parse.nw"
+#line 318 "parse.nw"
     } while (--argc > 0);
-#line 27 "parse.nw"
-#line 242 "parse.nw"
+#line 130 "parse.nw"
+#line 345 "parse.nw"
     exit(status);
     return 0;
-#line 28 "parse.nw"
+#line 131 "parse.nw"
 }

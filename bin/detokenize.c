@@ -1,5 +1,5 @@
-#line 103 "detokenize.nw"
-#line 114 "detokenize.nw"
+#line 105 "detokenize.nw"
+#line 116 "detokenize.nw"
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
 #endif
@@ -12,8 +12,8 @@
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
 #endif
-#line 104 "detokenize.nw"
-#line 129 "detokenize.nw"
+#line 106 "detokenize.nw"
+#line 131 "detokenize.nw"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -22,59 +22,75 @@
 #include <inttypes.h>
 #include <string.h>
 #include <ctype.h>
-#line 105 "detokenize.nw"
-#line 151 "detokenize.nw"
+#line 107 "detokenize.nw"
+#line 153 "detokenize.nw"
 #define OK                  0   /* status code for successful run */
 #define CANNOT_OPEN_FILE    1   /* status code for file access error */
 #define LINE_TOO_LONG       2   /* line longer than BUF_SIZE - 1 */
 #define READ_ONLY           0   /* read access code for system open */
-#line 143 "detokenize.nw"
+#line 145 "detokenize.nw"
 #if BUFSIZ >= 512
 #define BUF_SIZE            BUFSIZ
 #else
 #define BUF_SIZE            512
 #endif
-#line 156 "detokenize.nw"
+#line 158 "detokenize.nw"
 #line 15 "detokenize.nw"
 #define CONVERT_CRLF_TO_LF 1
-#line 318 "detokenize.nw"
+#line 320 "detokenize.nw"
 #line 16 "strscan.nw"
 #define STRSCAN_PTR(ctx) ((ctx)->beg + (ctx)->pos)
 #define STRSCAN_LEN(ctx) ((ctx)->end - STRSCAN_PTR(ctx))
-#line 106 "detokenize.nw"
-#line 320 "detokenize.nw"
+#line 108 "detokenize.nw"
+#line 322 "detokenize.nw"
 #line 9 "strscan.nw"
 struct strscan {
     char *beg, *end;
     int pos, fail;
 };
-#line 107 "detokenize.nw"
-#line 324 "detokenize.nw"
+#line 109 "detokenize.nw"
+#line 326 "detokenize.nw"
 #line 21 "strscan.nw"
+char *
+strscan_strdup(struct strscan *ctx);
+#line 41 "strscan.nw"
 void
 strscan(struct strscan *ctx, char *s, size_t len);
-#line 37 "strscan.nw"
+#line 57 "strscan.nw"
 void rtrim(struct strscan *ctx);
-#line 54 "strscan.nw"
+#line 74 "strscan.nw"
 int
 startswith2(struct strscan *ctx, int x, int y);
-#line 77 "strscan.nw"
+#line 97 "strscan.nw"
 int
 endswith3(struct strscan *ctx, int x, int y, int z);
-#line 100 "strscan.nw"
+#line 120 "strscan.nw"
 int
 exact1(struct strscan *ctx, int x);
-#line 123 "strscan.nw"
+#line 143 "strscan.nw"
 int
 hasatleast(struct strscan *ctx, size_t len);
-#line 108 "detokenize.nw"
-#line 160 "detokenize.nw"
+#line 110 "detokenize.nw"
+#line 162 "detokenize.nw"
 int status = OK;        /* exit status of command, initially OK */
 char *prog_name;        /* who we are */
 long tot_line_count;    /* total number of lines */
-#line 109 "detokenize.nw"
-#line 322 "detokenize.nw"
+#line 111 "detokenize.nw"
+#line 324 "detokenize.nw"
 #line 26 "strscan.nw"
+char *
+strscan_strdup(struct strscan *ctx)
+{
+    char *res, *src;
+    size_t len;
+    src = STRSCAN_PTR(ctx);
+    len = ctx->end - src;
+    res = malloc(len + 1);
+    memcpy(res, src, len);
+    res[len] = '\0';
+    return res;
+}
+#line 46 "strscan.nw"
 void
 strscan(struct strscan *ctx, char *s, size_t len)
 {
@@ -83,7 +99,7 @@ strscan(struct strscan *ctx, char *s, size_t len)
     ctx->pos = 0;
     ctx->fail = 0;
 }
-#line 41 "strscan.nw"
+#line 61 "strscan.nw"
 void rtrim(struct strscan *ctx)
 {
     char *b = ctx->beg + ctx->pos;
@@ -94,7 +110,7 @@ void rtrim(struct strscan *ctx)
     }
     ctx->end = e + 1;
 }
-#line 59 "strscan.nw"
+#line 79 "strscan.nw"
 int
 startswith2(struct strscan *ctx, int x, int y)
 {
@@ -110,7 +126,7 @@ startswith2(struct strscan *ctx, int x, int y)
     }
     return 0;
 }
-#line 82 "strscan.nw"
+#line 102 "strscan.nw"
 int
 endswith3(struct strscan *ctx, int x, int y, int z)
 {
@@ -126,7 +142,7 @@ endswith3(struct strscan *ctx, int x, int y, int z)
     }
     return 0;
 }
-#line 105 "strscan.nw"
+#line 125 "strscan.nw"
 int
 exact1(struct strscan *ctx, int x)
 {
@@ -142,7 +158,7 @@ exact1(struct strscan *ctx, int x)
     }
     return 0;
 }
-#line 128 "strscan.nw"
+#line 148 "strscan.nw"
 int
 hasatleast(struct strscan *ctx, size_t len)
 {
@@ -152,13 +168,13 @@ hasatleast(struct strscan *ctx, size_t len)
     }
     return 0;
 }
-#line 110 "detokenize.nw"
-#line 92 "detokenize.nw"
+#line 112 "detokenize.nw"
+#line 94 "detokenize.nw"
 int main(int argc, char **argv)
 {
 #line 37 "detokenize.nw"
     long input_line_number = 0;
-#line 294 "detokenize.nw"
+#line 296 "detokenize.nw"
     int file_count;         /* how many files there are */
     char *file_name;        /* Used to differentiate between *argv and '-' */
     int fd;                 /* file descriptor */
@@ -171,17 +187,17 @@ int main(int argc, char **argv)
     long line_count;        /* # of words, lines, and chars so far */
     int got_eof = 0;        /* read got EOF */
     int got_cr = 0;         /* previous char was '\r' */
-#line 95 "detokenize.nw"
-#line 309 "detokenize.nw"
-    prog_name = argv[0];
-#line 96 "detokenize.nw"
-#line 290 "detokenize.nw"
-    file_count = argc - 1;
 #line 97 "detokenize.nw"
-#line 279 "detokenize.nw"
+#line 311 "detokenize.nw"
+    prog_name = argv[0];
+#line 98 "detokenize.nw"
+#line 292 "detokenize.nw"
+    file_count = argc - 1;
+#line 99 "detokenize.nw"
+#line 281 "detokenize.nw"
     argc--;
     do {
-#line 260 "detokenize.nw"
+#line 262 "detokenize.nw"
         if (file_count > 0) {
             file_name = *(++argv);
             if (strcmp(file_name, "-") == 0) {
@@ -198,19 +214,19 @@ int main(int argc, char **argv)
             fd = 0; /* stdin */
             file_name = "-";
         }
-#line 282 "detokenize.nw"
-#line 255 "detokenize.nw"
+#line 284 "detokenize.nw"
+#line 257 "detokenize.nw"
         line_start = ptr = buffer;
         line_count = 0;
-#line 283 "detokenize.nw"
-#line 246 "detokenize.nw"
+#line 285 "detokenize.nw"
+#line 248 "detokenize.nw"
         line_start = ptr = buffer;
         nc = read(fd, ptr, BUF_SIZE);
         if (nc > 0) {
             buf_end = buffer + nc;
-#line 216 "detokenize.nw"
+#line 218 "detokenize.nw"
             while (got_eof == 0) {
-#line 174 "detokenize.nw"
+#line 176 "detokenize.nw"
                 if (ptr >= buf_end) {
                     size_t consumed = ptr - buffer;
                     size_t remaining = BUF_SIZE - consumed;
@@ -250,7 +266,7 @@ int main(int argc, char **argv)
                         buf_end = ptr + nc;
                     }
                 }
-#line 218 "detokenize.nw"
+#line 220 "detokenize.nw"
                 c = *ptr++;
                 if (c == '\n') {
                     /* lf or cr-lf */
@@ -312,7 +328,9 @@ int main(int argc, char **argv)
                                         fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
                                         exit(1);
                                     }
-                                    c = (b[2] & ~0x40) << 4 | (b[3] & ~0x40);
+                                    /* 0x00..0xFF -> 0y@@..0yOO */
+                                    /* 0xBF = ~0x40 & 0xFF */
+                                    c = (b[2] & 0xBF) << 4 | (b[3] & 0xBF);
                                     putc(c, stdout);
                                 }
                                 break;
@@ -321,7 +339,7 @@ int main(int argc, char **argv)
                                 exit(1);
                                 break;
                         }
-#line 228 "detokenize.nw"
+#line 230 "detokenize.nw"
                     }
             #if CONVERT_CRLF_TO_LF
                     ptr += got_cr;
@@ -337,19 +355,19 @@ int main(int argc, char **argv)
                     got_cr = c == '\r';
                 }
             }
-#line 251 "detokenize.nw"
+#line 253 "detokenize.nw"
         }
-#line 284 "detokenize.nw"
-#line 170 "detokenize.nw"
-        close(fd);
-#line 285 "detokenize.nw"
-#line 166 "detokenize.nw"
-        tot_line_count += line_count;
 #line 286 "detokenize.nw"
+#line 172 "detokenize.nw"
+        close(fd);
+#line 287 "detokenize.nw"
+#line 168 "detokenize.nw"
+        tot_line_count += line_count;
+#line 288 "detokenize.nw"
     } while (--argc > 0);
-#line 98 "detokenize.nw"
-#line 313 "detokenize.nw"
+#line 100 "detokenize.nw"
+#line 315 "detokenize.nw"
     exit(status);
     return 0;
-#line 99 "detokenize.nw"
+#line 101 "detokenize.nw"
 }

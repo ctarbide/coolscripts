@@ -55,20 +55,23 @@ static int found_chunk(struct strscan *ctx);
 #line 69 "nwsplit.nw"
 static int found_end_of_chunk(struct strscan *ctx);
 #line 21 "strscan.nw"
+char *
+strscan_strdup(struct strscan *ctx);
+#line 41 "strscan.nw"
 void
 strscan(struct strscan *ctx, char *s, size_t len);
-#line 37 "strscan.nw"
+#line 57 "strscan.nw"
 void rtrim(struct strscan *ctx);
-#line 54 "strscan.nw"
+#line 74 "strscan.nw"
 int
 startswith2(struct strscan *ctx, int x, int y);
-#line 77 "strscan.nw"
+#line 97 "strscan.nw"
 int
 endswith3(struct strscan *ctx, int x, int y, int z);
-#line 100 "strscan.nw"
+#line 120 "strscan.nw"
 int
 exact1(struct strscan *ctx, int x);
-#line 123 "strscan.nw"
+#line 143 "strscan.nw"
 int
 hasatleast(struct strscan *ctx, size_t len);
 #line 115 "nwsplit.nw"
@@ -99,6 +102,19 @@ static int found_end_of_chunk(struct strscan *ctx)
         startswith2(ctx, '@', ' ');
 }
 #line 26 "strscan.nw"
+char *
+strscan_strdup(struct strscan *ctx)
+{
+    char *res, *src;
+    size_t len;
+    src = STRSCAN_PTR(ctx);
+    len = ctx->end - src;
+    res = malloc(len + 1);
+    memcpy(res, src, len);
+    res[len] = '\0';
+    return res;
+}
+#line 46 "strscan.nw"
 void
 strscan(struct strscan *ctx, char *s, size_t len)
 {
@@ -107,7 +123,7 @@ strscan(struct strscan *ctx, char *s, size_t len)
     ctx->pos = 0;
     ctx->fail = 0;
 }
-#line 41 "strscan.nw"
+#line 61 "strscan.nw"
 void rtrim(struct strscan *ctx)
 {
     char *b = ctx->beg + ctx->pos;
@@ -118,7 +134,7 @@ void rtrim(struct strscan *ctx)
     }
     ctx->end = e + 1;
 }
-#line 59 "strscan.nw"
+#line 79 "strscan.nw"
 int
 startswith2(struct strscan *ctx, int x, int y)
 {
@@ -134,7 +150,7 @@ startswith2(struct strscan *ctx, int x, int y)
     }
     return 0;
 }
-#line 82 "strscan.nw"
+#line 102 "strscan.nw"
 int
 endswith3(struct strscan *ctx, int x, int y, int z)
 {
@@ -150,7 +166,7 @@ endswith3(struct strscan *ctx, int x, int y, int z)
     }
     return 0;
 }
-#line 105 "strscan.nw"
+#line 125 "strscan.nw"
 int
 exact1(struct strscan *ctx, int x)
 {
@@ -166,7 +182,7 @@ exact1(struct strscan *ctx, int x)
     }
     return 0;
 }
-#line 128 "strscan.nw"
+#line 148 "strscan.nw"
 int
 hasatleast(struct strscan *ctx, size_t len)
 {
