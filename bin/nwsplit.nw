@@ -353,7 +353,7 @@ nwsplit.nw strscan.nw
 @
 
 <<nwsplit deps>>=
-nwsplit.c
+<<nwsplit.c deps>> nwsplit.c
 @
 
 <<build nwsplit.c>>=

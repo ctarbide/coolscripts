@@ -26,6 +26,13 @@ line_length--;
 long input_line_number = 0;
 struct tkinfo_file_name *tkinfo_file_name = NULL;
 struct tkinfo_line_number *tkinfo_line_number = NULL;
+@
+
+<<definitions>>=
+#define TOKEN_QUEUE_SIZE 64
+@
+
+<<Variables local to [[main]]>>=
 struct queue_64 tokens;
 @
 
@@ -95,28 +102,16 @@ switch (*b) {
         break;
 }
 if (token) {
-    enqueue(tokens.queue, token);
-    if (token->image) {
-        printf("token category %d, line %d: [%s]\n",
-            token->category, token->line_number->line_number,
-            token->image);
-    } else if (token->category == 5) {
-        printf("token category %d, line %d: '%c'\n",
-            token->category, token->line_number->line_number,
-            token->value.punct);
-    } else if (token->category == 6) {
-        char *hi_lo;
-        hi_lo = token->value.hi_lo;
-        /* 0x00..0xFF -> 0y@@..0yOO */
-        /* 0xBF = ~0x40 & 0xFF */
-        c = (hi_lo[0] & 0xBF) << 4 | (hi_lo[1] & 0xBF);
-        printf("token category %d, line %d: 0x%02x (0y%c%c)\n",
-            token->category, token->line_number->line_number,
-            c, hi_lo[0], hi_lo[1]);
-    } else {
-        fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
-        exit(1);
+    if (tokens.queue->tally >= TOKEN_QUEUE_SIZE) {
+        struct tkscan tkscan_ctx[1];
+        tkscan(tkscan_ctx, tokens.queue);
+        consume_tokens(tkscan_ctx);
+        if (tokens.queue->tally >= TOKEN_QUEUE_SIZE) {
+            fprintf(stderr, "Error, parser is stuck, at %s:%d.", __FILE__, __LINE__);
+            exit(1);
+        }
     }
+    enqueue(tokens.queue, token);
 }
 @
 
@@ -272,6 +267,18 @@ while (got_eof == 0) {
         got_cr = c == '\r';
     }
 }
+{
+    int tally;
+    while ((tally = tokens.queue->tally)) {
+        struct tkscan tkscan_ctx[1];
+        tkscan(tkscan_ctx, tokens.queue);
+        consume_tokens(tkscan_ctx);
+        if (tally == tokens.queue->tally) {
+            fprintf(stderr, "Error, parser is stuck, at %s:%d.", __FILE__, __LINE__);
+            exit(1);
+        }
+    }
+}
 @
 
 <<Scan file>>=
@@ -378,15 +385,19 @@ set -- "$@" parse
 @
 
 <<parse.c deps>>=
-parse.nw strscan.nw tkscan.nw queue.nw debug.nw reallocarray.nw
+config.nw parse.nw strscan.nw queue.nw debug.nw reallocarray.nw tkscan.nw
 @
 
 <<parse deps>>=
-parse.c
+<<parse.c deps>> parse.c
 @
 
 <<build parse.c>>=
-CHMOD='chmod 0444' nofake.sh --error -L -Rparse.c -oparse.c <<parse.c deps>>
+nofake.sh --error -L -Rparse.c -oparse.c <<parse.c deps>>
+perl -lni -e'
+    next if m{^\#line \s+ \d+ \s+ " (?: <<no #line for>> ).nw" $}xi;
+    print;
+' parse.c
 @
 
 <<build parse - DEBUG>>=
@@ -421,6 +432,64 @@ set -eu
 #@<<build parse - STANDARD>>
 <<build parse - PEDANTIC>>
 @
+
+<<debug token>>=
+if (token->image) {
+    printf("token category %d, line %d: [%s]\n",
+        token->category, token->line_number->line_number,
+        token->image);
+} else if (token->category == 5) {
+    printf("token category %d, line %d: '%c'\n",
+        token->category, token->line_number->line_number,
+        token->value.punct);
+} else if (token->category == 6) {
+    int c;
+    char *hi_lo;
+    hi_lo = token->value.hi_lo;
+    /* 0x00..0xFF -> 0y@@..0yOO */
+    /* 0xBF = ~0x40 & 0xFF */
+    c = (hi_lo[0] & 0xBF) << 4 | (hi_lo[1] & 0xBF);
+    printf("token category %d, line %d: 0x%02x (0y%c%c)\n",
+        token->category, token->line_number->line_number,
+        c, hi_lo[0], hi_lo[1]);
+} else {
+    fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
+    exit(1);
+}
+@
+
+<<protos>>=
+void consume_tokens(struct tkscan *ctx);
+@
+
+<<impl>>=
+void consume_tokens(struct tkscan *ctx)
+{
+    struct queue *q;
+    struct token *token;
+
+    q = ctx->tokens;
+
+    /* token = dequeue(q); */
+    token = PEEK_TOKEN(q, 0);
+    <<debug token>>
+
+    switch (token->category) {
+        case 3: /* isalnum(c) || c == '_' */
+            /* bare word or number literal */
+            dequeue(q);
+            break;
+        case 4: /* c == ' ' || c == '\t' */
+            dequeue(q);
+            break;
+        case 5: /* ispunct(c) */
+            dequeue(q);
+            break;
+        default:
+            <<EXHAUSTION>>
+            break;
+    }
+}
 
 <<tests.sh>>=
 #!/bin/sh

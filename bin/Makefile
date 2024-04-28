@@ -17,84 +17,85 @@ all: $(TARGETS)
 
 create-config.sh: \
     create-config.nw shell.nw
-	@nofake --error -R'build create-config.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build create-config.sh' $^ | $(SH)
 
 show-config.sh: \
     create-config.nw shell.nw
-	@nofake --error -R'build show-config.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build show-config.sh' $^ | $(SH)
 
 new-item.sh: \
     create-config.nw new-item.nw shell.nw
-	@nofake --error -R'build new-item.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build new-item.sh' $^ | $(SH)
 
 make-index.sh: \
     create-config.nw make-index.nw shell.nw
-	@nofake --error -R'build make-index.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build make-index.sh' $^ | $(SH)
 
 find.sh: \
     create-config.nw find.nw shell.nw temporary-files-shell.nw
-	@nofake --error -R'build find.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build find.sh' $^ | $(SH)
 
 head-README.sh: \
     create-config.nw head-README.nw shell.nw temporary-files-shell.nw
-	@nofake --error -R'build head-README.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build head-README.sh' $^ | $(SH)
 
 show-README.sh: \
     create-config.nw shell.nw show-README.nw temporary-files-shell.nw
-	@nofake --error -R'build show-README.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build show-README.sh' $^ | $(SH)
 
 cat-README.sh: \
     cat-README.nw create-config.nw shell.nw temporary-files-shell.nw
-	@nofake --error -R'build cat-README.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build cat-README.sh' $^ | $(SH)
 
 detokenize.c: \
     detokenize.nw strscan.nw
-	@nofake --error -R'build detokenize.c' $(SOURCES) | $(SH)
+	nofake --error -R'build detokenize.c' $^ | $(SH)
 
 detokenize: \
-    detokenize.c
-	@nofake --error -R'build detokenize' $(SOURCES) | $(SH)
+    detokenize.c detokenize.nw strscan.nw
+	nofake --error -R'build detokenize' $^ | $(SH)
 
 git-last-modified.sh: \
     git-last-modified.nw shell.nw
-	@nofake --error -R'build git-last-modified.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build git-last-modified.sh' $^ | $(SH)
 
 nofake-exec.sh: \
     nofake-exec.nw shell.nw temporary-files-shell.nw
-	@nofake --error -R'build nofake-exec.sh' $(SOURCES) | $(SH)
+	nofake --error -R'build nofake-exec.sh' $^ | $(SH)
 
 nwsplit.c: \
     nwsplit.nw strscan.nw
-	@nofake --error -R'build nwsplit.c' $(SOURCES) | $(SH)
+	nofake --error -R'build nwsplit.c' $^ | $(SH)
 
 nwsplit: \
-    nwsplit.c
-	@nofake --error -R'build nwsplit' $(SOURCES) | $(SH)
+    nwsplit.c nwsplit.nw strscan.nw
+	nofake --error -R'build nwsplit' $^ | $(SH)
 
 parse.c: \
-    debug.nw parse.nw queue.nw reallocarray.nw strscan.nw \
-    tkscan.nw
-	@nofake --error -R'build parse.c' $(SOURCES) | $(SH)
+    config.nw debug.nw parse.nw queue.nw reallocarray.nw \
+    strscan.nw tkscan.nw
+	nofake --error -R'build parse.c' $^ | $(SH)
 
 parse: \
-    parse.c
-	@nofake --error -R'build parse' $(SOURCES) | $(SH)
+    config.nw debug.nw parse.c parse.nw queue.nw \
+    reallocarray.nw strscan.nw tkscan.nw
+	nofake --error -R'build parse' $^ | $(SH)
 
 repl.c: \
     repl.nw
-	@nofake --error -R'build repl.c' $(SOURCES) | $(SH)
+	nofake --error -R'build repl.c' $^ | $(SH)
 
 repl: \
-    repl.c
-	@nofake --error -R'build repl' $(SOURCES) | $(SH)
+    repl.c repl.nw
+	nofake --error -R'build repl' $^ | $(SH)
 
 tokenize.c: \
     strscan.nw tokenize.nw
-	@nofake --error -R'build tokenize.c' $(SOURCES) | $(SH)
+	nofake --error -R'build tokenize.c' $^ | $(SH)
 
 tokenize: \
-    tokenize.c
-	@nofake --error -R'build tokenize' $(SOURCES) | $(SH)
+    strscan.nw tokenize.c tokenize.nw
+	nofake --error -R'build tokenize' $^ | $(SH)
 
 clean:
 	-rm -f $(TARGETS)

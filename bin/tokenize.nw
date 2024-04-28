@@ -385,7 +385,7 @@ tokenize.nw strscan.nw
 @
 
 <<tokenize deps>>=
-tokenize.c
+<<tokenize.c deps>> tokenize.c
 @
 
 <<build tokenize.c>>=

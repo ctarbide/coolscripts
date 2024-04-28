@@ -79,7 +79,7 @@ for target; do
         set_deps=`nofake --error -R"${target} deps" "$@" | cmd_push_to_argv`
         eval "set --; ${set_deps}"
         <<indent "$@">>
-        printf -- '\t@nofake --error -R'"'"'build '"${target}'"' $(SOURCES) | $(SH)\n\n'
+        printf -- '\tnofake --error -R'"'"'build '"${target}'"' $^ | $(SH)\n\n'
     )
 done
 @

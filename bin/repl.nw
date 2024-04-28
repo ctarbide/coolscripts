@@ -281,7 +281,7 @@ repl.nw
 @
 
 <<repl deps>>=
-repl.c
+<<repl.c deps>> repl.c
 @
 
 <<build repl.c>>=

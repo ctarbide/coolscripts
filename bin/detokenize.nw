@@ -348,7 +348,7 @@ detokenize.nw strscan.nw
 @
 
 <<detokenize deps>>=
-detokenize.c
+<<detokenize.c deps>> detokenize.c
 @
 
 <<build detokenize.c>>=

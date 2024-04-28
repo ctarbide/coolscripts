@@ -293,6 +293,38 @@ pop_rear(struct queue *queue)
 @
 
 <<protos>>=
+void *
+peek_front(struct queue *queue, int pos);
+@
+
+<<impl>>=
+void *
+peek_front(struct queue *queue, int pos)
+{
+    unsigned int idx;
+    DECLARE_QUEUE_AND_ITEMS(queue, q, items);
+    idx = (q->front + pos) & q->mask;
+    return items[idx];
+}
+@
+
+<<protos>>=
+void
+dequeue_discard(struct queue *queue, int howmany);
+@
+
+<<impl>>=
+void
+dequeue_discard(struct queue *queue, int howmany)
+{
+    while (howmany > 0) {
+        howmany--;
+        dequeue(queue);
+    }
+}
+@
+
+<<protos>>=
 void
 queue_debug(struct queue *queue);
 @
