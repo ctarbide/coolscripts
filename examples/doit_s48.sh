@@ -1,47 +1,68 @@
 #!/bin/sh
+# https://ctarbide.github.io/pages/2024/2024-02-05_12h00m11_hello-worlds/
+# https://github.com/ctarbide/coolscripts/blob/master/bin/nofake-exec.nw
+set -eu; set -- "${0}" --ba-- "${0}" "$@" --ea--
+set -- "$@" --tmp-- .input
+SH=${SH:-sh -eu}; export SH
+PERL=${PERL:-perl}; export PERL
+exec nofake-exec.sh --error -Rprog "$@" -- ${SH}
+exit 1
 
-# reference: ~/last-class/lisp/gregcman/doit_gregcman.sh
+<<filter>>=
+(?: www\d*\. )?
+(?: s48\.org/ )
+(?! .*? (?: // | \# ))
+@
 
+<<project_name>>=
+
+@
+
+<<github userid>>=
+
+@
+
+<<prog>>=
 set -eu
-
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
-thispath=`perl -MFile::Spec::Functions=rel2abs,canonpath -le'print(canonpath(rel2abs(\$ARGV[0])))' -- "${0}"`
-thisprog=${thispath##*/}
+thisprog=${1}; shift # the initial script
+thispath=`perl -MFile::Spec::Functions=rel2abs,canonpath -le'print(canonpath(rel2abs(\$ARGV[0])))' -- "${thisprog}"`
 thisdir=${thispath%/*}
 
 LC_ALL=C
 export LC_ALL
 
-script_id=${thisprog#doit_}
+script_id=${thisprog#./}
+script_id=${script_id#doit_}
 script_id=${script_id%.sh}
 
 # seeds are in 'listings' file, initial lines as '0.'
 
 # an initial 'lynx-list-links.sh' might be needed to bootstrap 'listings' files
 
-url_prefix='(?:www\d*\.)? (?: s48\.org/ ) (?!.*?//)'
-github_userid=
+url_prefix='<<filter>>'
+github_userid=<<github userid>>
 project_name=
 
 do_help(){
     echo "usage: "
     echo ""
-    cat <<EOF
-  ./${thisprog} list-all-html-links | tee gather__${script_id}.inc.sh
-  ./${thisprog} gather-links
-  ./${thisprog} list-pending-dirs
-  ./${thisprog} list-pending-dirs-force-https
-  ./${thisprog} list-pending-files
-  ./${thisprog} list-pending-files-force-https
-  ./${thisprog} list-unrelated-files
+    cat @<<EOF
+  ${thisprog} list-all-html-links | tee gather__${script_id}.inc.sh
+  ${thisprog} gather-links
+  ${thisprog} list-pending-dirs
+  ${thisprog} list-pending-dirs-force-https
+  ${thisprog} list-pending-files
+  ${thisprog} list-pending-files-force-https
+  ${thisprog} list-unrelated-files
 EOF
     if [ x"${github_userid}" != x ]; then
         echo ""
         echo "  ./${thisprog} list-pending-repositories"
     fi
     if [ x"${project_name}" != x ]; then
-        cat <<EOF
+        cat @<<EOF
 
   ./${thisprog} list-dirs | tee gather__${script_id}.inc.sh
   ./${thisprog} gather-links
@@ -219,3 +240,4 @@ case "${cmd}" in
         die 1 "error: unknown command: ${cmd}"
         ;;
 esac
+@
