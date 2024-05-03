@@ -44,10 +44,20 @@ ECHO_INFO=${ECHO_INFO:-echo}
 nargs= # nofake args
 eargs= # exec args
 
+skipdd=0 # skip double dash
+
 for arg do
-    if [ x"${arg}" = x-- ]; then
-        shift
-        break
+    if [ x"${skipdd}" = x0 ]; then
+        if [ x"${arg}" = x--ba-- ]; then
+            skipdd=1
+        elif [ x"${arg}" = x-- ]; then
+            shift
+            break
+        fi
+    else
+        if [ x"${arg}" = x--ea-- ]; then
+            skipdd=0
+        fi
     fi
     nargs="${nargs:+${nargs} }'`normalize_arg "${arg}"`'"
     shift # 'for' is synchronized with 'shift'
@@ -94,7 +104,7 @@ while [ $# -gt 0 ]; do
         --ba--) # begin args
             shift
             for arg; do
-                if [ x"${1}" = x--ea-- ]; then
+                if [ x"${arg}" = x--ea-- ]; then
                     # end args
                     break
                 fi
