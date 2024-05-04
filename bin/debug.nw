@@ -4,11 +4,12 @@ this code as long as you do not remove this copyright notice or
 hold me liable for its use.
 
 <<globals>>=
-static int so_far = 0;
+int so_far = 0;
 @
 
 <<globals initialization>>=
 (void)so_far;
+(void)g_debug_data;
 @
 
 <<SO_FAR>>=

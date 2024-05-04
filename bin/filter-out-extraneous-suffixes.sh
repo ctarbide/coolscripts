@@ -3,11 +3,11 @@
 # https://github.com/ctarbide/coolscripts/blob/master/bin/nofake-exec.nw
 set -eu; set -- "${0}" --ba-- "${0}" "$@" --ea--
 set -- "$@" --tmp-- .input
-SH=${SH:-sh}; export SH
+SH=${SH:-sh -eu}; export SH
 PERL=${PERL:-perl}; export PERL
 SUFFIX=${SUFFIX:-/download}; export SUFFIX
 INCLUDEPREFIX=${INCLUDEPREFIX:-yes}; export INCLUDEPREFIX
-exec nofake-exec.sh --error -Rprog "$@" -- "${SH}" -eu
+exec nofake-exec.sh --error -Rprog "$@" -- ${SH}
 exit 1
 
 <<prog>>=
