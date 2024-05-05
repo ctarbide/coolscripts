@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# stripped down version of nofake.pl that only parses noweb files
+# coalesces consecutive chunks of the same name
 
 eval 'exec perl -wS $0 ${1+"$@"}'
     if 0;
@@ -28,9 +28,9 @@ sub read_file {
             unless ($ndoclines == 0 and $chunkname eq $1 and $endofchunk eq '@') {
                 if ($endofchunk) {
                     print($endofchunk);
+                    $endofchunk = '';
                 }
                 $chunkname = $1;
-                $endofchunk = '';
                 print($line);
             }
             $inside_chunk = 1;
@@ -45,9 +45,17 @@ sub read_file {
                 print($line);
             }
         } else {
+            if ($endofchunk) {
+                print($endofchunk);
+                $endofchunk = '';
+            }
             $ndoclines++;
             print($line);
         }
+    }
+    if ($endofchunk) {
+        print($endofchunk);
+        $endofchunk = '';
     }
 }
 
