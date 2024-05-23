@@ -113,7 +113,7 @@ case "${#}_${1}" in
         protect_command_add "$@"
         exec git "${cmd}" "$@"
         ;;
-    *_commit | *_log | *_show | *_diff | *_status | *_ls-files | *_checkout | *_mv | *_rm)
+    *_commit | *_log | *_show | *_diff | *_status | *_ls-files | *_checkout | *_mv | *_rm | *_repack | *_prune | *_fsck)
         cmd=$1
         shift
         exec git "${cmd}" "$@"
