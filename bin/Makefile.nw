@@ -22,10 +22,14 @@ set -eu
 SH=${SH:-sh -eu}; export SH
 <<function cmd_push_to_argv>>
 <<function list_set_sources>>
-# set -- <<Makefile prefix>>.nw
-# nofake --error -R'generate build.sh' "$@" | ${SH}
+#@<<gen build.sh>>
 eval "set --; `list_set_sources`"
 nofake --error -R'generate Makefile' "$@" | ${SH} ><<Makefile prefix>>
+@
+
+<<gen build.sh>>=
+set -- <<Makefile prefix>>.nw
+nofake --error -R'generate build.sh' "$@" | ${SH}
 @
 
 <<function cmd_push_to_argv>>=
@@ -57,16 +61,10 @@ indent_args(){
 indent_args "$@"
 @
 
-<<output SH= and SOURCES=>>=
-eval "set --; ${set_sources}"
-printf -- 'SH = %s\n\nSOURCES = \\\n' "${SH}"
-<<indent "$@">>
-@
-
 <<output TARGETS=>>=
 set --
 <<targets>>
-printf -- '\nTARGETS = \\\n'
+printf -- 'TARGETS = \\\n'
 <<indent "$@">>
 @
 
@@ -93,10 +91,10 @@ SH=${SH:-sh -eu}; export SH
 <<function indent_args>>
 printf -- '\n# automatically generated from <<Makefile prefix>>.nw\n\n'
 set_sources=`list_set_sources`
-<<output SH= and SOURCES=>>
+printf -- 'SH = %s\n\n' "${SH}"
 <<output TARGETS=>>
 <<output all:>>
-printf -- 'clean:\n\t-rm -f $(TARGETS)\n\n'
+printf -- 'clean:\n\t-rm -f $(TARGETS)\n'
 @
 
 <<generate build.sh>>=

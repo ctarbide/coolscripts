@@ -3,10 +3,6 @@
 
 SH = sh -eu
 
-SOURCES = \
-    Makefile.nw create-config.nw detokenize.nw git-last-modified.nw nofake-exec.nw \
-    nwsplit.nw parse.nw repl.nw tokenize.nw
-
 TARGETS = \
     create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
     head-README.sh show-README.sh cat-README.sh detokenize.c detokenize \
@@ -99,4 +95,3 @@ tokenize: \
 
 clean:
 	-rm -f $(TARGETS)
-
