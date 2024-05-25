@@ -167,6 +167,7 @@ if [ x"${output}" = x ]; then
             die 1 "Error, additional temporary file suffix \".stamp\" is already used." 1>&2
         fi
         tmpfiles="${tmpfiles:+${tmpfiles} }'${output}${arg}'"
+        tmpfiles="${tmpfiles:+${tmpfiles} }'${output}${arg}.stamp'"
     done
 fi
 
