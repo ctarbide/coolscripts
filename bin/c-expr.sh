@@ -13,6 +13,26 @@ else
 fi
 exit 1
 
+Usage examples:
+
+    c-expr.sh
+
+    seq 100 | c-expr.sh a 'b c' ' ${d} '
+
+    SHOW_SOURCE=1 c-expr.sh
+
+Useful environment variables:
+
+    SOURCE_IN_STDIN=1
+
+    SHOW_SOURCE=1
+
+    DO_NOT_COMPILE=1
+
+    DO_NOT_ASSEMBLE=1
+
+    DO_NOT_LINK=1
+
 <<snippet>>=
 int i = 0;
 while (fgetc(stdin) != EOF) i++;
@@ -39,7 +59,10 @@ puts("hello world!");
 int
 main(int argc, char **argv, char **envp)
 {
-    <<snippet>>
+    setlocale(LC_ALL, "C");
+    do {
+        <<snippet>>
+    } while (0);
     return 0;
 }
 @
@@ -54,8 +77,11 @@ main(int argc, char **argv, char **envp)
 @
 
 <<c source - preamble>>=
+<<c header>>
 <<c standards>>
+<<includes - before>>
 <<includes>>
+<<includes - after>>
 <<definitions>>
 <<types>>
 <<globals>>
@@ -67,10 +93,14 @@ main(int argc, char **argv, char **envp)
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <inttypes.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <assert.h>
+#include <locale.h>
+#include <ctype.h>
 @
 
 <<prog snippet>>=
@@ -79,9 +109,8 @@ if ! nofake-exec.sh --error -L -R'c source - snippet' -o"${0}.c" "$@"; then
     show-line-numbers.sh "${0}.c"
     exit 1
 fi
-eval "set -- ${saveargs}"
 [ -t 0 ] && exec 0>&-
-"${0}.out" "$@"
+<<run program>>
 @
 
 <<prog stdin>>=
@@ -94,8 +123,12 @@ if ! nofake-exec.sh --error -L -R'c source - stdin' -o"${0}.c" "${0}_in.nw" "$@"
     show-line-numbers.sh "${0}.c"
     exit 1
 fi
+<<run program>>
+@
+
+<<run program>>=
 eval "set -- ${saveargs}"
-"${0}.out" "$@"
+postrun "$@"
 @
 
 <<function escape_chunk>>=
@@ -113,9 +146,27 @@ if [ x"${ADDITIONAL_SOURCES:-}" != x ]; then
     set_add_srcs=`echo "${ADDITIONAL_SOURCES:-}" | cmd_push_to_argv`
     eval "${set_add_srcs}"
 fi
-set -- "$@" -- ${CC}
-<<set CFLAGS>>
-set -- "$@" ${LDFLAGS} -o"${0}.out"
+if [ x"${SHOW_SOURCE:-}" = x1 ]; then
+    set -- "$@" -- cat
+    postrun(){ :; }
+else
+    set -- "$@" -- ${CC}
+    <<set CFLAGS>>
+    a_out=${0}.out
+    if [ x"${DO_NOT_COMPILE:-}" = x1 ]; then
+        set -- "$@" -E
+        postrun(){ :; }
+    elif [ x"${DO_NOT_ASSEMBLE:-}" = x1 ]; then
+        set -- "$@" -S -o -
+        postrun(){ :; }
+    elif [ x"${DO_NOT_LINK:-}" = x1 ]; then
+        set -- "$@" -c -o "${thisprog%.sh}.o"
+        postrun(){ file "${thisprog%.sh}.o"; }
+    else
+        set -- "$@" -o "${a_out}" ${LDFLAGS}
+        postrun(){ "${a_out}" "$@"; }
+    fi
+fi
 @
 
 <<function cmd_push_to_argv>>=
@@ -129,13 +180,21 @@ cmd_push_to_argv(){
 <<set CFLAGS - pedantic>>
 @
 
+'-Wno-long-long' allow use of 64-bit constants (ull suffix) with ansi
+
 <<set CFLAGS - pedantic>>=
 set -- "$@" -O2 -ansi -pedantic
 set -- "$@" -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wshadow -Wconversion -Wdeclaration-after-statement
-set -- "$@" -Wno-unused-parameter
+set -- "$@" -Wno-unused-parameter -Wno-long-long
 set -- "$@" -Werror -fmax-errors=3
 @
+
+<<c header>>=
+
+<<includes - before>>=
+
+<<includes - after>>=
 
 <<definitions>>=
 

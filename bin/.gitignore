@@ -1,3 +1,5 @@
+*~
+*.o
 /*.stamp
 /tmp.nw
 /coolscripts.cfg
