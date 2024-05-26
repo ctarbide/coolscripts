@@ -21,6 +21,10 @@ Usage examples:
 
     SHOW_SOURCE=1 c-expr.sh
 
+    CC=clang ./c-expr.sh
+
+    CC=tcc ./c-expr.sh
+
 Useful environment variables:
 
     SOURCE_IN_STDIN=1
@@ -177,17 +181,56 @@ cmd_push_to_argv(){
 @
 
 <<set CFLAGS>>=
-<<set CFLAGS - pedantic>>
+case "${CC}" in
+gcc*)
+    <<set CFLAGS - gcc>>
+    ;;
+clang*)
+    <<set CFLAGS - clang>>
+    ;;
+tcc*)
+    <<set CFLAGS - tcc>>
+    ;;
+*)
+    echo "Warning, unknown compiler, trying generic CFLAGS=[-O2 -Wall]" >&2
+    set -- "$@" -O2 -Wall
+    ;;
+esac
+
 @
 
 '-Wno-long-long' allow use of 64-bit constants (ull suffix) with ansi
 
-<<set CFLAGS - pedantic>>=
+<<set CFLAGS - gcc>>=
+<<set CFLAGS - gcc - pedantic>>
+@
+
+<<set CFLAGS - clang>>=
+<<set CFLAGS - clang - pedantic>>
+@
+
+<<set CFLAGS - tcc>>=
+<<set CFLAGS - tcc - pedantic>>
+@
+
+<<set CFLAGS - gcc - pedantic>>=
 set -- "$@" -O2 -ansi -pedantic
 set -- "$@" -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wshadow -Wconversion -Wdeclaration-after-statement
 set -- "$@" -Wno-unused-parameter -Wno-long-long
 set -- "$@" -Werror -fmax-errors=3
+@
+
+<<set CFLAGS - clang - pedantic>>=
+set -- "$@" -O2 -ansi -pedantic
+set -- "$@" -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
+set -- "$@" -Wshadow -Wconversion -Wdeclaration-after-statement
+set -- "$@" -Wno-unused-parameter -Wno-long-long
+set -- "$@" -Werror
+@
+
+<<set CFLAGS - tcc - pedantic>>=
+set -- "$@" -O2 -Wall -Werror
 @
 
 <<c header>>=
