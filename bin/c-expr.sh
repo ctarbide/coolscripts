@@ -105,6 +105,7 @@ main(int argc, char **argv, char **envp)
 #include <assert.h>
 #include <locale.h>
 #include <ctype.h>
+#include <limits.h>
 @
 
 <<prog snippet>>=
