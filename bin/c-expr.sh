@@ -110,7 +110,7 @@ main(int argc, char **argv, char **envp)
 
 <<prog snippet>>=
 <<prog preamble>>
-if ! nofake-exec.sh --error -L -R'c source - snippet' -o"${0}.c" "$@"; then
+if ! nofake-exec.sh --error -R'c source - snippet' -o"${0}.c" "$@"; then
     show-line-numbers.sh "${0}.c"
     exit 1
 fi
@@ -124,7 +124,7 @@ fi
 printf -- '@<<stdin>>=\n' >"${0}_in.nw"
 cat | escape_chunk >>"${0}_in.nw"
 exec 0>&-
-if ! nofake-exec.sh --error -L -R'c source - stdin' -o"${0}.c" "${0}_in.nw" "$@"; then
+if ! nofake-exec.sh --error -R'c source - stdin' -o"${0}.c" "${0}_in.nw" "$@"; then
     show-line-numbers.sh "${0}.c"
     exit 1
 fi
