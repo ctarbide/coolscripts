@@ -1,2 +1,2 @@
 #!/bin/sh
-exec perl -lpi -e's,\s+$,,' "$@"
+exec perl -lpi -e's,[ \t]+$,,' "$@"
