@@ -8,6 +8,10 @@ PERL=${PERL:-perl}; export PERL
 exec nofake-exec.sh --error -Rprog "$@" -- ${SH}
 exit 1
 
+<<tilde>>=
+(?: ~ | %7E)
+@
+
 <<filter>>=
 (?: www\d*\. )?
 (?: s48\.org/ )
@@ -20,6 +24,10 @@ exit 1
 
 <<github userid>>=
 
+@
+
+<<unescape listing>>=
+perl -MCGI::Util=unescape -lne'print(unescape($_))' | LC_ALL=C sort -u
 @
 
 <<prog>>=
@@ -121,7 +129,8 @@ do_gather_links(){
 }
 
 list_all_urls(){
-    lynx-list-paths.sh listings | perl -lpe's,^\047(.*)\047$,${1},; s,\047,%27,g' | LC_ALL=C sort -u
+    lynx-list-paths.sh listings | perl -lpe's,^\047(.*)\047$,${1},; s,\047,%27,g' |
+    <<unescape listing>> | LC_ALL=C sort -u
 }
 
 list_filtered_urls(){

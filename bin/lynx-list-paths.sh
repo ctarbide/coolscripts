@@ -43,7 +43,8 @@ while (<>) {
     chomp;
     next unless m{^ \s* \d+ \. \s+ ([hf][tps]+ :// .*) $}xi;
     $_ = $1;
-    s,^(.*/)(.*?)$,${1},; # dirname
+    s,^(.*/)(.*?)$,${1},;               # dirname
+    s,\+,%2B,g;                         # + -> %2b
     $dirs{${1}}++;
 }
 
