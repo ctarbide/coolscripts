@@ -27,7 +27,8 @@ exit 1
 @
 
 <<unescape listing>>=
-perl -MCGI::Util=unescape -lne'print(unescape($_))' | LC_ALL=C sort -u
+perl -MCGI::Util=unescape -lne'print(unescape($_))' | LC_ALL=C sort -u |
+    perl -lpe's,(?:https?://)(?:www\d*\.)?(s48\.org/),https://www.${1},'
 @
 
 <<prog>>=
