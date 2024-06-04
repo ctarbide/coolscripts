@@ -1,0 +1,58 @@
+
+<<includes - before>>=
+/* #define NDEBUG */
+@
+
+<<rtt>>=
+#include <stddef.h>
+#include <inttypes.h>
+#include <locale.h>
+/*@<<rtt passthru>>*/
+#output ".rtt.nw"
+<<rtt - LOCALELY>>
+@
+
+<<set sources>>=
+set -- "$@" test-localely.nw
+set -- "$@" localely.nw
+@
+
+<<rtt>>=
+<<rtt - LOCALELY - localely_unit_tests>>
+void test()
+{
+    int r = localely_unit_tests();
+    printf("Localely Unit Test Results: %d %s\n", r, r ? "[FAIL]" : "[PASS]");
+}
+@
+
+<<*>>=
+#!/bin/sh
+set -eu
+set --
+<<set sources>>
+if [ x"${DO_NOT_RTT:-}" = x1 ]; then
+    nofake --error -Rrtt "$@"
+elif [ x"${DO_NOT_TRANSLATE:-}" = x1 ]; then
+    # only rtt preprocess
+    nofake-exec.sh --error -Rrtt --suffix .r "$@" -- ${RTT:-rtt -x -E -P}
+else
+    # trap 'rm -f .rtt.nw' 0 1 2 3 15
+    if ! nofake-exec.sh --error -Rrtt --suffix .r "$@" -- rtt -x; then
+        if [ -f .rtt.nw ]; then show-line-numbers.sh .rtt.nw
+        else nofake --error -Rrtt "$@" | show-line-numbers.sh
+        fi
+        exit 1
+    fi
+    for arg do srcs="${srcs:+${srcs} }${arg}"; done
+    cat<<'EOF' | SOURCE_IN_STDIN=1 ADDITIONAL_SOURCES="${srcs} .rtt.nw" c-expr.sh
+test();
+EOF
+fi
+@
+
+Also seize the opportunity and asks for localely-dist.nw
+
+<<*>>=
+make localely-dist.nw
+@
