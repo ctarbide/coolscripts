@@ -13,7 +13,7 @@ Makefile
 <<sources>>=
 <<Makefile prefix>>.nw create-config.nw nofake-exec.nw
 repl.nw git-last-modified.nw nwsplit.nw tokenize.nw
-detokenize.nw parse.nw
+detokenize.nw localely.nw
 @
 
 <<*>>=
@@ -68,8 +68,18 @@ printf -- 'TARGETS = \\\n'
 <<indent "$@">>
 @
 
+<<output PRIORITY_TARGETS=>>=
+set --
+<<priority targets>>
+printf -- 'PRIORITY_TARGETS = \\\n'
+<<indent "$@">>
+@
+
 <<output all:>>=
-printf -- '\nall: $(TARGETS)\n\n'
+set --
+<<priority targets>>
+<<targets>>
+printf -- '\nall: $(PRIORITY_TARGETS) $(TARGETS)\n\n'
 for target; do
     printf '%s: \\\n' "${target}"
     (
@@ -92,6 +102,8 @@ SH=${SH:-sh -eu}; export SH
 printf -- '\n# automatically generated from <<Makefile prefix>>.nw\n\n'
 set_sources=`list_set_sources`
 printf -- 'SH = %s\n\n' "${SH}"
+<<output PRIORITY_TARGETS=>>
+printf -- '\n'
 <<output TARGETS=>>
 <<output all:>>
 printf -- 'clean:\n\t-rm -f $(TARGETS)\n'

@@ -216,6 +216,6 @@ CHMOD='chmod 0555' nofake.sh --error -Rnofake-exec.sh -onofake-exec.sh \
     <<nofake-exec.sh deps>>
 @
 
-<<targets>>=
+<<priority targets>>=
 set -- "$@" nofake-exec.sh
 @
