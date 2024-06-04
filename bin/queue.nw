@@ -29,13 +29,13 @@ struct queue *
 new_queue(int size)
 {
     struct queue *res;
-    if (size & (size - 1)) {
-        fprintf(stderr, "Error, size must be a power of two.\n");
+    if (size < 2 && (size & (size - 1))) {
+        fprintf(stderr, "Error, size must be a power of two and greater than one.\n");
         exit(1);
     }
-    res = calloc(1, sizeof(*res) + size * sizeof(void*));
+    res = calloc(1, sizeof(*res) + (unsigned int)size * sizeof(void*));
     res->size = size;
-    res->mask = size - 1;
+    res->mask = (unsigned int)(size - 1);
     return res;
 }
 @
@@ -181,10 +181,12 @@ void
 setup_queue(struct queue *q, void **items, int size)
 {
     struct queue__check_alignment *qca = (void*)q;
+    assert(size > 1);
+    assert((size & (size - 1)) == 0);
     q->size = size;
     q->tally = 0;
     q->front = q->rear = 0;
-    q->mask = size - 1;
+    q->mask = (unsigned int)(size - 1);
     if ((void*)(qca->items) != items) {
         <<EXHAUSTION>>
     }
@@ -294,12 +296,12 @@ pop_rear(struct queue *queue)
 
 <<protos>>=
 void *
-peek_front(struct queue *queue, int pos);
+peek_front(struct queue *queue, unsigned int pos);
 @
 
 <<impl>>=
 void *
-peek_front(struct queue *queue, int pos)
+peek_front(struct queue *queue, unsigned int pos)
 {
     unsigned int idx;
     DECLARE_QUEUE_AND_ITEMS(queue, q, items);
@@ -334,9 +336,8 @@ void
 queue_debug(struct queue *queue)
 {
     struct queue *q = QUEUE_STRUCT(queue);
-    unsigned int mask = q->size - 1;
     printf("**** queue debug: s=%i, t=%i, f=%i, r=%i, mask=0x%x\n",
-        q->size, q->tally, q->front, q->rear, mask);
+        q->size, q->tally, q->front, q->rear, q->mask);
 }
 @
 

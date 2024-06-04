@@ -3,13 +3,20 @@
 
 SH = sh -eu
 
+PRIORITY_TARGETS = \
+    nofake-exec.sh
+
 TARGETS = \
     create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
-    head-README.sh show-README.sh cat-README.sh detokenize.c detokenize \
-    git-last-modified.sh nofake-exec.sh nwsplit.c nwsplit parse.c \
-    parse repl.c repl tokenize.c tokenize
+    head-README.sh show-README.sh cat-README.sh detokenize--imports.nw detokenize.c \
+    detokenize git-last-modified.sh localely-dist.nw nwsplit--imports.nw nwsplit.c \
+    nwsplit tokenize--imports.nw tokenize.c tokenize
 
-all: $(TARGETS)
+all: $(PRIORITY_TARGETS) $(TARGETS)
+
+nofake-exec.sh: \
+    nofake-exec.nw shell.nw temporary-files-shell.nw
+	nofake --error -R'build nofake-exec.sh' $^ | $(SH)
 
 create-config.sh: \
     create-config.nw shell.nw
@@ -43,54 +50,48 @@ cat-README.sh: \
     cat-README.nw create-config.nw shell.nw temporary-files-shell.nw
 	nofake --error -R'build cat-README.sh' $^ | $(SH)
 
+detokenize--imports.nw: \
+    detokenize.nw repl.nw
+	nofake --error -R'build detokenize--imports.nw' $^ | $(SH)
+
 detokenize.c: \
-    detokenize.nw strscan.nw
+    detokenize--imports.nw detokenize.nw strscan.nw
 	nofake --error -R'build detokenize.c' $^ | $(SH)
 
 detokenize: \
-    detokenize.c detokenize.nw strscan.nw
+    detokenize--imports.nw detokenize.c detokenize.nw strscan.nw
 	nofake --error -R'build detokenize' $^ | $(SH)
 
 git-last-modified.sh: \
     git-last-modified.nw shell.nw
 	nofake --error -R'build git-last-modified.sh' $^ | $(SH)
 
-nofake-exec.sh: \
-    nofake-exec.nw shell.nw temporary-files-shell.nw
-	nofake --error -R'build nofake-exec.sh' $^ | $(SH)
+localely-dist.nw: \
+    localely.nw
+	nofake --error -R'build localely-dist.nw' $^ | $(SH)
+
+nwsplit--imports.nw: \
+    nwsplit.nw repl.nw
+	nofake --error -R'build nwsplit--imports.nw' $^ | $(SH)
 
 nwsplit.c: \
-    nwsplit.nw strscan.nw
+    nwsplit--imports.nw nwsplit.nw strscan.nw
 	nofake --error -R'build nwsplit.c' $^ | $(SH)
 
 nwsplit: \
-    nwsplit.c nwsplit.nw strscan.nw
+    nwsplit--imports.nw nwsplit.c nwsplit.nw strscan.nw
 	nofake --error -R'build nwsplit' $^ | $(SH)
 
-parse.c: \
-    config.nw debug.nw parse.nw queue.nw reallocarray.nw \
-    strscan.nw tkscan.nw
-	nofake --error -R'build parse.c' $^ | $(SH)
-
-parse: \
-    config.nw debug.nw parse.c parse.nw queue.nw \
-    reallocarray.nw strscan.nw tkscan.nw
-	nofake --error -R'build parse' $^ | $(SH)
-
-repl.c: \
-    repl.nw
-	nofake --error -R'build repl.c' $^ | $(SH)
-
-repl: \
-    repl.c repl.nw
-	nofake --error -R'build repl' $^ | $(SH)
+tokenize--imports.nw: \
+    repl.nw tokenize.nw
+	nofake --error -R'build tokenize--imports.nw' $^ | $(SH)
 
 tokenize.c: \
-    strscan.nw tokenize.nw
+    localely-dist.nw strscan.nw tokenize--imports.nw tokenize.nw
 	nofake --error -R'build tokenize.c' $^ | $(SH)
 
 tokenize: \
-    strscan.nw tokenize.c tokenize.nw
+    localely-dist.nw strscan.nw tokenize--imports.nw tokenize.c tokenize.nw
 	nofake --error -R'build tokenize' $^ | $(SH)
 
 clean:

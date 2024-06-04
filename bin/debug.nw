@@ -114,7 +114,7 @@ exit(1);
 <<globals>>=
 static struct {
     struct {
-        int size, tally;
+        unsigned int size, tally;
         char **names;
         void **pointers;
     } pointers;
@@ -123,15 +123,15 @@ static struct {
 @
 
 <<protos>>=
-int
+unsigned int
 debug_set_pointer_name(void *ptr, char *name);
 @
 
 <<impl>>=
-int
+unsigned int
 debug_set_pointer_name(void *ptr, char *name)
 {
-    int i;
+    unsigned int i;
     for (i = 0; i < g_debug_data.pointers.tally; ++i) {
         if (strcmp(g_debug_data.pointers.names[i], name) == 0) {
             g_debug_data.pointers.pointers[i] = ptr;
@@ -163,7 +163,7 @@ debug_get_pointer_name(void *ptr);
 char *
 debug_get_pointer_name(void *ptr)
 {
-    int i;
+    unsigned int i;
     for (i = 0; i < g_debug_data.pointers.tally; ++i) {
         if (g_debug_data.pointers.pointers[i] == ptr) {
             return g_debug_data.pointers.names[i];

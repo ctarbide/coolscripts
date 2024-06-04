@@ -14,7 +14,7 @@ struct strscan {
 
 <<definitions>>=
 #define STRSCAN_PTR(ctx) ((ctx)->beg + (ctx)->pos)
-#define STRSCAN_LEN(ctx) ((ctx)->end - STRSCAN_PTR(ctx))
+#define STRSCAN_LEN(ctx) ((size_t)((ctx)->end - STRSCAN_PTR(ctx)))
 @
 
 <<protos>>=
@@ -29,7 +29,8 @@ strscan_strdup(struct strscan *ctx)
     char *res, *src;
     size_t len;
     src = STRSCAN_PTR(ctx);
-    len = ctx->end - src;
+    assert(ctx->end >= src);
+    len = (size_t)(ctx->end - src);
     res = malloc(len + 1);
     memcpy(res, src, len);
     res[len] = '\0';
@@ -80,11 +81,8 @@ int
 startswith2(struct strscan *ctx, int x, int y)
 {
     char *b = ctx->beg + ctx->pos;
-    size_t l = ctx->end - b;
     if (ctx->fail) return 0;
-    if (l < 2) {
-        return 0;
-    }
+    if (b + 2 > ctx->end) return 0;
     if (b[0] == x && b[1] == y) {
         ctx->pos += 2;
         return 1;
@@ -103,11 +101,8 @@ int
 endswith3(struct strscan *ctx, int x, int y, int z)
 {
     char *e = ctx->end;
-    size_t l = e - (ctx->beg + ctx->pos);
     if (ctx->fail) return 0;
-    if (l < 3) {
-        return 0;
-    }
+    if (ctx->beg + ctx->pos + 3 > e) return 0;
     if (e[-3] == x && e[-2] == y && e[-1] == z) {
         ctx->end = e - 3;
         return 1;
@@ -126,11 +121,8 @@ int
 exact1(struct strscan *ctx, int x)
 {
     char *b = ctx->beg + ctx->pos;
-    size_t l = ctx->end - b;
     if (ctx->fail) return 0;
-    if (l != 1) {
-        return 0;
-    }
+    if (b + 1 > ctx->end) return 0;
     if (b[0] == x) {
         ctx->pos++;
         return 1;
@@ -149,9 +141,6 @@ int
 hasatleast(struct strscan *ctx, size_t len)
 {
     if (ctx->fail) return 0;
-    if ((ctx->end - (ctx->beg + ctx->pos)) >= (ssize_t)len) {
-        return 1;
-    }
-    return 0;
+    return ctx->beg + ctx->pos + len <= ctx->end;
 }
 @

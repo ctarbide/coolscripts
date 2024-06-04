@@ -1,6 +1,7 @@
 *~
 *.o
 /*.stamp
+/.rtt.nw
 /tmp.nw
 /coolscripts.cfg
 /wc2
@@ -9,7 +10,8 @@
 /.compute.pl
 /.example.nw
 /example.sh
-/repl
+/test-repl
+/test-repl--tight-buffer
 /nwsplit
 /tokenize
 /detokenize
