@@ -24,7 +24,7 @@ line_length--;
 @
 
 <<Process Line - vars>>=
-size_t line_length = ptr - line_start;
+size_t line_length;
 struct strscan ctx[1];
 char *b;
 @
@@ -39,6 +39,8 @@ long input_line_number = 0;
 
 <<Process Line>>=
 <<Process Line - vars>>
+assert(line_end >= line_start);
+line_length = (size_t)(line_end - line_start);
 <<chop nl>>
 <<set strscan context>>
 b = ctx->beg;
@@ -60,18 +62,22 @@ switch (*b) {
         break;
     case '2': /* EOF */
         break;
-    case '3': /* isalnum(c) || c == '_' */
+    case '3': /* isalpha(c) */
         ctx->pos += 2;
         fwrite(STRSCAN_PTR(ctx), 1, STRSCAN_LEN(ctx), stdout);
         break;
-    case '4': /* c == ' ' || c == '\t' */
+    case '4': /* isdigit(c) */
         ctx->pos += 2;
         fwrite(STRSCAN_PTR(ctx), 1, STRSCAN_LEN(ctx), stdout);
         break;
-    case '5': /* ispunct(c) */
+    case '5': /* c == ' ' || c == '\t' */
+        ctx->pos += 2;
+        fwrite(STRSCAN_PTR(ctx), 1, STRSCAN_LEN(ctx), stdout);
+        break;
+    case '6': /* ispunct(c) */
         putc(b[2], stdout);
         break;
-    case '6': { /* c <= 127 */
+    case '7': { /* c <= 127 */
             ctx->pos += 2;
             if (STRSCAN_LEN(ctx) != 2) {
                 fprintf(stderr, "Exhaustion %s:%d.", __FILE__, __LINE__);
@@ -135,7 +141,7 @@ int main(int argc, char **argv)
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
-#include <ctype.h>
+#include <assert.h>
 @
 
 stdio.h BUFSIZ chosen for efficiency, BUF_SIZE also dictates the maximum line
@@ -172,72 +178,30 @@ tot_line_count += line_count;
 close(fd);
 @
 
-<<Fill [[buffer]] if it is empty; [[break]] at end of file>>=
-if (ptr >= buf_end) {
-    size_t consumed = ptr - buffer;
-    size_t remaining = BUF_SIZE - consumed;
-    if (remaining == 0) {
-        size_t line_length = ptr - line_start;
-        if (line_start == buffer) {
-            fprintf(stderr,
-                "Error in %s, line %s:%lu is too long, greater than %lu\n",
-                prog_name, file_name, line_count + 1,
-                (unsigned long)(buf_end - buffer));
-            status |= LINE_TOO_LONG;
-            break;
-        }
-        line_start = memmove(buffer, line_start, line_length);
-        ptr = buf_end = line_start + line_length;
-        consumed = line_length;
-        remaining = BUF_SIZE - consumed;
-    }
-    nc = read(fd, ptr, remaining);
-    if ((got_eof = (nc <= 0))) {
-        if (buf_end > line_start && *(buf_end-1) != '\n') {
-            if (got_cr) {
-                /* a CR by itself is always converted to a LF */
-                got_cr = 0;
-                *(buf_end-1) = '\n';
-                ptr--; /* repeat */
-            } else {
-                *buf_end++ = '\n';
-                consumed++;
-                remaining--;
-                got_eof = 0; /* retry */
-            }
-        } else {
-            break;
-        }
-    } else {
-        buf_end = ptr + nc;
-    }
-}
-@
-
 <<Scan buffer>>=
 while (got_eof == 0) {
     <<Fill [[buffer]] if it is empty; [[break]] at end of file>>
-    c = *ptr++;
+    c = *line_end++;
     if (c == '\n') {
         /* lf or cr-lf */
 #if CONVERT_CRLF_TO_LF
-        ptr -= got_cr;
-        *(ptr - 1) = '\n';
+        line_end -= got_cr;
+        *(line_end - 1) = '\n';
 #endif
         line_count++;
         {
             <<Process Line>>
         }
 #if CONVERT_CRLF_TO_LF
-        ptr += got_cr;
+        line_end += got_cr;
 #endif
-        line_start = ptr;
+        line_start = line_end;
         got_cr = 0;
     } else if (got_cr) {
         /* cr, convert to lf and repeat */
         got_cr = 0;
-        ptr -= 2;
-        *ptr = '\n';
+        line_end -= 2;
+        *line_end = '\n';
     } else {
         got_cr = c == '\r';
     }
@@ -245,8 +209,8 @@ while (got_eof == 0) {
 @
 
 <<Scan file>>=
-line_start = ptr = buffer;
-nc = read(fd, ptr, BUF_SIZE);
+line_start = line_end = buffer;
+nc = read(fd, line_end, BUF_SIZE);
 if (nc > 0) {
     buf_end = buffer + nc;
     <<Scan buffer>>
@@ -254,7 +218,7 @@ if (nc > 0) {
 @
 
 <<Initialize pointers and counters>>=
-line_start = ptr = buffer;
+line_start = line_end = buffer;
 line_count = 0;
 @
 
@@ -297,8 +261,8 @@ int file_count;         /* how many files there are */
 char *file_name;        /* Used to differentiate between *argv and '-' */
 int fd;                 /* file descriptor */
 char buffer[BUF_SIZE];  /* we read the input into this array */
-char *ptr;              /* first unprocessed character in buffer */
 char *line_start;       /* where in the buffer the current line starts */
+char *line_end;         /* first unprocessed character in buffer */
 char *buf_end;          /* the first unused position in buffer */
 int c;                  /* current char */
 ssize_t nc;             /* # of chars just read */
@@ -339,12 +303,24 @@ set -eu
 details.
 
 <<targets>>=
+set -- "$@" detokenize--imports.nw
 set -- "$@" detokenize.c
 set -- "$@" detokenize
 @
 
+<<detokenize--imports.nw deps>>=
+detokenize.nw repl.nw
+@
+
+<<build detokenize--imports.nw>>=
+:>detokenize--imports.nw
+set --
+set "$@" 'Fill [[buffer]] if it is empty; [[break]] at end of file'
+nofake-export-chunks.sh "$@" <repl.nw >>detokenize--imports.nw
+@
+
 <<detokenize.c deps>>=
-detokenize.nw strscan.nw
+detokenize--imports.nw detokenize.nw strscan.nw
 @
 
 <<detokenize deps>>=
@@ -370,6 +346,7 @@ set -- "$@" -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wredundant-decls
 set -- "$@" -Wshadow
 set -- "$@" -Wpointer-arith
+set -- "$@" -Wconversion
 set -- "$@" -Wno-unused-parameter
 set -- "$@" -Werror -fmax-errors=3
 @

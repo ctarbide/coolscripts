@@ -1,0 +1,47 @@
+<<Fill [[buffer]] if it is empty; [[break]] at end of file>>=
+if (line_end >= buf_end) {
+    size_t consumed, remaining;
+    assert(line_end >= buffer);
+    consumed = (size_t)(line_end - buffer);
+    assert(BUF_SIZE >= consumed);
+    remaining = (size_t)(BUF_SIZE - consumed);
+    if (remaining == 0) {
+        size_t line_length;
+        assert(line_end >= line_start);
+        line_length = (size_t)(line_end - line_start);
+        if (line_start == buffer) {
+            fprintf(stderr,
+                "Error in %s, line %s:%lu is too long, greater than %lu\n",
+                prog_name, file_name, line_count + 1,
+                (unsigned long)(buf_end - buffer));
+            status |= LINE_TOO_LONG;
+            break;
+        }
+        line_start = memmove(buffer, line_start, line_length);
+        line_end = buf_end = line_start + line_length;
+        consumed = line_length;
+        remaining = BUF_SIZE - consumed;
+    }
+    nc = read(fd, line_end, remaining);
+    if ((got_eof = (nc <= 0))) {
+        if (buf_end > line_start && *(buf_end-1) != '\n') {
+            if (got_cr) {
+                /* a CR by itself is always converted to a LF */
+                got_cr = 0;
+                *(buf_end-1) = '\n';
+                line_end--; /* repeat */
+            } else {
+                *buf_end++ = '\n';
+                consumed++;
+                remaining--;
+                got_eof = 0; /* retry */
+            }
+        } else {
+            break;
+        }
+    } else {
+        buf_end = line_end + nc;
+    }
+}
+@
+
