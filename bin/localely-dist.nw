@@ -1,0 +1,147 @@
+
+<<protos>>=
+int C_isascii(int ch);
+<<impl>>=
+int C_isascii(int ch)
+   {
+   int r;
+   r = (ch < 128 && ch >= 0);
+   return r;
+   }
+@
+<<protos>>=
+int C_isspace(int ch);
+<<impl>>=
+int C_isspace(int ch)
+   {
+   int r;
+   r = (ch >= 9 && ch <= 13) || ch == 32;
+   return r;
+   }
+@
+<<protos>>=
+int C_iscntrl(int ch);
+<<impl>>=
+int C_iscntrl(int ch)
+   {
+   int r;
+   r = (ch < 32 || ch == 127) && (ch < 128 && ch >= 0);
+   return r;
+   }
+@
+<<protos>>=
+int C_isprint(int ch);
+<<impl>>=
+int C_isprint(int ch)
+   {
+   int r;
+   r = !(ch < 32 || ch == 127) && (ch < 128 && ch >= 0);
+   return r;
+   }
+@
+<<protos>>=
+int C_isblank(int ch);
+<<impl>>=
+int C_isblank(int ch)
+   {
+   int r;
+   r = ch == 32 || ch == 9;
+   return r;
+   }
+@
+<<protos>>=
+int C_isgraph(int ch);
+<<impl>>=
+int C_isgraph(int ch)
+   {
+   int r;
+   r = ch > 32 && ch < 127;
+   return r;
+   }
+@
+<<protos>>=
+int C_isupper(int ch);
+<<impl>>=
+int C_isupper(int ch)
+   {
+   int r;
+   r = (ch >= 65 && ch <= 90);
+   return r;
+   }
+@
+<<protos>>=
+int C_islower(int ch);
+<<impl>>=
+int C_islower(int ch)
+   {
+   int r;
+   r = (ch >= 97 && ch <= 122);
+   return r;
+   }
+@
+<<protos>>=
+int C_isalpha(int ch);
+<<impl>>=
+int C_isalpha(int ch)
+   {
+   int r;
+   r = ((ch >= 97 && ch <= 122) || (ch >= 65 && ch <= 90));
+   return r;
+   }
+@
+<<protos>>=
+int C_isdigit(int ch);
+<<impl>>=
+int C_isdigit(int ch)
+   {
+   int r;
+   r = (ch >= 48 && ch <= 57);
+   return r;
+   }
+@
+<<protos>>=
+int C_isalnum(int ch);
+<<impl>>=
+int C_isalnum(int ch)
+   {
+   int r;
+   r = ((ch >= 97 && ch <= 122) || (ch >= 65 && ch <= 90)) || (ch >= 48 && ch <= 57);
+   return r;
+   }
+@
+<<protos>>=
+int C_ispunct(int ch);
+<<impl>>=
+int C_ispunct(int ch)
+   {
+   int r;
+   r = (ch >= 33 && ch <= 47) || (ch >= 58 && ch <= 64) || (ch >= 91 && ch <= 96) || (ch >= 123 && ch <= 126);
+   return r;
+   }
+@
+<<protos>>=
+int C_isxdigit(int ch);
+<<impl>>=
+int C_isxdigit(int ch)
+   {
+   int r;
+   r = (ch >= 65 && ch <= 70) || (ch >= 97 && ch <= 102) || (ch >= 48 && ch <= 57);
+   return r;
+   }
+@
+<<protos>>=
+int C_toupper(int ch);
+<<impl>>=
+int C_toupper(int ch)
+   {
+   return (ch >= 97 && ch <= 122) ? ch ^ 0x20 : ch;
+   }
+@
+<<protos>>=
+int C_tolower(int ch);
+<<impl>>=
+int C_tolower(int ch)
+   {
+   return (ch >= 65 && ch <= 90) ? ch ^ 0x20 : ch;
+   }
+@
