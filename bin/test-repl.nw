@@ -1,0 +1,78 @@
+
+<<Process Line - vars>>=
+size_t line_length;
+@
+
+<<Process Line>>=
+<<Process Line - vars>>
+assert(line_end >= line_start);
+line_length = (size_t)(line_end - line_start);
+<<chop of NL>>
+printf("**** line %s:%lu has %lu bytes: [", file_name, line_count,
+    (unsigned long)line_length);
+fwrite(line_start, line_length, 1, stdout);
+printf("]\n");
+@
+
+<<chop of NL>>=
+line_end[-1] = '\0'; /* LF -> '\0' */
+line_length--;
+@
+
+<<test name>>=
+test-repl
+@
+
+<<save output to>>=
+./<<test name>>
+@
+
+<<includes - before>>=
+/* #define NDEBUG */
+@
+
+<<set sources>>=
+set -- "$@" <<test name>>.nw
+set -- "$@" localely-dist.nw
+set -- "$@" repl.nw
+@
+
+<<protos>>=
+int
+test_repl_main(int argc, char **argv);
+<<impl>>=
+int
+test_repl_main(int argc, char **argv)
+{
+    <<Variables local to [[main]]>>
+    <<Local variables initialization>>
+    <<Set up option selection>>
+    <<Process all the files>>
+    <<Exit status>>
+    return 0;
+}
+@
+
+<<*>>=
+#!/bin/sh
+set -eu
+set --
+<<set sources>>
+for arg do srcs="${srcs:+${srcs} }${arg}"; done
+cat<<'EOF' | SOURCE_IN_STDIN=1 ADDITIONAL_SOURCES="${srcs}" \
+    SAVE_OUTPUT_TO='<<save output to>>' c-expr.sh
+return test_repl_main(argc, argv);
+EOF
+@
+
+'Definitions' and 'Global variables' are set by repl.nw.
+
+<<definitions>>=
+<<Definitions>>
+<<globals>>=
+<<Global variables>>
+@
+
+<<*>>=
+seq 3 | '<<save output to>>'
+@

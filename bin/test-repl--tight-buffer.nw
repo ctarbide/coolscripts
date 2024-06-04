@@ -1,0 +1,146 @@
+
+<<definitions>>=
+#define BUF_SIZE 10
+@
+
+<<Process Line - vars>>=
+size_t line_length = (size_t)(line_end - line_start);
+@
+
+<<Process Line>>=
+<<Process Line - vars>>
+line_end[-1] = '*'; /* LF -> '\0' */
+fwrite(line_start, line_length, 1, stdout);
+@
+
+<<chop of NL (not really)>>=
+
+@
+
+<<test name>>=
+test-repl--tight-buffer
+@
+
+<<save output to>>=
+./<<test name>>
+@
+
+<<includes - before>>=
+/* #define NDEBUG */
+@
+
+<<set sources>>=
+set -- "$@" <<test name>>.nw
+set -- "$@" localely-dist.nw
+set -- "$@" repl.nw
+@
+
+<<protos>>=
+int
+test_repl_main(int argc, char **argv);
+<<impl>>=
+int
+test_repl_main(int argc, char **argv)
+{
+    <<Variables local to [[main]]>>
+    <<Local variables initialization>>
+    <<Set up option selection>>
+    <<Process all the files>>
+    <<Exit status>>
+    return 0;
+}
+@
+
+<<*>>=
+#!/bin/sh
+set -eu
+set --
+<<set sources>>
+for arg do srcs="${srcs:+${srcs} }${arg}"; done
+cat<<'EOF' | SOURCE_IN_STDIN=1 ADDITIONAL_SOURCES="${srcs}" \
+    SAVE_OUTPUT_TO='<<save output to>>' c-expr.sh
+return test_repl_main(argc, argv);
+EOF
+@
+
+'Definitions' and 'Global variables' are set by repl.nw.
+
+<<definitions>>=
+<<Definitions>>
+<<globals>>=
+<<Global variables>>
+@
+
+Set BUF_SIZE to 10 for these tests to make sense.
+
+<<*>>=
+<<tests.sh - 1>>
+<<tests.sh - 2>>
+<<tests.sh - 3>>
+<<tests.sh - 4>>
+<<tests.sh - 5>>
+@
+
+<<tests.sh - 1>>=
+printf -- '12345678\n' | '<<save output to>>'
+printf -- '\n12345678*	(expected)\n\n'
+
+printf -- '123456789\n' | '<<save output to>>'
+printf -- '\n123456789*	(expected)\n\n'
+
+printf -- '1234\n6789\n' | '<<save output to>>'
+printf -- '\n1234*6789*	(expected)\n\n'
+
+printf -- '1234567890\n' | '<<save output to>>' || true
+printf -- '(error expected, input "1234567890\\n")\n\n'
+@
+
+<<tests.sh - 2>>=
+printf -- '12345678' | '<<save output to>>'
+printf -- '\n12345678*	(expected)\n\n'
+
+printf -- '123456789' | '<<save output to>>'
+printf -- '\n123456789*	(expected)\n\n'
+
+printf -- '1234567890' | '<<save output to>>' || true
+printf -- '(error expected, input "1234567890")\n\n'
+@
+
+<<tests.sh - 3>>=
+printf -- 'abc\ndef\n' | '<<save output to>>'
+printf -- '\nabc*def*	(expected)\n\n'
+
+printf -- 'abc\ndef\nghi\n' | '<<save output to>>'
+printf -- '\nabc*def*ghi*	(expected)\n\n'
+@
+
+<<tests.sh - 4>>=
+printf -- 'abc\ndef' | '<<save output to>>'
+printf -- '\nabc*def*	(expected)\n\n'
+
+printf -- 'abc\ndef\nghi' | '<<save output to>>'
+printf -- '\nabc*def*ghi*	(expected)\n\n'
+@
+
+<<tests.sh - 5>>=
+printf -- 'a\nb\nc\n' | '<<save output to>>'
+printf -- '\na*b*c*	(expected)\n\n'
+
+printf -- 'a\r\nb\r\nc\r\n' | '<<save output to>>'
+printf -- '\na*b*c*	(expected)\n\n'
+
+printf -- 'a\nb\nc' | '<<save output to>>'
+printf -- '\na*b*c*	(expected)\n\n'
+
+printf -- 'a\rb\rc\r' | '<<save output to>>'
+printf -- '\na*b*c*	(expected)\n\n'
+
+printf -- 'a\rb\rc' | '<<save output to>>'
+printf -- '\na*b*c*	(expected)\n\n'
+
+printf -- 'a\rb\rc\rd\n' | '<<save output to>>'
+printf -- '\na*b*c*d*	(expected)\n\n'
+
+printf -- 'a\rb\rc\rd\re\r' | '<<save output to>>'
+printf -- '\na*b*c*d*e*	(expected)\n\n'
+@
