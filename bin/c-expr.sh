@@ -106,6 +106,8 @@ main(int argc, char **argv, char **envp)
 #include <locale.h>
 #include <ctype.h>
 #include <limits.h>
+#include <signal.h>
+#include <setjmp.h>
 @
 
 <<prog snippet>>=
@@ -169,7 +171,11 @@ else
         postrun(){ file "${thisprog%.sh}.o"; }
     else
         set -- "$@" -o "${a_out}" ${LDFLAGS}
-        postrun(){ "${a_out}" "$@"; }
+        if [ x"${SAVE_OUTPUT_TO}" != x ]; then
+            postrun(){ cp -av "${a_out}" "${SAVE_OUTPUT_TO}"; }
+        else
+            postrun(){ "${a_out}" "$@"; }
+        fi
     fi
 fi
 @
