@@ -16,6 +16,8 @@ repl.nw git-last-modified.nw nwsplit.nw tokenize.nw
 detokenize.nw localely.nw
 @
 
+<<priority targets>>=
+
 <<*>>=
 #!/bin/sh
 set -eu
@@ -66,20 +68,24 @@ set --
 <<targets>>
 printf -- 'TARGETS = \\\n'
 <<indent "$@">>
+printf -- '\n'
 @
 
 <<output PRIORITY_TARGETS=>>=
 set --
 <<priority targets>>
-printf -- 'PRIORITY_TARGETS = \\\n'
-<<indent "$@">>
+if [ $# -gt 0 ]; then
+    printf -- 'PRIORITY_TARGETS = \\\n'
+    <<indent "$@">>
+    printf -- '\n'
+fi
 @
 
 <<output all:>>=
 set --
 <<priority targets>>
 <<targets>>
-printf -- '\nall: $(PRIORITY_TARGETS) $(TARGETS)\n\n'
+printf -- 'all: $(PRIORITY_TARGETS) $(TARGETS)\n\n'
 for target; do
     printf '%s: \\\n' "${target}"
     (
@@ -103,7 +109,6 @@ printf -- '\n# automatically generated from <<Makefile prefix>>.nw\n\n'
 set_sources=`list_set_sources`
 printf -- 'SH = %s\n\n' "${SH}"
 <<output PRIORITY_TARGETS=>>
-printf -- '\n'
 <<output TARGETS=>>
 <<output all:>>
 printf -- 'clean:\n\t-rm -f $(TARGETS)\n'
