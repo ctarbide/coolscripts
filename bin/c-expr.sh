@@ -226,7 +226,11 @@ set -- "$@" -O2 -ansi -pedantic
 set -- "$@" -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wshadow -Wconversion -Wdeclaration-after-statement
 set -- "$@" -Wno-unused-parameter -Wno-long-long
-set -- "$@" -Werror -fmax-errors=3
+set -- "$@" -Werror
+gccver=`echo __GNUC__ | gcc -E -P -x c -`
+if [ "${gccver}" -ge 6 ]; then
+    set -- "$@" -fmax-errors=3
+fi
 @
 
 <<set CFLAGS - clang - pedantic>>=
