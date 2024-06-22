@@ -35,14 +35,13 @@ create_safe_file(){
     ( umask 0177; : >"${1}" )
 }
 
+# mktemp isn't portable, can't use it
 temporary_file(){
-    if command -v mktemp >/dev/null 2>&1; then
-        tmpfile=`mktemp /tmp/tmp.XXXXXXXXXX${1:-}`
-    elif command -v perl >/dev/null 2>&1 && test -r /dev/urandom; then
+    if command -v perl >/dev/null 2>&1 && test -r /dev/urandom; then
         tmpfile="/tmp/tmp.`u0Aa 10`${1:-}"
         create_safe_file "${tmpfile}"
     elif command -v perl >/dev/null 2>&1; then
-        tmpfile="/tmp/tmp.`r0Aa 10`${1:-}"
+        tmpfile="/tmp/tmp.`r0Aa 12`${1:-}"
         create_safe_file "${tmpfile}"
     else
         die 1 'error: mktemp not found'

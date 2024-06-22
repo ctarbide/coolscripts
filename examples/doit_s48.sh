@@ -91,8 +91,8 @@ fi
 cmd=$1
 shift
 
-test -f listings || touch listings
-test -f listings_curl || touch listings_curl
+test -f "${thisdir}/listings" || touch "${thisdir}/listings"
+test -f "${thisdir}/listings_curl" || touch "${thisdir}/listings_curl"
 
 append(){
     echo "doing ${1}"
@@ -243,6 +243,13 @@ case "${cmd}" in
     cycle)
         do_list_all_html_links > "gather__${script_id}.inc.sh"
         do_gather_links
+        ;;
+
+    compact-listings)
+        mkdir -pv "${thisdir}/sandbox/bkp"
+        safe-bak.sh "${thisdir}/listings"
+        lynx-compact-urls.sh "${thisdir}/listings" >"${thisdir}/.tmp.listings"
+        mv -f "${thisdir}/.tmp.listings" "${thisdir}/listings"
         ;;
 
     help)                   do_help;;
