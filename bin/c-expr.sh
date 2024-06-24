@@ -6,6 +6,7 @@ set -- "$@" --tmp-- .c --tmp-- .out
 SH=${SH:-sh -eu}; export SH
 CC=${CC:-gcc}; export CC
 LDFLAGS=${LDFLAGS:-}; export LDFLAGS
+LIBS=${LIBS:-}; export LIBS
 if [ x"${SOURCE_IN_STDIN:-}" = x1 ]; then
     exec nofake-exec.sh --error -R'prog stdin' "$@" --tmp-- _in.nw -- ${SH}
 else
@@ -160,6 +161,7 @@ if [ x"${SHOW_SOURCE:-}" = x1 ]; then
 else
     set -- "$@" -- ${CC}
     <<set CFLAGS>>
+    set -- "$@" ${LIBS}
     a_out=${0}.out
     if [ x"${DO_NOT_COMPILE:-}" = x1 ]; then
         set -- "$@" -E
