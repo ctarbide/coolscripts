@@ -95,10 +95,12 @@ main(int argc, char **argv, char **envp)
 @
 
 <<includes>>=
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <math.h>
+#include <sys/time.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
 #include <fcntl.h>
@@ -164,7 +166,7 @@ else
     set -- "$@" ${LIBS}
     a_out=${0}.out
     if [ x"${DO_NOT_COMPILE:-}" = x1 ]; then
-        set -- "$@" -E
+        set -- "$@" -E -P
         postrun(){ :; }
     elif [ x"${DO_NOT_ASSEMBLE:-}" = x1 ]; then
         set -- "$@" -S -o -

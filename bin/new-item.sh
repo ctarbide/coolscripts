@@ -10,6 +10,21 @@ configure(){
         git config -f "${configname}" "${name}" "$@"
     fi
 }
+spaces_to_underscore(){
+    head=
+    tail=${1}
+    acc=
+    while true; do
+        head=${tail%% *}
+        tail=${tail#* }
+        acc=${acc:+${acc}_}${head}
+        if [ x"${tail}" = x"${head}" ]; then
+            # didn't advance
+            break;
+        fi
+    done
+    echo "${acc}"
+}
 
 if [ "$#" -lt 1 ]; then
     die 1 "usage: ${thispath##*/} id1 id2 ... idN"
@@ -21,10 +36,9 @@ test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
 stamp=`date '+%Y-%m-%d_%Hh%Mm%S'`
 year=${stamp%%-*}
 
-item_id=$1
-shift
-for i in "$@"; do
-    item_id="${item_id}·${i}"
+for i; do
+    j=`spaces_to_underscore "${i}"`
+    item_id="${item_id:+${item_id}·}${j}"
 done
 
 STAMP=${stamp}
