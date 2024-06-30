@@ -8,6 +8,19 @@ PERL=${PERL:-perl}; export PERL
 exec nofake-exec.sh --error -Rprog "$@" -- ${SH}
 exit 1
 
+convert this:
+
+    1. http://domain/dir/file.ext
+    2. http://domain/dir/file.ext/other.ext
+
+to:
+
+    'http://domain/dir/'
+    'http://domain/dir/file.ext/'
+    'http://domain/dir/file.ext/other.ext'
+
+i.e., 'file.ext' will not be treated as a file
+
 <<prog>>=
 thisprog=${1}; shift # the initial script
 <<slurp to .input>>
@@ -22,6 +35,7 @@ cat -- "$@" >"${0}.input"
 @
 
 <<lynx-list-paths>>=
+#line 39
 use 5.008; # perl v5.8.0 was released on July 18, 2002
 use strict;
 use warnings FATAL => qw{uninitialized void inplace};
@@ -45,7 +59,7 @@ while (<>) {
     $_ = $1;
     s,^(.*/)(.*?)$,${1},;               # dirname
     s,\+,%2B,g;                         # + -> %2b
-    $dirs{${1}}++;
+    $dirs{$_}++;
 }
 
 print "'${_}'" for keys %dirs;
@@ -55,8 +69,10 @@ while (<>) {
     chomp;
     s,#.+$,,;
     next unless m{^ \s* \d+ \. \s+ ([hf][tps]+ :// .* [^/]) $}xi;
-    unless ($dirs{"${1}/"}) {
-        print "'${1}'";
+    $_ = $1;
+    s,\+,%2B,g;                         # + -> %2b
+    unless ($dirs{"${_}/"}) {
+        print "'${_}'";
     }
 }
 @
