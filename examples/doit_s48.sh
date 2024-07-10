@@ -18,7 +18,7 @@ exit 1
 (?! .*? (?: // | \# ))
 @
 
-<<project_name>>=
+<<project name>>=
 
 @
 
@@ -52,7 +52,7 @@ script_id=${script_id%.sh}
 
 url_prefix='<<filter>>'
 github_userid=<<github userid>>
-project_name=
+project_name=<<project name>>
 
 do_help(){
     echo "usage: "
@@ -73,11 +73,11 @@ EOF
     if [ x"${project_name}" != x ]; then
         cat @<<EOF
 
-  ./${thisprog} list-dirs | tee gather__${script_id}.inc.sh
-  ./${thisprog} gather-links
-  ./${thisprog} list-files | tee locations__${script_id}.inc.sh
-  ./${thisprog} resolve-locations
-  ./${thisprog} download-files
+  ${thisprog} list-dirs | tee gather__${script_id}.inc.sh
+  ${thisprog} gather-links
+  ${thisprog} list-files | tee locations__${script_id}.inc.sh
+  ${thisprog} resolve-locations
+  ${thisprog} download-files
 EOF
     fi
     echo ""
@@ -98,19 +98,7 @@ append(){
     echo "doing ${1}"
     lynx-list-links.sh "${1}" 1>>listings 2>>lynx-stderr || true
     # random sleep to avoid 429 "Too Many Requests"
-    perl -e'select(undef, undef, undef, 1 + rand()*.5)'
-}
-
-list(){
-    perl -le'
-my $url = $ARGV[0];
-shift(@ARGV);
-while(<>){
-    chomp;
-    exit(0) if m{^input args: \Q${url}\E$};
-}
-exit(1);
-' -- "${1}" listings || append "${1}"
+    perl -e'select(undef, undef, undef, 1.5 + rand() * 1.5)'
 }
 
 append_curl_head(){
@@ -125,8 +113,31 @@ curl_head(){
 }
 
 do_gather_links(){
-    test -r "gather__${script_id}.inc.sh" || die 1 "Error, run \"./${thisprog} list-all-html-links | tee gather__${script_id}.inc.sh\" first."
-    . "${thisdir}/gather__${script_id}.inc.sh"
+    test -r "gather__${script_id}.inc.sh" ||
+        die 1 "Error, run \"./${thisprog} list-all-html-links | tee gather__${script_id}.inc.sh\" first."
+    perl -wle'
+        use strict;
+        my %urls;
+        {
+            local @ARGV = qw{listings};
+            while (<>) {
+                chomp;
+                s,\015+$,,; # 015 is CR
+                next unless m{^input args: (.+)};
+                $urls{$1}++;
+            }
+            my $nurls = keys %urls;
+            print(qq{# collected ${nurls} input args from listings});
+        }
+        while (<>) {
+            chomp;
+            s,\015+$,,; # 015 is CR
+            next unless m{^ list \s+ \047 (.*) \047 $}xi;
+            next if $urls{$1};
+            print(qq{append \047${1}\047});
+        }
+    ' -- "${thisdir}/gather__${script_id}.inc.sh" >"${thisdir}/lynx_list_links__${script_id}.inc.sh"
+    . "${thisdir}/lynx_list_links__${script_id}.inc.sh"
 }
 
 list_all_urls(){
