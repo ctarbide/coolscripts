@@ -32,26 +32,24 @@ also provided with different scripts.
 
 References
 
-   - https://bellard.org/tcc/
-
-N.B: The default include path can be derived from the found headers, e.g.:
-
-    nofake -R'usage example 1' compiler-info--tcc.sh
+    - https://bellard.org/tcc/
 
 <<prog>>=
 <<function die>>
 <<function simple_chunk>>
+<<function cpp>>
+<<function test_inclusion>>
 
 uname_srm=`uname -srm`
 if [ x"${uname_srm}" = x ]; then
-   die 1 "Failed to identify the current system." >&2
+    die 1 "Failed to identify the current system." >&2
 fi
 
 compiler_name=tcc
 
 compiler_path=`command -v "${CC}"`
 if [ x"${compiler_path}" = x ]; then
-   die 1 "compiler \"${CC}\" not found"
+    die 1 "compiler \"${CC}\" not found"
 fi
 
 tcc_version=`echo __TINYC__ | "${compiler_path}" -E -P -x c -`
@@ -60,12 +58,12 @@ if [ x"${tcc_version}" = x"__TINYC__" ]; then
 fi
 
 eval `perl -Minteger -wsle'
-   $mj = $v / 1000;
-   $mn = ($v / 100) % 10;
-   $pl = $v % 100;
-   print(qq{compiler_version_major=${mj}});
-   print(qq{compiler_version_minor=${mn}});
-   print(qq{compiler_version_patchlevel=${pl}});
+    $mj = $v / 1000;
+    $mn = ($v / 100) % 10;
+    $pl = $v % 100;
+    print(qq{compiler_version_major=${mj}});
+    print(qq{compiler_version_minor=${mn}});
+    print(qq{compiler_version_patchlevel=${pl}});
 ' -- -v="${tcc_version}"`
 
 simple_chunk 'uname -srm' "${uname_srm}"
@@ -76,10 +74,8 @@ simple_chunk 'compiler version minor' "${compiler_version_minor}"
 simple_chunk 'compiler version patchlevel' "${compiler_version_patchlevel}"
 simple_chunk CFLAGS "${CFLAGS}"
 
-printf -- '@<<compiler predefines>>=\n'
-echo | "${compiler_path}" ${CFLAGS} -dM -E -
-printf -- '@\n'
-
+<<list include directories>>
+<<list compiler predefines>>
 <<analyse headers>>
 @
 
@@ -89,9 +85,14 @@ die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
 <<function simple_chunk>>=
 simple_chunk(){
-   printf -- '@<<%s>>=\n' "${1}"
-   printf -- '%s\n' "${2}"
+    printf -- '@<<%s>>=\n' "${1}"
+    printf -- '%s\n' "${2}"
 }
+@
+
+<<list compiler predefines>>=
+printf -- '@<<compiler predefines>>=\n'
+echo | "${compiler_path}" ${CFLAGS} -dM -E -
 @
 
 <<headers of interest>>=
@@ -127,62 +128,109 @@ set -- "$@" sys/types.h
 set -- "$@" sys/wait.h
 set -- "$@" sys/ioctl.h
 set -- "$@" stdio_ext.h
+set -- "$@" sys/param.h
 @
 
 <<analyse headers>>=
-set --
-<<function test_inclusion>>
-<<headers of interest>>
-hdr=stddef.h
 (
+    set --
+    <<headers of interest>>
     for hdr; do
        test_inclusion "${hdr}"
     done
-) | perl -wlne'
-    if (m{^found \047(.+?)\047 \047(.+?)\047$}) {
-        printf(qq{@<<header %s>>=\n}, $1);
-        print $2;
-        printf(qq{@<<includes>>=\n}, $1);
-        printf(qq{#include <%s>\n}, $1);
-        printf(qq{@<<passthru includes>>=\n}, $1);
-        printf(qq{#passthru "includes" #include <%s>\n}, $1);
-        print(qq{@<<headers>>=});
-        printf(qq{@<<header %s>>\n}, $1);
-        (my $def = uc $1) =~ s,\.,_,g;
-        $def =~ s,/,__,g;
-        print(qq{@<<definitions>>=});
-        printf(qq{#define HAVE_%s 1\n}, $def);
-        print(qq{@<<passthru definitions>>=});
-        printf(qq{#passthru "definitions" #define HAVE_%s 1\n}, $def);
-        next;
+) | perl -wle'
+    my ($hdr, $path, @incdirs, %found);
+    while (<>) {
+        chomp;
+        s,\015+$,,;
+        if (($hdr, $path) = m{^found \047(.+?)\047 at \047(.+?)\047$}) {
+            (my $dir = $path) =~ s,/\Q${1}\E$,,;
+            print qq{@<<headers found>>=};
+            <<append $hdr to args>>
+            push(@incdirs, $dir) unless $found{$dir}++;
+            next;
+        }
+        if (($hdr) = m{^not found \047(.+?)\047$}) {
+            print qq{@<<headers not found>>=};
+            <<append $hdr to args>>
+            next;
+        }
+        # just ignore unknown cases
+        print STDERR qq{exhaustion \047${_}\047};
     }
-    if (m{^notfound \047(.+?)\047$}) {
-        print(qq{@<<headers not found>>=});
-        print $1;
-        next;
+    print qq{@}' | nofake-coalesce.pl
+@
+
+<<list include directories SKIP>>=
+printf -- '@<<include directories>>=\n'
+echo | "${compiler_path}" ${CFLAGS} -E -v -x c - 2>&1 | perl -wslne'
+    next unless m{^ \s (/[\w/\-.]+) $}xi;
+    print qq{set -- "\$\@" \047${1}\047;};
+    $c++;
+}{die qq{Error, no include directories found.} unless $c' -- -c=0
+@
+
+<<list include directories>>=
+printf -- '@<<include directories>>=\n'
+"${compiler_path}" -vv ${CFLAGS} | perl -swle'
+    while (<>) {
+        last if m{^include:$};
     }
-    # ignore
-'
-printf -- '@\n'
+    while (<>) {
+        last unless m{^\  (/[\w\/\-.]+)$}i;
+        print qq{set -- "\$\@" \047${1}\047;};
+        $c++;
+    }
+    die qq{Error, no include directories found.} unless $c;
+    ' -- -c=0
+@
+
+<<append $hdr to args>>=
+print qq{set -- "\$\@" \047${hdr}\047;};
+@
+
+<<function cpp>>=
+cpp(){
+    printf -- '#include <%s>\n' "${1}" | "${compiler_path}" ${CFLAGS} \
+        -E -x c - 2>/dev/null
+}
 @
 
 <<function test_inclusion>>=
 test_inclusion(){
-    printf -- '#include <%s>\n' "${1}" |
-        "${compiler_path}" ${CFLAGS} -E -x c - 2>/dev/null |
-        perl -wslne'
-            next unless m{^\# \s \d+ \s " (.+?) "}xi;
-            if (rindex($1, $suffix) > 0) {
-                print(qq{found \047${suffix}\047 \047${1}\047});
-                exit;
-            }
-        }{
-            print(qq{notfound \047${suffix}\047});
-        ' -- -suffix="${1}"
+    suffix=${1#../}
+    cpp "${1}" | perl -slne'
+        next unless m{^\# \s \d+ \s " (.+?) "}xi;
+        next unless rindex($1, $suffix) >= 0;
+        print qq{found \047${suffix}\047 at \047${1}\047};
+        exit 0;
+    }{
+        print qq{not found \047${suffix}\047} unless keys %found;
+    ' -- -suffix="${suffix}"
 }
 @
 
-<<usage example 1>>=
-compiler-info--tcc.sh | nofake --error -Rheaders |
-    perl -lne'die unless m{^(.*)/}; print($1) unless $found{$1}++'
+
+
+
+
+
+tcc -vv | perl -wle'while(<>){last if m{^include:$}}while(<>){chomp;last if m{^libraries:$}; die unless m{^\  (/[\w\/\-.]+)$}i; print qq{${1}}; }'
+
+tcc -vv | perl -wle'while(<>){last if m{^include:$}}while(<>){last unless m{^\  (/[\w\/\-.]+)$}i; print qq{${1}}; }'
+
+die qq{Error, no include directories found.} unless $c
+
+<<WIP>>=
+tcc -vv | perl -swle'
+    while (<>) {
+        last if m{^include:$};
+    }
+    while (<>) {
+        last unless m{^\  (/[\w\/\-.]+)$}i;
+        print qq{set -- "\$\@" \047${1}\047;};
+        $c++;
+    }
+    die qq{Error, no include directories found.} unless $c;
+    ' -- -c=0
 @
