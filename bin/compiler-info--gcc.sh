@@ -3,6 +3,7 @@ set -eu; set -- "${0}" --ba-- "${0}" "$@" --ea--
 set -- "$@" --tmp-- .c --tmp-- .out
 SH=${SH:-sh -eu}; export SH
 CC=${CC:-gcc}; export CC
+CFLAGS=${CFLAGS:-}; export CFLAGS
 exec nofake-exec.sh --error -Rprog "$@" -- ${SH}
 exit 1
 
@@ -70,9 +71,10 @@ simple_chunk 'compiler path' "${compiler_path}"
 simple_chunk 'compiler version major' "${compiler_version_major}"
 simple_chunk 'compiler version minor' "${compiler_version_minor}"
 simple_chunk 'compiler version patchlevel' "${compiler_version_patchlevel}"
+simple_chunk CFLAGS "${CFLAGS}"
 
 printf -- '@<<compiler predefines>>=\n'
-echo | "${compiler_path}" -dM -E -
+echo | "${compiler_path}" ${CFLAGS} -dM -E -
 printf -- '@\n'
 
 <<analyse headers>>
@@ -121,6 +123,7 @@ set -- "$@" malloc.h
 set -- "$@" sys/types.h
 set -- "$@" sys/wait.h
 set -- "$@" sys/ioctl.h
+set -- "$@" stdio_ext.h
 @
 
 <<analyse headers>>=
@@ -136,6 +139,10 @@ hdr=stddef.h
     if (m{^found \047(.+?)\047 \047(.+?)\047$}) {
         printf(qq{@<<header %s>>=\n}, $1);
         print $2;
+        printf(qq{@<<includes>>=\n}, $1);
+        printf(qq{#include <%s>\n}, $1);
+        printf(qq{@<<passthru includes>>=\n}, $1);
+        printf(qq{#passthru "includes" #include <%s>\n}, $1);
         print(qq{@<<headers>>=});
         printf(qq{@<<header %s>>\n}, $1);
         (my $def = uc $1) =~ s,\.,_,g;
@@ -159,7 +166,7 @@ printf -- '@\n'
 <<function test_inclusion>>=
 test_inclusion(){
     printf -- '#include <%s>\n' "${1}" |
-        "${compiler_path}" -E -x c - 2>/dev/null |
+        "${compiler_path}" ${CFLAGS} -E -x c - 2>/dev/null |
         perl -wslne'
             next unless m{^\# \s \d+ \s " (.+?) "}xi;
             if (rindex($1, $suffix) > 0) {
