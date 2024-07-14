@@ -22,5 +22,6 @@ run_test nofake-coalesce_test9
 run_test nofake-coalesce_test10
 run_test nofake-coalesce_test11
 run_test nofake-coalesce_test12
+run_test nofake-coalesce_test13
 
 echo all pass

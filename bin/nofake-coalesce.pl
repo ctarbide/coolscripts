@@ -28,7 +28,9 @@ sub read_file {
         if ($line =~ m{^<<(.+?)>>=\s*$}) {
             if ($inside_chunk) {
                 die if $endofchunk ne '@'; # assertion
+                die if $ndoclines != 0; # assertion
                 print $line if $chunkname ne $1;
+                $chunkname = $1;
                 next;
             }
             if ($ndoclines or $chunkname ne $1 or $endofchunk ne '@') {
