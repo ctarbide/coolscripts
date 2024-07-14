@@ -18,45 +18,52 @@ my $carp_or_croak = \&Carp::carp;
 my $inside_chunk = 0;
 my $ndoclines = 0;
 my $chunkname = '';
-my $endofchunk = '';
+my $endofchunk = '@'; # implicit
 
 sub read_file {
     local @ARGV = @_;
     while (my $line = <>) {
         chomp($line);
+        $line =~ s,\015+$,,; # 015 is CR
         if ($line =~ m{^<<(.+?)>>=\s*$}) {
-            unless ($ndoclines == 0 and $chunkname eq $1 and $endofchunk eq '@') {
-                if ($endofchunk) {
-                    print($endofchunk);
-                    $endofchunk = '';
-                }
-                $chunkname = $1;
-                print($line);
+            if ($inside_chunk) {
+                die if $endofchunk ne '@'; # assertion
+                print $line if $chunkname ne $1;
+                next;
+            }
+            if ($ndoclines or $chunkname ne $1 or $endofchunk ne '@') {
+                print $endofchunk if $endofchunk ne '@';
+                print $line;
+                $endofchunk = '@'; # implicit
             }
             $inside_chunk = 1;
-        } elsif ($inside_chunk) {
+            $ndoclines = 0;
+            $chunkname = $1;
+            next;
+        }
+        if ($inside_chunk) {
             if ($line =~ m{^\@(?:$|\s)}) {
                 $inside_chunk = 0;
-                $ndoclines = 0;
                 $endofchunk = $line;
             } else {
                 # regular line inside chunk
                 $line =~ s,^\@\@,\@,;
-                print($line);
+                print $line;
             }
-        } else {
-            if ($endofchunk) {
-                print($endofchunk);
-                $endofchunk = '';
-            }
-            $ndoclines++;
-            print($line);
+            next;
         }
+        # first document line after the first chunk
+        if ($chunkname and $ndoclines == 0) {
+            print $endofchunk;
+            $endofchunk = '@'; # implicit
+        }
+        $ndoclines++;
+        print $line;
     }
-    if ($endofchunk) {
-        print($endofchunk);
-        $endofchunk = '';
-    }
+    # print end of chunk if
+    #   - unterminated chunk
+    #   - firt documentation line right after a chunk termination
+    print $endofchunk if $inside_chunk or ($chunkname and $ndoclines == 0);
 }
 
 sub usage {
