@@ -31,14 +31,17 @@ my %words;
 { open(my $fh, q{-|}, qw{gzip -dc}, $ENV{THISDIR} . q{/eff_short_wordlist_2_0.txt.gz}) or die $!;
   while (<$fh>) { chomp; my @F = split; $words{$F[0]} = $F[1] }
   close($fh) or die $! }
+my @wordsnum = ();
 my @words = ();
 my $nwords = $ARGV[0];
 for my $i (0..$nwords-1) {
   my $wordnum = join(q{}, @all[($i*4)..($i*4+3)]);
   my $word = $words{$wordnum};
+  push(@wordsnum, $wordnum);
   push(@words, $word);
   print(qq{word }, $i+1, qq{ $word ($wordnum)});
 }
+print(join(q{ }, @wordsnum));
 print(join(q{ }, @words));
 ' -- "${nwords}"
 
