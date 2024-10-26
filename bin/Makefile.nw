@@ -13,7 +13,7 @@ Makefile
 <<sources>>=
 <<Makefile prefix>>.nw create-config.nw nofake-exec.nw
 repl.nw git-last-modified.nw nwsplit.nw tokenize.nw
-detokenize.nw localely.nw
+detokenize.nw localely.nw encrypt.nw
 @
 
 <<priority targets>>=

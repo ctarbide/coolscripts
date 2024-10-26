@@ -9,8 +9,9 @@ PRIORITY_TARGETS = \
 TARGETS = \
     create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
     head-README.sh show-README.sh cat-README.sh detokenize--imports.nw detokenize.c \
-    detokenize git-last-modified.sh localely-dist.nw nwsplit--imports.nw nwsplit.c \
-    nwsplit tokenize--imports.nw tokenize.c tokenize
+    detokenize encrypt.sh decrypt.sh verify.sh git-last-modified.sh \
+    localely-dist.nw nwsplit--imports.nw nwsplit.c nwsplit tokenize--imports.nw \
+    tokenize.c tokenize
 
 all: $(PRIORITY_TARGETS) $(TARGETS)
 
@@ -61,6 +62,18 @@ detokenize.c: \
 detokenize: \
     detokenize--imports.nw detokenize.c detokenize.nw strscan.nw
 	nofake --error -R'build detokenize' $^ | $(SH)
+
+encrypt.sh: \
+    encrypt.nw netstring-perl.nw shell.nw
+	nofake --error -R'build encrypt.sh' $^ | $(SH)
+
+decrypt.sh: \
+    encrypt.nw netstring-perl.nw shell.nw
+	nofake --error -R'build decrypt.sh' $^ | $(SH)
+
+verify.sh: \
+    encrypt.nw netstring-perl.nw shell.nw
+	nofake --error -R'build verify.sh' $^ | $(SH)
 
 git-last-modified.sh: \
     git-last-modified.nw shell.nw

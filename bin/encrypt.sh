@@ -6,10 +6,10 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
     sub ns ($) { length($_[0]) . qq{:} . $_[0] . q{,} }
     sub mac ($$) { sha256(sha256(ns($_[0]) . $_[1])) }
     sub tag ($$$) { substr(sha256(sha256(ns($_[0]) . ns($_[1]) . $_[2])), 0, 16) }
-    sub csprng_session ($$$$) {
+    sub csprng_session_kdf ($$$$) {
         my ($master_key, $sub_key, $nonce, $len) = @_;
         die unless defined($master_key) and defined($sub_key) and defined($nonce) and defined($len);
-        open2(my $chld_out, my $chld_in, q{csprng.sh});
+        open2(my $chld_out, my $chld_in, qq{${thisdir}/csprng.sh});
         print $chld_in ns($master_key);
         print $chld_in ns($sub_key);
         print $chld_in ns($nonce);
@@ -18,10 +18,10 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
         close $chld_out;
         $res;
     }
-    sub csprng_stream ($$$) {
+    sub csprng_session_stream ($$$) {
         my ($master_key, $sub_key, $nonce) = @_;
         die unless defined($master_key) and defined($sub_key) and defined($nonce);
-        open2(my $chld_out, my $chld_in, q{csprng.sh});
+        open2(my $chld_out, my $chld_in, qq{${thisdir}/csprng.sh});
         print $chld_in ns($master_key);
         print $chld_in ns($sub_key);
         print $chld_in ns($nonce);
@@ -69,10 +69,10 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
     my $nonce = `"${thisdir}/cstrng.sh" | "${thisdir}/ddfb.sh" bs=32 count=1`;
     die unless length($nonce) == 32;
 
-    my $mac_key = csprng_session($master_key, $sub_mac_key, $nonce, 32);
-    my $tag_key = csprng_session($master_key, $sub_tag_key, $nonce, 32);
-    my $mkspipe = csprng_stream($master_key, $sub_meta_keystream, $nonce);
-    my $ckspipe = csprng_stream($master_key, $sub_cipher_keystream, $nonce);
+    my $mac_key = csprng_session_kdf($master_key, $sub_mac_key, $nonce, 32);
+    my $tag_key = csprng_session_kdf($master_key, $sub_tag_key, $nonce, 32);
+    my $mkspipe = csprng_session_stream($master_key, $sub_meta_keystream, $nonce);
+    my $ckspipe = csprng_session_stream($master_key, $sub_cipher_keystream, $nonce);
 
     sub printmeta ($) {
         my $res = cipher($mkspipe, $_[0]);
