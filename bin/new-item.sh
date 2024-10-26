@@ -20,7 +20,7 @@ spaces_to_underscore(){
         acc=${acc:+${acc}_}${head}
         if [ x"${tail}" = x"${head}" ]; then
             # didn't advance
-            break;
+            break
         fi
     done
     echo "${acc}"
@@ -36,6 +36,7 @@ test -d "${kbdir}" || die 1 "Error, directory not found: ${kbdir}."
 stamp=`date '+%Y-%m-%d_%Hh%Mm%S'`
 year=${stamp%%-*}
 
+item_id=
 for i; do
     j=`spaces_to_underscore "${i}"`
     item_id="${item_id:+${item_id}·}${j}"

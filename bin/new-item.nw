@@ -14,7 +14,7 @@ spaces_to_underscore(){
         acc=${acc:+${acc}_}${head}
         if [ x"${tail}" = x"${head}" ]; then
             # didn't advance
-            break;
+            break
         fi
     done
     echo "${acc}"
@@ -36,6 +36,7 @@ fi
 
 <<set stamp and year>>
 
+item_id=
 for i; do
     j=`spaces_to_underscore "${i}"`
     item_id="${item_id:+${item_id}·}${j}"
