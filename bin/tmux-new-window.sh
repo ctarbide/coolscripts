@@ -4,11 +4,20 @@ die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
 # usage: tmux-new-window.sh dir [name]
 
-if [ -n "${1:-}" ]; then
-    test -d "${1}" || die 1 "error: \"${1}\" is not a directory"
-fi
+targetdir=
 
-targetdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${1:-.}"`
+if [ -n "${1:-}" ]; then
+    if [ -d "${1}" ]; then
+        targetdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${1}"`
+    elif [ -f "${1}" ]; then
+        targetdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${1}"`
+        targetdir=${targetdir%/*}
+    else
+        die 1 "Error, first argument does not hint a directory."
+    fi
+else
+    targetdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- .`
+fi
 
 exact_name_to_id_all_sessions(){
     tmux lsw -a -F '#{session_name}/#{window_name}/#{window_id}' | perl -F/ -slane'print$F[2] if $F[1] eq $name' -- -name="${1}"

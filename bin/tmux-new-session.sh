@@ -1,22 +1,33 @@
 #!/bin/sh
-
 set -eu
-
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
-unset TMUX
+# usage: tmux-new-session.sh dir [name]
+
+targetdir=
 
 if [ -n "${1:-}" ]; then
-    test -d "${1}" || die 1 "error: \"${1}\" is not a directory"
-    cd "${1}"
+    if [ -d "${1}" ]; then
+        targetdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${1}"`
+    elif [ -f "${1}" ]; then
+        targetdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${1}"`
+        targetdir=${targetdir%/*}
+    else
+        die 1 "Error, first argument does not hint a directory."
+    fi
+else
+    targetdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- .`
 fi
 
-thisdir=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- .`
+where="${targetdir}"
+cd "${targetdir}"
+
+unset TMUX
 
 if [ -n "${2:-}" ]; then
     sess=${2}
 else
-    sess=${thisdir##*/}
+    sess=${where##*/}
     sess=${sess:-/}
 fi
 
@@ -25,6 +36,6 @@ fi
 sess=`echo "${sess}" | sed 's,\.,_,g'`
 
 tmux new-session -d -s "${sess}"
-tmux send-keys -t "${sess}:0" "cd '${thisdir}'" C-m clear C-m
+tmux send-keys -t "${sess}:0" "cd '${where}'" C-m clear C-m
 tmux rename-window -t "${sess}:0" 'home'
 tmux switch-client -t "${sess}"
