@@ -114,6 +114,7 @@ output=
 appendargs=
 tmps=
 suffix=
+skip_append_output=
 
 while [ $# -gt 0 ]; do
     case "${1}" in
@@ -143,6 +144,8 @@ while [ $# -gt 0 ]; do
 
         --suffix) suffix=`normalize_arg "${2}"`; shift ;;
         --suffix=*) suffix=`normalize_arg "${1#*=}"` ;;
+
+        --skip-append-output) skip_append_output=1 ;;
 
         -) sources="${sources:+${sources} }'-'" ;;
         -*)
@@ -179,5 +182,9 @@ fi
 
 eval "set -- ${opts} ${chunks} ${sources}"
 ECHO_INFO=: ${NOFAKE_SH} ${NOFAKE_SH_FLAGS} "$@" -o"${output}"
-eval "set -- ${eargs} '${output}' ${appendargs}"
+eval "set -- ${eargs}"
+if [ x"${skip_append_output}" != x1 ]; then
+    eval "set -- "'"$@"'" '${output}'"
+fi
+eval "set -- "'"$@"'" ${appendargs}"
 "$@"

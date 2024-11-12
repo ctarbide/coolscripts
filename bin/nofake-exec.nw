@@ -87,6 +87,7 @@ output=
 appendargs=
 tmps=
 suffix=
+skip_append_output=
 
 while [ $# -gt 0 ]; do
     case "${1}" in
@@ -116,6 +117,8 @@ while [ $# -gt 0 ]; do
 
         --suffix) suffix=`normalize_arg "${2}"`; shift ;;
         --suffix=*) suffix=`normalize_arg "${1#*=}"` ;;
+
+        --skip-append-output) skip_append_output=1 ;;
 
         -) sources="${sources:+${sources} }'-'" ;;
         -*)
@@ -167,17 +170,25 @@ already gone, java is a good example.
 <<run part -- with exec>>=
 eval "set -- ${tmpfiles}"
 sh -c 'exec >&- 2>&-; sleep 1; exec rm -f "$@"' -- "$@" &
-eval "set -- ${eargs} '${output}' ${appendargs}"
+<<run part -- set arguments>>
 exec "$@"
 @
 
 <<run part -- with fork and waitpid>>=
-eval "set -- ${eargs} '${output}' ${appendargs}"
+<<run part -- set arguments>>
 "$@"
 @
 
 <<run part>>=
 <<run part -- with fork and waitpid>>
+@
+
+<<run part -- set arguments>>=
+eval "set -- ${eargs}"
+if [ x"${skip_append_output}" != x1 ]; then
+    eval "set -- "'"$@"'" '${output}'"
+fi
+eval "set -- "'"$@"'" ${appendargs}"
 @
 
 <<test>>=
