@@ -65,9 +65,18 @@ my $conf = { read_configuration($gitmodules, '^submodule\.') };
 	(my $id = $i) =~ s,^submodule\.,,;
         my ($path, $url, $branch) = expand($conf, $i);
         $branch = q{master} unless $branch;
-        die unless $url =~ m{^(.*)/(.*)};
-        my $urldn = $1;
-        my $urlbn = $2;
+	my ($urldn, $urlbn);
+	if ($url =~ m{^\.\./.+}) {
+	    # relative path
+	    $urldn = $url;
+	    $urlbn = $url;
+	} elsif ($url =~ m{^(.*)/(.*)}) {
+	    # uri-like
+	    $urldn = $1;
+	    $urlbn = $2;
+	} else {
+	    Carp::confess 'exhaustion';
+	}
         print("$url $urldn $urlbn $branch $path $id");
     }
 }
