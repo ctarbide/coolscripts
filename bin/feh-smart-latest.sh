@@ -77,7 +77,7 @@ else
     done
 fi
 
-nimg=`wc -l "${filelist}"`
+nimg=`wc -l <"${filelist}"`
 if [ "${nimg}" -le 0 ]; then
     die 1 "error: no files to show"
 fi
