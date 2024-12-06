@@ -13,7 +13,7 @@ Makefile
 <<sources>>=
 <<Makefile prefix>>.nw create-config.nw nofake-exec.nw
 repl.nw git-last-modified.nw nwsplit.nw tokenize.nw
-detokenize.nw localely.nw encrypt.nw
+detokenize.nw localely.nw encrypt.nw feh-smart-latest.nw
 @
 
 <<priority targets>>=
@@ -85,7 +85,7 @@ fi
 set --
 <<priority targets>>
 <<targets>>
-printf -- 'all: $(PRIORITY_TARGETS) $(TARGETS)\n\n'
+printf -- '.PHONY: all\nall: $(ALL_TARGETS)\n\n'
 for target; do
     printf '%s: \\\n' "${target}"
     (
@@ -110,8 +110,10 @@ set_sources=`list_set_sources`
 printf -- 'SH = %s\n\n' "${SH}"
 <<output PRIORITY_TARGETS=>>
 <<output TARGETS=>>
+printf -- 'ALL_TARGETS = $(PRIORITY_TARGETS) $(TARGETS)\n\n'
 <<output all:>>
-printf -- 'clean:\n\t-rm -f $(TARGETS)\n'
+printf -- '.PHONY: touch\ntouch:\n\t-touch $(ALL_TARGETS)\n\n'
+printf -- '.PHONY: clean\nclean:\n\t-rm -f $(ALL_TARGETS)\n'
 @
 
 <<generate build.sh>>=

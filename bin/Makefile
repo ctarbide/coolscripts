@@ -9,11 +9,14 @@ PRIORITY_TARGETS = \
 TARGETS = \
     create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
     head-README.sh show-README.sh cat-README.sh detokenize--imports.nw detokenize.c \
-    detokenize encrypt.sh decrypt.sh verify.sh git-last-modified.sh \
-    localely-dist.nw nwsplit--imports.nw nwsplit.c nwsplit tokenize--imports.nw \
-    tokenize.c tokenize
+    detokenize encrypt.sh decrypt.sh verify.sh feh-smart-latest.sh \
+    git-last-modified.sh localely-dist.nw nwsplit--imports.nw nwsplit.c nwsplit \
+    tokenize--imports.nw tokenize.c tokenize
 
-all: $(PRIORITY_TARGETS) $(TARGETS)
+ALL_TARGETS = $(PRIORITY_TARGETS) $(TARGETS)
+
+.PHONY: all
+all: $(ALL_TARGETS)
 
 nofake-exec.sh: \
     nofake-exec.nw shell.nw temporary-files-shell.nw
@@ -75,6 +78,10 @@ verify.sh: \
     encrypt.nw netstring-perl.nw shell.nw
 	nofake --error -R'build verify.sh' $^ | $(SH)
 
+feh-smart-latest.sh: \
+    feh-smart-latest.nw shell.nw temporary-files-shell.nw
+	nofake --error -R'build feh-smart-latest.sh' $^ | $(SH)
+
 git-last-modified.sh: \
     git-last-modified.nw shell.nw
 	nofake --error -R'build git-last-modified.sh' $^ | $(SH)
@@ -107,5 +114,10 @@ tokenize: \
     localely-dist.nw strscan.nw tokenize--imports.nw tokenize.c tokenize.nw
 	nofake --error -R'build tokenize' $^ | $(SH)
 
+.PHONY: touch
+touch:
+	-touch $(ALL_TARGETS)
+
+.PHONY: clean
 clean:
-	-rm -f $(TARGETS)
+	-rm -f $(ALL_TARGETS)

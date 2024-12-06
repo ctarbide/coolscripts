@@ -1,0 +1,55 @@
+
+<<feh-smart-latest.sh>>=
+#!/bin/sh
+
+set -eu #x
+
+die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
+
+LC_ALL=C
+export LC_ALL
+
+<<function temporary_file>>
+<<function glob_has_file>>
+
+filelist=`temporary_file`
+tmpfiles="${tmpfiles:+${tmpfiles} }'${filelist}'"
+
+if [ "$#" -le 0 ]; then
+    if glob_has_file "${HOME}/Downloads/Pictures/Screenshot_*.png"; then
+        ls -1 ~/Downloads/Pictures/Screenshot_*.png >>"${filelist}"
+    fi
+else
+    for i in "$@"; do
+        if ! perl -le'exit($ARGV[0] !~ m{^ 2 \d{3} $}x)' -- "${i}"; then
+            die 1 "error: invalid argument, must be a year"
+        fi
+    done
+    years=$@
+    for i in $years; do
+        if glob_has_file "${HOME}/Downloads/Pictures/${i}/Screenshot_*.png"; then
+            ls -1 ~/Downloads/Pictures/"${i}"/Screenshot_*.png >>"${filelist}"
+        fi
+    done
+fi
+
+nimg=`wc -l "${filelist}"`
+if [ "${nimg}" -le 0 ]; then
+    die 1 "error: no files to show"
+fi
+
+exec feh-smart.sh --filelist "${filelist}" "$@" --
+@
+
+<<targets>>=
+set -- "$@" feh-smart-latest.sh
+@
+
+<<feh-smart-latest.sh deps>>=
+shell.nw temporary-files-shell.nw feh-smart-latest.nw
+@
+
+<<build feh-smart-latest.sh>>=
+CHMOD='chmod 0555' nofake.sh --error -Rfeh-smart-latest.sh -ofeh-smart-latest.sh \
+    <<feh-smart-latest.sh deps>>
+@

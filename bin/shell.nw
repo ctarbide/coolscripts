@@ -42,3 +42,9 @@ normalize_arg(){
     echo "${acc}"
 }
 @
+
+<<function glob_has_file>>=
+glob_has_file(){
+    perl -le'exit 0 for grep {-f} glob($ARGV[0]); exit 1' "${1}"
+}
+@
