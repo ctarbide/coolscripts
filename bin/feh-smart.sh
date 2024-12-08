@@ -53,11 +53,16 @@ fi
 
 echo 'preloading files to filesystem cache'
 
-# preload first 300
-find "$@" -type f | sort | head -n300 | perl -l0 -pe1 | xargs -r0 sha1sum >/dev/null
-
-# preload last 500
-find "$@" -type f | sort | tail -n500 | perl -l0 -pe1 | xargs -r0 sha1sum >/dev/null
+set -x
+if [ x"${has_filelist}" = x ]; then
+   # preload first 300
+   find "$@" -type f | sort | head -n300 | perl -l0 -pe1 | xargs -r0 sha1sum >/dev/null
+   # preload last 500
+   find "$@" -type f | sort | tail -n500 | perl -l0 -pe1 | xargs -r0 sha1sum >/dev/null
+else
+   echo "TODO: preload from file list"
+fi
+set +x
 
 echo showing
 
