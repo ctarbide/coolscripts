@@ -53,7 +53,6 @@ fi
 
 echo 'preloading files to filesystem cache'
 
-set -x
 if [ x"${has_filelist}" = x ]; then
    # preload first 300
    find "$@" -type f | sort | head -n300 | perl -l0 -pe1 | xargs -r0 sha1sum >/dev/null
@@ -62,7 +61,6 @@ if [ x"${has_filelist}" = x ]; then
 else
    echo "TODO: preload from file list"
 fi
-set +x
 
 echo showing
 

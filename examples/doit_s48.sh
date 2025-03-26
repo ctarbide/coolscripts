@@ -217,6 +217,7 @@ do_list_files(){
     list_filtered_urls | perl -lne'
         next unless m{ :// sourceforge\.net /projects/ '"${project_name}"' /files/ .* /download $}xi;
         next if m{ /files/latest/download $}xi;
+        s, ,%20,;
         print qq{curl_head \047${_}\047};
     '
 }
