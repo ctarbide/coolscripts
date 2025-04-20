@@ -148,6 +148,8 @@ alias large-prompt='PS1='"'"'%F{blue}.../%3d%f %# '"'"
 alias normal-prompt='PS1='"'"'%F{blue}%~%f %# '"'"
 alias 80cols-prompt='PS1='"'"'%F{blue}%80<...<%~%f %# '"'"
 
+alias substr10-prompt='PS1='"'"'%F{blue}%10>>%~%>>%F{gree}..%F{blue}%10<<%2d%<<%f %# '"'"''
+alias substr15-prompt='PS1='"'"'%F{blue}%15>>%~%>>%F{gree}..%F{blue}%15<<%2d%<<%f %# '"'"''
 alias substr20-prompt='PS1='"'"'%F{blue}%20>>%~%>>%F{gree}..%F{blue}%20<<%2d%<<%f %# '"'"''
 alias substr30-prompt='PS1='"'"'%F{blue}%30>>%~%>>%F{gree}..%F{blue}%30<<%2d%<<%f %# '"'"''
 alias substr40-prompt='PS1='"'"'%F{blue}%40>>%~%>>%F{gree}..%F{blue}%40<<%2d%<<%f %# '"'"''

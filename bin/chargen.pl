@@ -13,10 +13,10 @@ use warnings;
 
 use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
 
-my $delay = (shift || 0.25);
-$delay >= 0.025 or die "delay $delay must be >= 0.025";
+my $delay = shift || 0.25;
+$delay >= 0.01 or die "delay $delay must be >= 0.01";
 
-$| = 1;
+$| = 1; # 1=autoflush_on (turn off buffering)
 
 my @a = (33..126, 33..126);
 my $b = join("", map(chr, @a));
@@ -31,18 +31,18 @@ set_nonblock(\*STDIN);
 for (my $i=0; ; $i=($i+1)%94) {
     print substr($b, $i, 72), "\n";
     if (select(my $rout=$rin, undef, undef, $delay)) {
-	local $/= undef;  # clear the input record separator to
-			  # suppress line buffering
-	if (vec($rout, $STDIN_fileno, 1) == 1) {
-	    if (defined(my $what = <STDIN>)) {  # perldoc -f '<>'
-		print "chargen.pl: STDIN=[$what]\n";
-	    } else {
-		print "chargen.pl: get EOF on STDIN, over and out\n";
-		last;
-	    }
-	} else {
-	    die "exhaustion";
-	}
+        local $/= undef;  # clear the input record separator to
+                          # suppress line buffering
+        if (vec($rout, $STDIN_fileno, 1) == 1) {
+            if (defined(my $what = <STDIN>)) {  # perldoc -f '<>'
+                print "chargen.pl: STDIN=[$what]\n";
+            } else {
+                print "chargen.pl: got EOF on STDIN, over and out\n";
+                last;
+            }
+        } else {
+            die "exhaustion";
+        }
     }
 }
 
