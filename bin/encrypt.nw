@@ -4,6 +4,13 @@ echo -n hi | csprng.sh | ddfb.sh bs=64 count=1000000 | sha256sum
 echo 'eba93d7f5b399adb7877b0d816a4b022f6e962aa54626d424a55b6e24bebcb7d'
 @
 
+<<sub wipe_scalar>>=
+sub wipe_scalar ($) {
+    ${$_[0]} = q{.} x length(${$_[0]});
+    undef ${$_[0]};
+}
+@
+
 <<sub mac>>=
 sub mac ($$) { sha256(sha256(ns($_[0]) . $_[1])) }
 @
@@ -96,11 +103,10 @@ sub readmeta ($$) {
 @
 
 The key is always read from standard input, it is the caller responsibility to
-properly handle the key (e.g. use of salt, deciding safe levels of entropy and
-complexity etc).
+properly handle the key (e.g. use of salt, key stretching etc).
 
 <<load keys>>=
-my ($master_key, $sub_mac_key, $sub_tag_key, $sub_meta_keystream, $sub_cipher_keystream);
+my ($master_key, $sub_mac_key, $sub_tag_key, $sub_meta_key, $sub_cipher_key);
 {
     my $secret = `"${thisdir}/csprng.sh" | "${thisdir}/ddfb.sh" bs=32 count=5`;
     die unless length($secret) == 32 * 5;
@@ -108,22 +114,31 @@ my ($master_key, $sub_mac_key, $sub_tag_key, $sub_meta_keystream, $sub_cipher_ke
     $master_key = subkey(0);
     $sub_mac_key = subkey(1);
     $sub_tag_key = subkey(2);
-    $sub_meta_keystream = subkey(3);
-    $sub_cipher_keystream = subkey(4);
+    $sub_meta_key = subkey(3);
+    $sub_cipher_key = subkey(4);
 }
 @
 
-<<setup keys and streams>>=
+<<wipe master and sub keys>>=
+wipe_scalar(\$master_key);
+wipe_scalar(\$sub_mac_key);
+wipe_scalar(\$sub_tag_key);
+wipe_scalar(\$sub_meta_key);
+wipe_scalar(\$sub_cipher_key);
+@
+
+<<setup nonced keys and streams>>=
 my $mac_key = csprng_session_kdf($master_key, $sub_mac_key, $nonce, 32);
 my $tag_key = csprng_session_kdf($master_key, $sub_tag_key, $nonce, 32);
-my $mkspipe = csprng_session_stream($master_key, $sub_meta_keystream, $nonce);
-my $ckspipe = csprng_session_stream($master_key, $sub_cipher_keystream, $nonce);
+my $mkspipe = csprng_session_stream($master_key, $sub_meta_key, $nonce);
+my $ckspipe = csprng_session_stream($master_key, $sub_cipher_key, $nonce);
 @
 
 <<encrypt.sh>>=
 <<sh preamble>>
 <<thisdir>>
 exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
+    <<sub wipe_scalar>>
     <<sub ns>>
     <<sub mac>>
     <<sub tag>>
@@ -137,7 +152,9 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
     my $nonce = `"${thisdir}/cstrng.sh" | "${thisdir}/ddfb.sh" bs=32 count=1`;
     die unless length($nonce) == 32;
 
-    <<setup keys and streams>>
+    <<setup nonced keys and streams>>
+
+    <<wipe master and sub keys>>
 
     <<sub printmeta>>
 
@@ -175,6 +192,7 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
 <<sh preamble>>
 <<thisdir>>
 exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
+    <<sub wipe_scalar>>
     <<sub ns>>
     <<sub nsget>>
     <<sub nssplit>>
@@ -193,7 +211,9 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
     open(E, q{<}, $ARGV[0]) or die qq{Error, can\047t open } . $ARGV[0] . qq{: $!};
     read(E, my $nonce, 32) == 32 or die;
 
-    <<setup keys and streams>>
+    <<setup nonced keys and streams>>
+
+    <<wipe master and sub keys>>
 
     <<sub readmeta>>
 

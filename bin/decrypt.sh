@@ -3,6 +3,10 @@ set -eu
 thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
 thisdir=${thispath%/*}
 exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
+    sub wipe_scalar ($) {
+        ${$_[0]} = q{.} x length(${$_[0]});
+        undef ${$_[0]};
+    }
     sub ns ($) { length($_[0]) . qq{:} . $_[0] . q{,} }
     sub nsget ($) {
         return unless defined wantarray;
@@ -104,7 +108,7 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
         xor_($_[1], $ks);
     }
 
-    my ($master_key, $sub_mac_key, $sub_tag_key, $sub_meta_keystream, $sub_cipher_keystream);
+    my ($master_key, $sub_mac_key, $sub_tag_key, $sub_meta_key, $sub_cipher_key);
     {
         my $secret = `"${thisdir}/csprng.sh" | "${thisdir}/ddfb.sh" bs=32 count=5`;
         die unless length($secret) == 32 * 5;
@@ -112,8 +116,8 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
         $master_key = subkey(0);
         $sub_mac_key = subkey(1);
         $sub_tag_key = subkey(2);
-        $sub_meta_keystream = subkey(3);
-        $sub_cipher_keystream = subkey(4);
+        $sub_meta_key = subkey(3);
+        $sub_cipher_key = subkey(4);
     }
 
     die unless @ARGV == 1;
@@ -122,8 +126,14 @@ exec perl -MIPC::Open2 -MDigest::SHA=sha256 -se'
 
     my $mac_key = csprng_session_kdf($master_key, $sub_mac_key, $nonce, 32);
     my $tag_key = csprng_session_kdf($master_key, $sub_tag_key, $nonce, 32);
-    my $mkspipe = csprng_session_stream($master_key, $sub_meta_keystream, $nonce);
-    my $ckspipe = csprng_session_stream($master_key, $sub_cipher_keystream, $nonce);
+    my $mkspipe = csprng_session_stream($master_key, $sub_meta_key, $nonce);
+    my $ckspipe = csprng_session_stream($master_key, $sub_cipher_key, $nonce);
+
+    wipe_scalar(\$master_key);
+    wipe_scalar(\$sub_mac_key);
+    wipe_scalar(\$sub_tag_key);
+    wipe_scalar(\$sub_meta_key);
+    wipe_scalar(\$sub_cipher_key);
 
     sub readmeta ($$) {
         my ($fh, $len) = @_;

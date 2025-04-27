@@ -8,10 +8,10 @@ PRIORITY_TARGETS = \
 
 TARGETS = \
     create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
-    head-README.sh show-README.sh cat-README.sh detokenize--imports.nw detokenize.c \
-    detokenize encrypt.sh decrypt.sh verify.sh feh-smart-latest.sh \
-    git-last-modified.sh localely-dist.nw nwsplit--imports.nw nwsplit.c nwsplit \
-    tokenize--imports.nw tokenize.c tokenize
+    head-README.sh show-README.sh cat-README.sh seed.sh cstrng.sh \
+    detokenize--imports.nw detokenize.c detokenize encrypt.sh decrypt.sh \
+    verify.sh feh-smart-latest.sh git-last-modified.sh localely-dist.nw nwsplit--imports.nw \
+    nwsplit.c nwsplit tokenize--imports.nw tokenize.c tokenize
 
 ALL_TARGETS = $(PRIORITY_TARGETS) $(TARGETS)
 
@@ -53,6 +53,14 @@ show-README.sh: \
 cat-README.sh: \
     cat-README.nw create-config.nw shell.nw temporary-files-shell.nw
 	nofake --error -R'build cat-README.sh' $^ | $(SH)
+
+seed.sh: \
+    cstrng.nw
+	nofake --error -R'build seed.sh' $^ | $(SH)
+
+cstrng.sh: \
+    cstrng.nw
+	nofake --error -R'build cstrng.sh' $^ | $(SH)
 
 detokenize--imports.nw: \
     detokenize.nw repl.nw
