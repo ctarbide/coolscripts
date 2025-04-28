@@ -82,4 +82,4 @@ if [ "${nimg}" -le 0 ]; then
     die 1 "error: no files to show"
 fi
 
-exec feh-smart.sh --filelist "${filelist}" "$@" --
+feh-smart.sh --filelist "${filelist}" "$@" --
