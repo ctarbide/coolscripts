@@ -38,6 +38,8 @@ Useful environment variables:
 
     DO_NOT_LINK=1
 
+    INCLUDE_HOME_LOCAL=1
+
 <<snippet>>=
 int i = 0;
 while (fgetc(stdin) != EOF) i++;
@@ -211,8 +213,6 @@ esac
 
 @
 
-'-Wno-long-long' allow use of 64-bit constants (ull suffix) with ansi
-
 <<set CFLAGS - gcc>>=
 <<set CFLAGS - gcc - pedantic>>
 @
@@ -225,6 +225,8 @@ esac
 <<set CFLAGS - tcc - pedantic>>
 @
 
+'-Wno-long-long' allow use of 64-bit constants (ull suffix) with ansi
+
 <<set CFLAGS - gcc - pedantic>>=
 set -- "$@" -O2 -ansi -pedantic
 set -- "$@" -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
@@ -235,7 +237,10 @@ gccver=`echo __GNUC__ | gcc -E -P -x c -`
 if [ "${gccver}" -ge 6 ]; then
     set -- "$@" -fmax-errors=3
 fi
+<<also consider "${HOME}/local"?>>
 @
+
+'-Wno-long-long' allow use of 64-bit constants (ull suffix) with ansi
 
 <<set CFLAGS - clang - pedantic>>=
 set -- "$@" -O2 -ansi -pedantic
@@ -243,10 +248,12 @@ set -- "$@" -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wshadow -Wconversion -Wdeclaration-after-statement
 set -- "$@" -Wno-unused-parameter -Wno-long-long
 set -- "$@" -Werror
+<<also consider "${HOME}/local"?>>
 @
 
 <<set CFLAGS - tcc - pedantic>>=
 set -- "$@" -O2 -Wall -Werror
+<<also consider "${HOME}/local"?>>
 @
 
 <<c header>>=
@@ -278,4 +285,34 @@ set -- "$@" -O2 -Wall -Werror
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE		200112L
 #endif
+@
+
+<<set -I${HOME}/local/include>>=
+if [ -d "${HOME}/local/include" ]; then
+    set -- "$@" "-I${HOME}/local/include"
+fi
+@
+
+<<set -L${HOME}/local/lib>>=
+if [ -d "${HOME}/local/lib" ]; then
+    set -- "$@" "-L${HOME}/local/lib"
+fi
+@
+
+<<set -L${HOME}/local/lib64>>=
+if [ -d "${HOME}/local/lib64" ]; then
+    set -- "$@" "-L${HOME}/local/lib64"
+fi
+@
+
+<<set -I and -L for ${HOME}/local>>=
+<<set -I${HOME}/local/include>>
+<<set -L${HOME}/local/lib>>
+<<set -L${HOME}/local/lib64>>
+@
+
+<<also consider "${HOME}/local"?>>=
+if [ x"${INCLUDE_HOME_LOCAL:-}" = x1 ]; then
+    <<set -I and -L for ${HOME}/local>>
+fi
 @
