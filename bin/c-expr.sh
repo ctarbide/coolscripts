@@ -153,7 +153,7 @@ escape_chunk(){
 <<prog preamble>>=
 <<function cmd_push_to_argv>>
 thisprog=${1}; shift # the initial script
-saveargs=`for arg; do printf -- " '%s'" "${arg}"; done`
+saveargs=; for arg do saveargs="${saveargs:+${saveargs} }'${arg}'"; done
 set -- "${thisprog}"
 if [ x"${ADDITIONAL_SOURCES:-}" != x ]; then
     set_add_srcs=`echo "${ADDITIONAL_SOURCES:-}" | cmd_push_to_argv`
