@@ -130,6 +130,7 @@ set -- "$@" sys/wait.h
 set -- "$@" sys/ioctl.h
 set -- "$@" stdio_ext.h
 set -- "$@" sys/param.h
+set -- "$@" sys/socket.h
 @
 
 <<analyse headers>>=

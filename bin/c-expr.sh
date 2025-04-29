@@ -40,6 +40,10 @@ Useful environment variables:
 
     INCLUDE_HOME_LOCAL=1
 
+    SAVE_C_SOURCE_TO=out.c
+
+    SAVE_OUTPUT_TO=a.out
+
 <<snippet>>=
 int i = 0;
 while (fgetc(stdin) != EOF) i++;
@@ -100,7 +104,15 @@ main(int argc, char **argv, char **envp)
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
 #include <sys/time.h>
+#include <sys/socket.h>
+#include <sys/mman.h>
+#include <sys/resource.h>
+#include <sys/ioctl.h>
+#include <sys/param.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -135,6 +147,10 @@ exec 0>&-
 if ! nofake-exec.sh --error -R'c source - stdin' -o"${0}.c" "${0}_in.nw" "$@"; then
     show-line-numbers.sh "${0}.c"
     exit 1
+fi
+if [ x"${SAVE_C_SOURCE_TO:-}" != x ]; then
+    rm -f "${SAVE_C_SOURCE_TO}"
+    cp -av "${0}.c" "${SAVE_C_SOURCE_TO}"
 fi
 <<run program>>
 @
@@ -280,10 +296,10 @@ set -- "$@" -O2 -Wall -Werror
 #define _ISOC99_SOURCE
 #endif
 #ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE		600
+#define _XOPEN_SOURCE       600
 #endif
 #ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE		200112L
+#define _POSIX_C_SOURCE     200112L
 #endif
 @
 
