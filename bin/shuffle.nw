@@ -1,7 +1,26 @@
 
-<<shuffle.sh>>=
-<<sh preamble>>
+<<sort and select>>=
+LC_ALL=C sort | perl -lpe's,^.*?\t.*?\t,,'
+@
 
+noseq is ~30% faster, but requires a stable sort, see test-shuffle-noseq.sh
+
+<<sort and select, noseq>>=
+LC_ALL=C sort -s -k 1,1 | perl -lpe's,^.*?\t,,'
+@
+
+<<shuffle.sh>>=
+<<shuffle.sh preamble>>
+"${thisdir}/random-prefix.sh" -k "${key}" | <<sort and select>>
+@
+
+<<shuffle-noseq.sh>>=
+<<shuffle.sh preamble>>
+"${thisdir}/random-prefix-noseq.sh" -k "${key}" | <<sort and select, noseq>>
+@
+
+<<shuffle.sh preamble>>=
+<<sh preamble>>
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 
 thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
@@ -35,8 +54,39 @@ fi
 if [ ! -r "${key}" ]; then
     die 1 "Error, key does not exist or cannot be read."
 fi
+@
 
-"${thisdir}/random-prefix.sh" -k "${key}" | LC_ALL=C sort | perl -lpe's,^.*?\t.*?\t,,'
+first column ok, stable maybe
+
+<<sort and select, noseq NAIVE 1>>=
+LC_ALL=C sort -k 1,1 | perl -lpe's,^.*?\t,,'
+@
+
+stable ok, whole line fail
+
+<<sort and select, noseq NAIVE 2>>=
+LC_ALL=C sort -s | perl -lpe's,^.*?\t,,'
+@
+
+test if 'sort -s' is indeed stable
+
+<<test-shuffle-noseq.sh>>=
+<<sh preamble>>
+k=/tmp/test$$key
+d=/tmp/test$$data
+echo -n 1 >"${k}"
+perl -le'@a = reverse(map {chr} 33..126); print for @a' >"${d}"
+echo
+echo the two lines below must match
+random-prefix.sh -k "${k}" <"${d}" | perl -lpe's,^[\w]{15},,' | <<sort and select>> | sha256sum
+random-prefix-noseq.sh -k "${k}" <"${d}" | perl -lpe's,^[\w]{15},,' | <<sort and select, noseq>> | sha256sum
+echo
+echo 'failure example, line below may not match, depends on sort stability'
+random-prefix-noseq.sh -k "${k}" <"${d}" | perl -lpe's,^[\w]{15},,' | <<sort and select, noseq NAIVE 1>> | sha256sum
+echo
+echo 'failure example, line below fails'
+random-prefix-noseq.sh -k "${k}" <"${d}" | perl -lpe's,^[\w]{15},,' | <<sort and select, noseq NAIVE 2>> | sha256sum
+rm -f "${k}" "${d}"
 @
 
 <<sh preamble>>=
@@ -47,4 +97,6 @@ set -eu
 <<*>>=
 <<sh preamble>>
 CHMOD='chmod 0555' nofake.sh -Rshuffle.sh -oshuffle.sh shuffle.nw
+CHMOD='chmod 0555' nofake.sh -Rshuffle-noseq.sh -oshuffle-noseq.sh shuffle.nw
+CHMOD='chmod 0555' nofake.sh -Rtest-shuffle-noseq.sh -otest-shuffle-noseq.sh shuffle.nw
 @

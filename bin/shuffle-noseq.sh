@@ -33,4 +33,4 @@ fi
 if [ ! -r "${key}" ]; then
     die 1 "Error, key does not exist or cannot be read."
 fi
-"${thisdir}/random-prefix.sh" -k "${key}" | LC_ALL=C sort | perl -lpe's,^.*?\t.*?\t,,'
+"${thisdir}/random-prefix-noseq.sh" -k "${key}" | LC_ALL=C sort -s -k 1,1 | perl -lpe's,^.*?\t,,'

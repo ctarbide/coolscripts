@@ -1,5 +1,23 @@
 
 <<random-prefix.sh>>=
+<<random prefix preamble>>
+while (<>){
+    chomp;
+    my ($a, $b) = get2;
+    printf(qq{%08x%08x\t%s\t%s\n}, $a, $b, seq, $_);
+}' -- "${key}"
+@
+
+<<random-prefix-noseq.sh>>=
+<<random prefix preamble>>
+while (<>){
+    chomp;
+    my ($a, $b) = get2;
+    printf(qq{%08x%08x\t%s\n}, $a, $b, $_);
+}' -- "${key}"
+@
+
+<<random prefix preamble>>=
 <<sh preamble>>
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
@@ -14,23 +32,22 @@ while [ $# -gt 0 ]; do
 
         --) ;; # no-op
         *)
-            echo "${0##*/}: Unrecognized option '${1}'." 1>&2
-            exit 1
+            die 1 "${0##*/}: Unrecognized option '${1}'." 1>&2
             ;;
     esac
     shift
 done
 
 if [ x"${key}" = x- ]; then
-    die 1 "Error, standard input is reserved for lines that will be prefixed."
+    die 1 "Error, standard input is reserved for lines that will be prefixed." 1>&2
 fi
 
 if [ x"${key}" = x ]; then
-    die 1 "Error, missing key."
+    die 1 "Error, missing key." 1>&2
 fi
 
 if [ ! -r "${key}" ]; then
-    die 1 "Error, key does not exist or cannot be read."
+    die 1 "Error, key does not exist or cannot be read." 1>&2
 fi
 
 exec perl -MIPC::Open2 -e'
@@ -65,13 +82,8 @@ sub get2 () {
 }
 
 @ARGV = qw{-};
-
-while (<>){
-    chomp;
-    my ($a, $b) = get2;
-    printf(qq{%08x%08x\t%s\t%s\n}, $a, $b, seq, $_);
-}' -- "${key}"
 @
+
 
 <<sh preamble>>=
 #!/bin/sh
@@ -81,4 +93,5 @@ set -eu
 <<*>>=
 <<sh preamble>>
 CHMOD='chmod 0555' nofake.sh -Rrandom-prefix.sh -orandom-prefix.sh random-prefix.nw
+CHMOD='chmod 0555' nofake.sh -Rrandom-prefix-noseq.sh -orandom-prefix-noseq.sh random-prefix.nw
 @

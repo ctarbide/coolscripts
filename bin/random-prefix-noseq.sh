@@ -66,5 +66,5 @@ sub get2 () {
 while (<>){
     chomp;
     my ($a, $b) = get2;
-    printf(qq{%08x%08x\t%s\t%s\n}, $a, $b, seq, $_);
+    printf(qq{%08x%08x\t%s\n}, $a, $b, $_);
 }' -- "${key}"
