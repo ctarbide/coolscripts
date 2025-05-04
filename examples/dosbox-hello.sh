@@ -26,22 +26,20 @@ keyboardlayout=<<KBLAYOUT>>
 <<prog>>=
 #@<<prog cwd>>
 <<prog thisdir>>
+exec nofake-exec.sh --error -Rconf "${thispath}" "${0}.nw" -- \
+    "${DOSBOX}" -conf
 @
 
 <<prog cwd>>=
 <<prog preamble>>
 setnw KBLAYOUT "${KBLAYOUT}"
 setnw CWD "`pwd`"
-exec nofake-exec.sh --error -Rconf "${thispath}" "${0}.nw" -- \
-    "${DOSBOX}" -conf
 @
 
 <<prog thisdir>>=
 <<prog preamble>>
 setnw KBLAYOUT "${KBLAYOUT}"
 setnw CWD "${thisdir}"
-exec nofake-exec.sh --error -Rconf "${thispath}" "${0}.nw" -- \
-    "${DOSBOX}" -conf
 @
 
 <<prog preamble>>=
