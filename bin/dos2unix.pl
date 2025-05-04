@@ -14,13 +14,13 @@ local $\ = "\n";
     local $^I;
 
     if ($ARGV[0] eq '-ok') {
-	shift(@ARGV);
-	$^I = '~';
+        shift(@ARGV);
+        $^I = '~';
     }
 
     while(<>){
-	chomp;
-	s,\015+$,,; # 015 is CR
-	print;
+        chomp;
+        s,\015+$,,; # 015 is CR
+        print;
     }
 }
