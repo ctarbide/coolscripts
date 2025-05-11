@@ -65,7 +65,8 @@ normalize_arg(){
             break;
         fi
     done
-    echo "${acc}"
+    # printf is more consistent than echo
+    printf -- '%s\n' "${acc}"
 }
 
 SRC_PREFIX=${SRC_PREFIX:-}

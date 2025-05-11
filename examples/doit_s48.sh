@@ -12,6 +12,8 @@ exit 1
 (?: ~ | %7E)
 @
 
+https://www.s48.org/
+
 <<filter>>=
 (?: www\d*\. )?
 (?: s48\.org/ )
@@ -58,8 +60,8 @@ do_help(){
     echo "usage: "
     echo ""
     cat @<<EOF
-  ${thisprog} list-all-html-links | tee gather__${script_id}.inc.sh
-  ${thisprog} gather-links
+  ${thisprog} cycle
+  ${thisprog} cycle-force-https
   ${thisprog} list-pending-dirs
   ${thisprog} list-pending-dirs-force-https
   ${thisprog} list-pending-files
@@ -234,7 +236,6 @@ do_download_files(){
 }
 
 case "${cmd}" in
-    gather-links)           do_gather_links;;
     list-all-html-links)    do_list_all_html_links;;
     list-pending-dirs)      do_list_pending_dirs;;
     list-pending-dirs-force-https)      do_list_pending_dirs_force_https;;
@@ -253,7 +254,13 @@ case "${cmd}" in
     download-files)         do_download_files;;
 
     cycle)
-        do_list_all_html_links > "gather__${script_id}.inc.sh"
+        do_list_all_html_links >"gather__${script_id}.inc.sh"
+        do_gather_links
+        ;;
+
+    cycle-force-https)
+        do_list_all_html_links | perl -lpe's,\047http://,\047https://,' |
+            LC_ALL=C sort -u >"gather__${script_id}.inc.sh"
         do_gather_links
         ;;
 

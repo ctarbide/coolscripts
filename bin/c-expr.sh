@@ -248,6 +248,7 @@ set -- "$@" -O2 -ansi -pedantic
 set -- "$@" -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wshadow -Wconversion -Wdeclaration-after-statement
 set -- "$@" -Wno-unused-parameter -Wno-long-long
+set -- "$@" -Wredundant-decls -Wpointer-arith
 set -- "$@" -Werror
 gccver=`echo __GNUC__ | gcc -E -P -x c -`
 if [ "${gccver}" -ge 6 ]; then
@@ -263,6 +264,7 @@ set -- "$@" -O2 -ansi -pedantic
 set -- "$@" -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wshadow -Wconversion -Wdeclaration-after-statement
 set -- "$@" -Wno-unused-parameter -Wno-long-long
+set -- "$@" -Wredundant-decls -Wpointer-arith
 set -- "$@" -Werror
 <<also consider "${HOME}/local"?>>
 @
