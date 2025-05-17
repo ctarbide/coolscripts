@@ -24,21 +24,24 @@ keyboardlayout=<<KBLAYOUT>>
 @
 
 <<prog>>=
+<<prog preamble>>
 #@<<prog cwd>>
 <<prog thisdir>>
+setnw KBLAYOUT "${KBLAYOUT}"
 exec nofake-exec.sh --error -Rconf "${thispath}" "${0}.nw" -- \
     "${DOSBOX}" -conf
 @
 
+'pwd' cleans the path from '..' elements
+
 <<prog cwd>>=
-<<prog preamble>>
-setnw KBLAYOUT "${KBLAYOUT}"
+thisdir=`cd "${thisdir}" && pwd`
 setnw CWD "`pwd`"
 @
 
 <<prog thisdir>>=
-<<prog preamble>>
-setnw KBLAYOUT "${KBLAYOUT}"
+cd "${thisdir}"
+thisdir=`pwd`
 setnw CWD "${thisdir}"
 @
 
