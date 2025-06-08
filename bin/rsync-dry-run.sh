@@ -42,7 +42,7 @@ exit 1;
 ' < "${tmpfile}"
 }
 if no_changes_to_sync; then
-    echo "no changes"
+    echo "no changes" 1>&2
 elif [ -t 1 ]; then
     cat "${tmpfile}"
     echo 'confirm? (type "yes" to confirm)'

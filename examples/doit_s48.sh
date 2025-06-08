@@ -236,6 +236,7 @@ do_download_files(){
 }
 
 case "${cmd}" in
+    gather-links)           do_gather_links;;
     list-all-html-links)    do_list_all_html_links;;
     list-pending-dirs)      do_list_pending_dirs;;
     list-pending-dirs-force-https)      do_list_pending_dirs_force_https;;
