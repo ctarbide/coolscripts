@@ -4,6 +4,7 @@
 set -eu; set -- "${0}" --ba-- "${0}" "$@" --ea--
 set -- "$@" --tmp-- .c --tmp-- .out
 SH=${SH:-sh -eu}; export SH
+[ x"${ZSH_VERSION:-}" = x ] || setopt sh_word_split
 CC=${CC:-gcc}; export CC
 LDFLAGS=${LDFLAGS:-}; export LDFLAGS
 LIBS=${LIBS:-}; export LIBS
@@ -150,7 +151,7 @@ if ! nofake-exec.sh --error -R'c source - stdin' -o"${0}.c" "${0}_in.nw" "$@"; t
 fi
 if [ x"${SAVE_C_SOURCE_TO:-}" != x ]; then
     rm -f "${SAVE_C_SOURCE_TO}"
-    cp -av "${0}.c" "${SAVE_C_SOURCE_TO}"
+    cp -av "${0}.c" "${SAVE_C_SOURCE_TO}" >&2
 fi
 <<run program>>
 @
@@ -195,7 +196,7 @@ else
     else
         set -- "$@" -o "${a_out}" ${LDFLAGS}
         if [ x"${SAVE_OUTPUT_TO:-}" != x ]; then
-            postrun(){ cp -av "${a_out}" "${SAVE_OUTPUT_TO}"; }
+            postrun(){ cp -av "${a_out}" "${SAVE_OUTPUT_TO}" >&2; }
         else
             postrun(){ "${a_out}" "$@"; }
         fi
