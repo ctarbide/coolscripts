@@ -70,7 +70,7 @@ do_help(){
 EOF
     if [ x"${github_userid}" != x ]; then
         echo ""
-        echo "  ./${thisprog} list-pending-repositories"
+        echo "  ${thisprog} list-pending-repositories"
     fi
     if [ x"${project_name}" != x ]; then
         cat @<<EOF

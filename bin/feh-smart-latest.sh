@@ -73,6 +73,9 @@ else
     for i in $years; do
         if glob_has_file "${HOME}/Downloads/Pictures/${i}/Screenshot_*.png"; then
             ls -1 ~/Downloads/Pictures/"${i}"/Screenshot_*.png >>"${filelist}"
+            for arg; do
+                [ x"${arg}" != x"${i}" ] || shift
+            done
         fi
     done
 fi
