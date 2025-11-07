@@ -16,6 +16,12 @@ test -d "${dir}" || die 1 'error: "'"${dir}"'" is not a directory'
 LC_ALL=C
 export LC_ALL
 
-find "${dir}" -type f | perl -lne's,^\./,,; @s=stat;print(qq{$s[9] $s[7] $_})' | \
-  perl -lne's/^(\d+) (\d+) //; ($s,$n,$h,$d,$m,$y)=localtime$1; printf(qq{%04d-%02d-%02d_%02dh%02dm%02d %12.12s %s\n},$y+1900,$m+1,$d,$h,$n,$s,$2,$_)' |
-  sort -k1,1 -k3,3 "$@"
+find "${dir}" -type f | perl -lne'
+    s,^\./,,;
+    @s = stat;
+    ($s,$n,$h,$d,$m,$y) = localtime($s[9]);
+    printf(qq{%04d-%02d-%02d_%02dh%02dm%02d %12.12s %s\n},
+        $y+1900, $m+1, $d,
+        $h, $n, $s,
+        $s[7], $_);
+' | sort -k1,1 -k3,3 "$@"
