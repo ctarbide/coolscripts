@@ -8,10 +8,11 @@ PRIORITY_TARGETS = \
 
 TARGETS = \
     create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
-    head-README.sh show-README.sh cat-README.sh seed.sh cstrng.sh \
-    detokenize--imports.nw detokenize.c detokenize encrypt.sh decrypt.sh \
-    verify.sh feh-smart-latest.sh git-last-modified.sh localely-dist.nw nwsplit--imports.nw \
-    nwsplit.c nwsplit tokenize--imports.nw tokenize.c tokenize
+    find-strict.sh head-README.sh show-README.sh cat-README.sh seed.sh \
+    cstrng.sh detokenize--imports.nw detokenize.c detokenize encrypt.sh \
+    decrypt.sh verify.sh feh-smart-latest.sh git-last-modified.sh localely-dist.nw \
+    nwsplit--imports.nw nwsplit.c nwsplit tokenize--imports.nw tokenize.c \
+    tokenize
 
 ALL_TARGETS = $(PRIORITY_TARGETS) $(TARGETS)
 
@@ -41,6 +42,10 @@ make-index.sh: \
 find.sh: \
     create-config.nw find.nw shell.nw temporary-files-shell.nw
 	nofake --error -R'build find.sh' $^ | $(SH)
+
+find-strict.sh: \
+    create-config.nw find-strict.nw shell.nw temporary-files-shell.nw
+	nofake --error -R'build find-strict.sh' $^ | $(SH)
 
 head-README.sh: \
     create-config.nw head-README.nw shell.nw temporary-files-shell.nw

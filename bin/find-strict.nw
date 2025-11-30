@@ -3,7 +3,7 @@
 nofake create-config.nw
 @
 
-<<find.sh>>=
+<<find-strict.sh>>=
 <<sh preamble>>
 <<function die>>
 <<thisdir>>
@@ -16,7 +16,7 @@ perlprint=
 if [ x"${PERLPRINT:-}" != x ]; then
     perlprint=${PERLPRINT}
 else
-    perlprint='print(qq{'"${kbdir}"'/$_})}{exit(!$.)'
+    perlprint='print(qq{'"${kbdir}"'/*/*_$_})}{exit(!$.)'
 fi
 
 if [ "$#" -eq 1 ]; then
@@ -40,6 +40,6 @@ fi
 
 <<function listing>>=
 listing(){
-    gzip -dc "${kbdir}/index.gz"
+    gzip -dc "${kbdir}/index.gz" | cut -b 26-
 }
 @

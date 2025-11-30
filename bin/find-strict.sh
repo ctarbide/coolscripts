@@ -49,7 +49,7 @@ temporary_file(){
     echo "${tmpfile}"
 }
 listing(){
-    gzip -dc "${kbdir}/index.gz"
+    gzip -dc "${kbdir}/index.gz" | cut -b 26-
 }
 
 kbdir=`"${thisdir}/show-config.sh" kbdir`
@@ -59,7 +59,7 @@ perlprint=
 if [ x"${PERLPRINT:-}" != x ]; then
     perlprint=${PERLPRINT}
 else
-    perlprint='print(qq{'"${kbdir}"'/$_})}{exit(!$.)'
+    perlprint='print(qq{'"${kbdir}"'/*/*_$_})}{exit(!$.)'
 fi
 
 if [ "$#" -eq 1 ]; then

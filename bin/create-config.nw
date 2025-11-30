@@ -102,6 +102,15 @@ CHMOD='chmod 0555' nofake.sh -Rfind.sh -ofind.sh \
 set -- "$@" find.sh
 @
 
+<<find-strict.sh deps>>=
+shell.nw create-config.nw temporary-files-shell.nw find-strict.nw
+<<build find-strict.sh>>=
+CHMOD='chmod 0555' nofake.sh -Rfind-strict.sh -ofind-strict.sh \
+    <<find-strict.sh deps>>
+<<targets>>=
+set -- "$@" find-strict.sh
+@
+
 <<head-README.sh deps>>=
 shell.nw create-config.nw temporary-files-shell.nw head-README.nw
 <<build head-README.sh>>=
@@ -135,6 +144,7 @@ set -- "$@" cat-README.sh
 <<build new-item.sh>>
 <<build make-index.sh>>
 <<build find.sh>>
+<<build find-strict.sh>>
 <<build head-README.sh>>
 <<build show-README.sh>>
 <<build cat-README.sh>>
