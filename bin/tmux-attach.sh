@@ -17,6 +17,7 @@ if ! tmux ls | perl -F: -lane'exit 0 if $F[0] eq q{misc}}{exit(1)'; then
     tmux rename-window -t misc:0 'home'
     new_window_at misc aux ~/
     new_window_at misc TODO ~/Downloads/TODO/
+    new_window_at misc DONE ~/Downloads/TODO/DONE/
 fi
 
 if ! tmux ls | perl -F: -lane'exit 0 if $F[0] eq q{mplayer}}{exit(1)'; then

@@ -1,5 +1,5 @@
 #!/bin/sh
-exec perl -MURI::Escape -lne'
+exec perl -MCGI::Util=unescape -lne'
 next if m{^\s*#};
 # my $line = $_;
 s,\\\s*$,,;
@@ -28,7 +28,7 @@ s{
         $s = q{exhaustion};
     }
     if ($s) {
-        $s = qq{\047} . uri_unescape($s) . qq{\047};
+        $s = qq{\047} . unescape($s) . qq{\047};
         $s =~ s,^\047\047|\047\047$,,g;
         print $s;
     } else {
