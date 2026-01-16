@@ -5,9 +5,7 @@ for i in "$@"; do
     echo
     echo "input args: ${i}"
     echo
-    set -x
     lynx --dump --listonly --image_links -useragent="${user_agent}" "${i}"
-    set +x
     if [ x"${WAIT:-}" != x ]; then
         perl -sle'select(undef,undef,undef,$wait);' -- -wait="${WAIT}"
     fi
