@@ -69,7 +69,7 @@ puts("hello world!");
 
 <<main - snippet>>=
 int
-main(int argc, char **argv, char **envp)
+main(int argc, char **argv)
 {
     setlocale(LC_ALL, "C");
     do {
@@ -246,12 +246,14 @@ esac
 
 <<set CFLAGS - gcc - pedantic>>=
 set -- "$@" -O2 -ansi -pedantic
-set -- "$@" -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes
-set -- "$@" -Wshadow -Wconversion -Wdeclaration-after-statement
-set -- "$@" -Wno-unused-parameter -Wno-long-long
+set -- "$@" -Wall -Wstrict-prototypes -Wmissing-prototypes
+set -- "$@" -Wshadow -Wconversion -Wno-long-long
 set -- "$@" -Wredundant-decls -Wpointer-arith
-set -- "$@" -Werror
 gccver=`echo __GNUC__ | gcc -E -P -x c -`
+if [ "${gccver}" -ge 3 ]; then
+    set -- "$@" -Werror -Wextra -Wno-unused-parameter
+    set -- "$@" -Wdeclaration-after-statement
+fi
 if [ "${gccver}" -ge 6 ]; then
     set -- "$@" -fmax-errors=3
 fi
