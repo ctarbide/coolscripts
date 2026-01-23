@@ -1,3 +1,4 @@
+#line 18 "bits-to-bytes-in-c.nw"
 #line 26 "bits-to-bytes-in-c.nw"
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE
@@ -14,12 +15,14 @@
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE		200112L
 #endif
+#line 19 "bits-to-bytes-in-c.nw"
 #line 44 "bits-to-bytes-in-c.nw"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#line 20 "bits-to-bytes-in-c.nw"
 #line 52 "bits-to-bytes-in-c.nw"
 #define OK			0	/* status code for successful run */
 #define usage_error		1	/* status code for improper syntax */
@@ -27,11 +30,13 @@
 #define READ_ONLY		0	/* read access code for system open */
 #define buf_size	BUFSIZ		/* stdio.h BUFSIZ chosen for efficiency */
 #define print_count(i,n) printf("%s%ld", i ? " " : "", n)
+#line 21 "bits-to-bytes-in-c.nw"
 #line 61 "bits-to-bytes-in-c.nw"
 int status = OK;	/* exit status of command, initially OK */
 char *prog_name;	/* who we are */
 /* total number of words, lines, chars */
 long tot_word_count, tot_line_count, tot_char_count;
+#line 22 "bits-to-bytes-in-c.nw"
 #line 7 "bits-to-bytes-in-c.nw"
 int main(int argc, char **argv)
 {
@@ -43,10 +48,13 @@ int main(int argc, char **argv)
 	char *buf_end;		/* the first unused position in buffer */
 	int out;		/* output char */
 	ssize_t nc;		/* # of chars just read */
+#line 10 "bits-to-bytes-in-c.nw"
 #line 149 "bits-to-bytes-in-c.nw"
 	prog_name = argv[0];
+#line 11 "bits-to-bytes-in-c.nw"
 #line 135 "bits-to-bytes-in-c.nw"
 	file_count = argc - 1;
+#line 12 "bits-to-bytes-in-c.nw"
 #line 124 "bits-to-bytes-in-c.nw"
 	argc--;
 	do {
@@ -64,8 +72,10 @@ int main(int argc, char **argv)
 				continue;
 			}
 		}
+#line 127 "bits-to-bytes-in-c.nw"
 #line 104 "bits-to-bytes-in-c.nw"
 		ptr = buf_end = buffer;
+#line 128 "bits-to-bytes-in-c.nw"
 #line 88 "bits-to-bytes-in-c.nw"
 		while (1) {
 #line 79 "bits-to-bytes-in-c.nw"
@@ -87,6 +97,7 @@ int main(int argc, char **argv)
 			ptr += 16;
 			putc(out, stdout);
 		}
+#line 129 "bits-to-bytes-in-c.nw"
 #line 71 "bits-to-bytes-in-c.nw"
 		if (fd != 0) {
 			close(fd);
@@ -94,6 +105,7 @@ int main(int argc, char **argv)
 #line 130 "bits-to-bytes-in-c.nw"
 		/* even if there is only one file */
 	} while (--argc > 0);
+#line 13 "bits-to-bytes-in-c.nw"
 #line 153 "bits-to-bytes-in-c.nw"
 	exit(status);
 	return 0;

@@ -6,6 +6,8 @@ PATH=../bin:${PATH} sh -c 'nofake shell-tips.nw | sh'
 <<*>>=
 CHMOD='chmod 0444' nofake.sh --error -L -R.zshrc shell-tips.nw -o ~/.zshrc
 CHMOD='chmod 0444' nofake.sh --error -L -R.tmux.conf shell-tips.nw -o ~/.tmux.conf
+CHMOD='chmod 0444' nofake.sh --error -L -R.bash_profile shell-tips.nw -o ~/.bash_profile
+CHMOD='chmod 0444' nofake.sh --error -L -R.bashrc shell-tips.nw -o ~/.bashrc
 @
 
 <<.zshrc>>=
@@ -232,4 +234,20 @@ bind - split-window -v
 # works with tmux 3.3a
 set-window-option -g window-status-style bg=green,fg=black
 set-window-option -g window-status-current-style bg=green,fg=blue
+@
+
+<<.bash_profile>>=
+[ -f "${HOME}/.bashrc" ] && . "${HOME}/.bashrc"
+@
+
+<<.bashrc>>=
+<<README.txt install snippet>>
+<<this is also cool>>
+<<set MANPATH>>
+<<set LS_COLORS>>
+<<common aliases>>
+<<git aliases>>
+<<perl5 local::lib>>
+<<set ~/local>>
+<<exports>>
 @
