@@ -11,8 +11,9 @@ TARGETS = \
     find-strict.sh head-README.sh show-README.sh cat-README.sh seed.sh \
     cstrng.sh detokenize--imports.nw detokenize.c detokenize encrypt.sh \
     decrypt.sh verify.sh feh-smart-latest.sh git-last-modified.sh localely-dist.nw \
-    nwsplit--imports.nw nwsplit.c nwsplit tokenize--imports.nw tokenize.c \
-    tokenize
+    nwsplit--imports.nw nwsplit.c nwsplit shuffle.sh shuffle-noseq.sh \
+    test-shuffle-noseq.sh stretch.sh tokenize--imports.nw tokenize.c tokenize \
+    unshuffle.sh
 
 ALL_TARGETS = $(PRIORITY_TARGETS) $(TARGETS)
 
@@ -115,6 +116,22 @@ nwsplit: \
     nwsplit--imports.nw nwsplit.c nwsplit.nw strscan.nw
 	nofake --error -R'build nwsplit' $^ | $(SH)
 
+shuffle.sh: \
+    shell.nw shuffle.nw
+	nofake --error -R'build shuffle.sh' $^ | $(SH)
+
+shuffle-noseq.sh: \
+    shell.nw shuffle.nw
+	nofake --error -R'build shuffle-noseq.sh' $^ | $(SH)
+
+test-shuffle-noseq.sh: \
+    shell.nw shuffle.nw
+	nofake --error -R'build test-shuffle-noseq.sh' $^ | $(SH)
+
+stretch.sh: \
+    shell.nw stretch.nw temporary-files-shell.nw
+	nofake --error -R'build stretch.sh' $^ | $(SH)
+
 tokenize--imports.nw: \
     repl.nw tokenize.nw
 	nofake --error -R'build tokenize--imports.nw' $^ | $(SH)
@@ -126,6 +143,10 @@ tokenize.c: \
 tokenize: \
     localely-dist.nw strscan.nw tokenize--imports.nw tokenize.c tokenize.nw
 	nofake --error -R'build tokenize' $^ | $(SH)
+
+unshuffle.sh: \
+    shell.nw temporary-files-shell.nw unshuffle.nw
+	nofake --error -R'build unshuffle.sh' $^ | $(SH)
 
 .PHONY: touch
 touch:

@@ -11,18 +11,36 @@ rm_tmpfiles(){
 # 0:exit, 1:hup, 2:int, 3:quit, 15:term
 trap 'rm_tmpfiles' 0 1 2 3 15
 
-u0Aa(){ u0Aa.sh | head -n"${1}" | perl -pe chomp; }
-r0Aa(){ r0Aa.sh | head -n"${1}" | perl -pe chomp; }
+u0Aa(){
+perl -le'
+@map = map {chr} 48..57, 65..90, 97..122;
+while (read(STDIN,$d,64)) {
+    for $x (unpack(q{C*},$d)) {
+        next if $x >= @map;
+        print $map[$x];
+    }
+}' </dev/urandom |
+    head -n"${1}" | perl -pe chomp; }
 
+r0Aa(){
+perl -le'
+@map = map {chr} 48..57, 65..90, 97..122;
+sub r{int(rand(scalar(@map)))}
+for (;;) { print $map[r] }' |
+    head -n"${1}" | perl -pe chomp; }
+
+create_safe_file(){
+    ( umask 0177; : >"${1}" )
+}
+
+# mktemp isn't portable, can't use it
 temporary_file(){
-    if command -v mktemp >/dev/null 2>&1; then
-        tmpfile=`mktemp`
-    elif command -v perl >/dev/null 2>&1 && test -r /dev/urandom; then
-        tmpfile="/tmp/tmp.`u0Aa 10`"
-        ( umask 0177; : > "${tmpfile}" )
+    if command -v perl >/dev/null 2>&1 && test -r /dev/urandom; then
+        tmpfile="/tmp/tmp.`u0Aa 10`${1:-}"
+        create_safe_file "${tmpfile}"
     elif command -v perl >/dev/null 2>&1; then
-        tmpfile="/tmp/tmp.`r0Aa 10`"
-        ( umask 0177; : > "${tmpfile}" )
+        tmpfile="/tmp/tmp.`r0Aa 12`${1:-}"
+        create_safe_file "${tmpfile}"
     else
         die 1 'error: mktemp not found'
     fi
@@ -68,15 +86,15 @@ export LC_ALL
 
 masterkey=`temporary_file`
 tmpfiles="${tmpfiles:+${tmpfiles} }'${masterkey}'"
-"${thisdir}/csprng.sh" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=0 > "${masterkey}"
+"${thisdir}/csprng.sh" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=0 >"${masterkey}"
 subkey1=`temporary_file`
 tmpfiles="${tmpfiles:+${tmpfiles} }'${subkey1}'"
 
 subkey2=`temporary_file`
 tmpfiles="${tmpfiles:+${tmpfiles} }'${subkey2}'"
 
-"${thisdir}/csprng.sh" < "${masterkey}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=0 > "${subkey1}"
-"${thisdir}/csprng.sh" < "${masterkey}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=1 > "${subkey2}"
+"${thisdir}/csprng.sh" <"${masterkey}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=0 >"${subkey1}"
+"${thisdir}/csprng.sh" <"${masterkey}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=1 >"${subkey2}"
 for i in `seq 1 "${lanes}"`; do
     rngkey=`temporary_file`
     tmpfiles="${tmpfiles:+${tmpfiles} }'${rngkey}'"
@@ -84,8 +102,8 @@ for i in `seq 1 "${lanes}"`; do
     shufflekey=`temporary_file`
     tmpfiles="${tmpfiles:+${tmpfiles} }'${shufflekey}'"
     eval 'shufflekey'"${i}='${shufflekey}'"
-    "${thisdir}/csprng.sh" < "${subkey1}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip="${i}" > "${rngkey}"
-    "${thisdir}/csprng.sh" < "${subkey2}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip="${i}" > "${shufflekey}"
+    "${thisdir}/csprng.sh" <"${subkey1}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip="${i}" >"${rngkey}"
+    "${thisdir}/csprng.sh" <"${subkey2}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip="${i}" >"${shufflekey}"
 done
 spaces=
 for i in `seq 1 "${lanes}"`; do
@@ -103,7 +121,7 @@ for i in `seq 1 "${lanes}"`; do
     eval 'spacearea'"${i}='${spacearea}'"
     eval 'spaceareatmp'"${i}='${spaceareatmp}'"
 
-    "${thisdir}/csprng.sh" < "${rngkey}" | "${thisdir}/ddfb.sh" bs=128 count="${space}" | bytes_to_bits | "${thisdir}/random-prefix.sh" -k "${shufflekey}" >> "${spacearea}"
+    "${thisdir}/csprng.sh" <"${rngkey}" | "${thisdir}/ddfb.sh" bs=128 count="${space}" | bytes_to_bits | "${thisdir}/random-prefix.sh" -k "${shufflekey}" >>"${spacearea}"
 done
 expected=$((3 + lanes * 4))
 eval "set -- ${tmpfiles}"
@@ -115,9 +133,9 @@ for i in `seq 1 "${lanes}"`; do
     eval 'spaceareatmp=${spaceareatmp'"${i}"'}'
     eval 'shufflekey=${shufflekey'"${i}"'}'
     for j in `seq 1 "${time}"`; do
-	sha256 < "${spacearea}" > "${shufflekey}"
-        LC_ALL=C sort < "${spacearea}" | perl -lpe's,^.*?\t.*?\t,,' | "${thisdir}/random-prefix.sh" -k "${shufflekey}" > "${spaceareatmp}"
-        cat < "${spaceareatmp}" > "${spacearea}"
+        sha256 <"${spacearea}" >"${shufflekey}"
+        LC_ALL=C sort <"${spacearea}" | perl -lpe's,^.*?\t.*?\t,,' | "${thisdir}/random-prefix.sh" -k "${shufflekey}" >"${spaceareatmp}"
+        cat <"${spaceareatmp}" >"${spacearea}"
     done
 done
 eval "set -- ${spaces}"

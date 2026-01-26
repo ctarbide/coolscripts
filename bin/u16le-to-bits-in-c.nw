@@ -1,0 +1,180 @@
+
+Reference: https://www.cs.tufts.edu/~nr/noweb/examples/wcni.html
+
+nofake u16le-to-bits-in-c.nw
+
+<<The main program>>=
+int main(int argc, char **argv)
+{
+	<<Variables local to [[main]]>>
+	<<Local variables initialization>>
+	<<Set up option selection>>
+	<<Process all the files>>
+	<<Exit status>>
+}
+@
+
+<<u16le-to-bits.c>>=
+<<C Standards>>
+<<Header files to include>>
+<<Definitions>>
+<<Global variables>>
+<<The main program>>
+@
+
+<<C Standards>>=
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE
+#endif
+
+#ifndef _ISOC99_SOURCE
+#define _ISOC99_SOURCE
+#endif
+
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE		600
+#endif
+
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE		200112L
+#endif
+@
+
+<<Header files to include>>=
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+@
+
+<<Definitions>>=
+#define OK			0	/* status code for successful run */
+#define usage_error		1	/* status code for improper syntax */
+#define cannot_open_file	2	/* status code for file access error */
+#define READ_ONLY		0	/* read access code for system open */
+#define buf_size	BUFSIZ		/* stdio.h BUFSIZ chosen for efficiency */
+#define print_count(i,n) printf("%s%ld", i ? " " : "", n)
+@
+
+<<Global variables>>=
+int status = OK;	/* exit status of command, initially OK */
+char *prog_name;	/* who we are */
+/* total number of words, lines, chars */
+long tot_word_count, tot_line_count, tot_char_count;
+@
+
+char *which;  					/* which counts to print */
+long char_count, word_count, line_count;	/* given totals */
+
+<<Close file>>=
+if (fd != 0) {
+	close(fd);
+}
+@
+
+<<Fill [[buffer]] if it is empty; [[break]] at end of file>>=
+if (buf_end - ptr < 2) {
+	ptr = buffer;
+	nc = read(fd, ptr, buf_size);
+	if (nc <= 0) break;
+	buf_end = buffer + nc;
+}
+@
+
+<<Scan file>>=
+while (1) {
+	<<Fill [[buffer]] if it is empty; [[break]] at end of file>>
+	c = ptr[1];
+	out[0*2] = '0' | ((c & 0x80) >> 7);
+	out[1*2] = '0' | ((c & 0x40) >> 6);
+	out[2*2] = '0' | ((c & 0x20) >> 5);
+	out[3*2] = '0' | ((c & 0x10) >> 4);
+	out[4*2] = '0' | ((c & 8) >> 3);
+	out[5*2] = '0' | ((c & 4) >> 2);
+	out[6*2] = '0' | ((c & 2) >> 1);
+	out[7*2] = '0' | ((c & 1) >> 0);
+	c = ptr[0];
+	out[8*2] = '0' | ((c & 0x80) >> 7);
+	out[9*2] = '0' | ((c & 0x40) >> 6);
+	out[10*2] = '0' | ((c & 0x20) >> 5);
+	out[11*2] = '0' | ((c & 0x10) >> 4);
+	out[12*2] = '0' | ((c & 8) >> 3);
+	out[13*2] = '0' | ((c & 4) >> 2);
+	out[14*2] = '0' | ((c & 2) >> 1);
+	out[15*2] = '0' | ((c & 1) >> 0);
+	ptr += 2;
+	fputs(out, stdout);
+}
+@
+
+<<Initialize pointers and counters>>=
+ptr = buf_end = buffer;
+@
+
+<<If a file is given, try to open [[*(++argv)]]; [[continue]] if unsuccessful>>=
+if (file_count > 0) {
+	char *fname = *(++argv);
+	if (strcmp(fname, "-") == 0) {
+		fd = 0;
+	} else if ((fd = open(fname, READ_ONLY)) < 0) {
+		fprintf(stderr,
+			"%s: cannot open file %s\n",
+			prog_name, *argv);
+		status |= cannot_open_file;
+		file_count--;
+		continue;
+	}
+}
+@
+
+<<Process all the files>>=
+argc--;
+do {
+	<<If a file is given, try to open [[*(++argv)]]; [[continue]] if unsuccessful>>
+	<<Initialize pointers and counters>>
+	<<Scan file>>
+	<<Close file>>
+	/* even if there is only one file */
+} while (--argc > 0);
+@
+
+<<Set up option selection>>=
+file_count = argc - 1;
+@
+
+<<bit>>=
+0, '\n'
+@
+
+<<Variables local to [[main]]>>=
+int file_count;		/* how many files there are */
+int fd = 0;		/* file descriptor, initialized to stdin */
+char buffer[buf_size];	/* we read the input into this array */
+char *ptr;		/* first unprocessed character in buffer */
+char *buf_end;		/* the first unused position in buffer */
+int c;			/* current char */
+char out[16*2+1] = {	/* all bits of a byte with \n and \0 */
+	<<bit>>, <<bit>>, <<bit>>, <<bit>>,
+	<<bit>>, <<bit>>, <<bit>>, <<bit>>,
+	<<bit>>, <<bit>>, <<bit>>, <<bit>>,
+	<<bit>>, <<bit>>, <<bit>>, <<bit>>,
+	0};
+ssize_t nc;		/* # of chars just read */
+@
+
+<<Local variables initialization>>=
+prog_name = argv[0];
+@
+
+<<Exit status>>=
+exit(status);
+return 0;
+@
+
+<<*>>=
+#!/bin/sh
+set -eu
+nofake.sh -L -Ru16le-to-bits.c -ou16le-to-bits.c u16le-to-bits-in-c.nw
+gcc -O2 -Wall -std=c99 -o u16le-to-bits u16le-to-bits.c
+@

@@ -21,7 +21,7 @@ LC_ALL=C sort -s -k 1,1 | perl -lpe's,^.*?\t,,'
 
 <<shuffle.sh preamble>>=
 <<sh preamble>>
-die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
+<<function die>>
 
 thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
 thisdir=${thispath%/*}
@@ -89,14 +89,34 @@ random-prefix-noseq.sh -k "${k}" <"${d}" | perl -lpe's,^[\w]{15},,' | <<sort and
 rm -f "${k}" "${d}"
 @
 
-<<sh preamble>>=
-#!/bin/sh
-set -eu
+<<targets>>=
+set -- "$@" shuffle.sh
+set -- "$@" shuffle-noseq.sh
+set -- "$@" test-shuffle-noseq.sh
 @
 
-<<*>>=
+<<shuffle.sh deps>>=
+shuffle.nw shell.nw
+<<shuffle-noseq.sh deps>>=
+<<shuffle.sh deps>>
+<<test-shuffle-noseq.sh deps>>=
+<<shuffle.sh deps>>
+@
+
+<<build shuffle.sh>>=
 <<sh preamble>>
-CHMOD='chmod 0555' nofake.sh -Rshuffle.sh -oshuffle.sh shuffle.nw
-CHMOD='chmod 0555' nofake.sh -Rshuffle-noseq.sh -oshuffle-noseq.sh shuffle.nw
-CHMOD='chmod 0555' nofake.sh -Rtest-shuffle-noseq.sh -otest-shuffle-noseq.sh shuffle.nw
+CHMOD='chmod 0555' nofake.sh --error -Rshuffle.sh -oshuffle.sh \
+    <<shuffle.sh deps>>
+@
+
+<<build shuffle-noseq.sh>>=
+<<sh preamble>>
+CHMOD='chmod 0555' nofake.sh --error -Rshuffle-noseq.sh \
+    -oshuffle-noseq.sh <<shuffle-noseq.sh deps>>
+@
+
+<<build test-shuffle-noseq.sh>>=
+<<sh preamble>>
+CHMOD='chmod 0555' nofake.sh --error -Rtest-shuffle-noseq.sh \
+    -otest-shuffle-noseq.sh <<test-shuffle-noseq.sh deps>>
 @

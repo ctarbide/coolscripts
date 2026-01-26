@@ -2,6 +2,7 @@
 *.o
 /*.stamp
 /.rtt.nw
+/*_aux.nw
 /tmp.nw
 /coolscripts.cfg
 /wc2
@@ -16,3 +17,4 @@
 /tokenize
 /detokenize
 /parse
+/u16le-to-bits

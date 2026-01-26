@@ -23,7 +23,7 @@ complexity etc).
 <<generate master key from standar input>>=
 masterkey=`temporary_file`
 tmpfiles="${tmpfiles:+${tmpfiles} }'${masterkey}'"
-"${thisdir}/csprng.sh" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=0 > "${masterkey}"
+"${thisdir}/csprng.sh" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=0 >"${masterkey}"
 @
 
 <<default options>>=
@@ -88,8 +88,8 @@ tmpfiles="${tmpfiles:+${tmpfiles} }'${subkey1}'"
 subkey2=`temporary_file`
 tmpfiles="${tmpfiles:+${tmpfiles} }'${subkey2}'"
 
-"${thisdir}/csprng.sh" < "${masterkey}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=0 > "${subkey1}"
-"${thisdir}/csprng.sh" < "${masterkey}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=1 > "${subkey2}"
+"${thisdir}/csprng.sh" <"${masterkey}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=0 >"${subkey1}"
+"${thisdir}/csprng.sh" <"${masterkey}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip=1 >"${subkey2}"
 @
 
 <<second key derivation>>=
@@ -100,8 +100,8 @@ for i in `seq 1 "${lanes}"`; do
     shufflekey=`temporary_file`
     tmpfiles="${tmpfiles:+${tmpfiles} }'${shufflekey}'"
     eval 'shufflekey'"${i}='${shufflekey}'"
-    "${thisdir}/csprng.sh" < "${subkey1}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip="${i}" > "${rngkey}"
-    "${thisdir}/csprng.sh" < "${subkey2}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip="${i}" > "${shufflekey}"
+    "${thisdir}/csprng.sh" <"${subkey1}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip="${i}" >"${rngkey}"
+    "${thisdir}/csprng.sh" <"${subkey2}" | "${thisdir}/ddfb.sh" bs=32 count=1 skip="${i}" >"${shufflekey}"
 done
 @
 
@@ -122,7 +122,7 @@ for i in `seq 1 "${lanes}"`; do
     eval 'spacearea'"${i}='${spacearea}'"
     eval 'spaceareatmp'"${i}='${spaceareatmp}'"
 
-    "${thisdir}/csprng.sh" < "${rngkey}" | "${thisdir}/ddfb.sh" bs=128 count="${space}" | bytes_to_bits | "${thisdir}/random-prefix.sh" -k "${shufflekey}" >> "${spacearea}"
+    "${thisdir}/csprng.sh" <"${rngkey}" | "${thisdir}/ddfb.sh" bs=128 count="${space}" | bytes_to_bits | "${thisdir}/random-prefix.sh" -k "${shufflekey}" >>"${spacearea}"
 done
 @
 
@@ -146,9 +146,9 @@ for i in `seq 1 "${lanes}"`; do
     eval 'spaceareatmp=${spaceareatmp'"${i}"'}'
     eval 'shufflekey=${shufflekey'"${i}"'}'
     for j in `seq 1 "${time}"`; do
-	sha256 < "${spacearea}" > "${shufflekey}"
-        LC_ALL=C sort < "${spacearea}" | perl -lpe's,^.*?\t.*?\t,,' | "${thisdir}/random-prefix.sh" -k "${shufflekey}" > "${spaceareatmp}"
-        cat < "${spaceareatmp}" > "${spacearea}"
+        sha256 <"${spacearea}" >"${shufflekey}"
+        LC_ALL=C sort <"${spacearea}" | perl -lpe's,^.*?\t.*?\t,,' | "${thisdir}/random-prefix.sh" -k "${shufflekey}" >"${spaceareatmp}"
+        cat <"${spaceareatmp}" >"${spacearea}"
     done
 done
 @
@@ -156,15 +156,6 @@ done
 <<compute final result>>=
 eval "set -- ${spaces}"
 sha256 "$@"
-@
-
-<<sh preamble>>=
-#!/bin/sh
-set -eu
-@
-
-<<function sha256>>=
-sha256(){ cat "$@" | sha256sum | perl -ane'print(pack(q{H*},$F[0]))'; }
 @
 
 <<function bytes_to_bits>>=
@@ -175,15 +166,20 @@ fi
 bytes_to_bits(){ "${bytes_to_bits}" "$@"; }
 @
 
-<<function die>>=
-die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
-@
-
 <<function tohex>>=
 tohex(){ cat "$@" | perl -l -0777 -e'print(unpack(q{H*},scalar(<>)))'; }
 @
 
-<<*>>=
+<<targets>>=
+set -- "$@" stretch.sh
+@
+
+<<stretch.sh deps>>=
+stretch.nw shell.nw temporary-files-shell.nw
+@
+
+<<build stretch.sh>>=
 <<sh preamble>>
-CHMOD='chmod 0555' nofake.sh -Rstretch.sh -ostretch.sh stretch.nw temporary-files-shell.nw
+CHMOD='chmod 0555' nofake.sh --error -Rstretch.sh -ostretch.sh \
+    <<stretch.sh deps>>
 @

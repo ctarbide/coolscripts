@@ -1,15 +1,13 @@
 
-perl -le'while(1){print(q{})}' | "${thisdir}/random-prefix.sh" -k "${key}" |
-    perl -e'while(<ARGV>){print(scalar(<STDIN>))}' -- "$@" |
-    LC_ALL=C sort | "${thisdir}/paste.pl" -- - "$@" | LC_ALL=C sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'
-
-
 <<unshuffle.sh>>=
 <<sh preamble>>
 
 <<function temporary_file>>
 
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
+
+LC_ALL=C
+export LC_ALL
 
 thispath=`perl -MCwd=realpath -le'print(realpath(\$ARGV[0]))' -- "${0}"`
 thisdir=${thispath%/*}
@@ -46,21 +44,23 @@ fi
 slurp_to=`temporary_file`
 tmpfiles="${tmpfiles:+${tmpfiles} }'${slurp_to}'"
 
-cat > "${slurp_to}"
+cat >"${slurp_to}"
 
-perl -le'while(<STDIN>){print(q{})}' < "${slurp_to}" | "${thisdir}/random-prefix.sh" -k "${key}" |
-    LC_ALL=C sort | perl -e'while(<STDIN>){chomp;print($_,scalar(<ARGV>))}' -- "${slurp_to}" |
-    LC_ALL=C sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'
+perl -le'while(<STDIN>){print(q{})}' <"${slurp_to}" | "${thisdir}/random-prefix.sh" -k "${key}" |
+    sort | perl -e'while(<STDIN>){chomp;print($_,scalar(<ARGV>))}' -- "${slurp_to}" |
+    sort -k 2,2 | perl -lpe's,^.*?\t.*?\t,,'
 @
 
-"${thisdir}/random-prefix.sh" -k "${key}" | LC_ALL=C sort | perl -lpe's,^.*?\t.*?\t,,'
-
-<<sh preamble>>=
-#!/bin/sh
-set -eu
+<<targets>>=
+set -- "$@" unshuffle.sh
 @
 
-<<*>>=
+<<unshuffle.sh deps>>=
+unshuffle.nw shell.nw temporary-files-shell.nw
+@
+
+<<build unshuffle.sh>>=
 <<sh preamble>>
-CHMOD='chmod 0555' nofake.sh -Runshuffle.sh -ounshuffle.sh unshuffle.nw temporary-files-shell.nw
+CHMOD='chmod 0555' nofake.sh --error -Runshuffle.sh -ounshuffle.sh \
+    <<unshuffle.sh deps>>
 @

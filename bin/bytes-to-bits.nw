@@ -1,12 +1,17 @@
 
-<<bytes-to-bits.sh>>=
+nofake bytes-to-bits.nw
+
+<<preamble>>=
 #!/bin/sh
 # generated from bytes-to-bits.nw
-# run 'nofake bytes-to-bits.nw' for shell recipe
 die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 if [ $# -eq 0 ]; then
     set -- -
 fi
+@
+
+<<bytes-to-bits.sh>>=
+<<preamble>>
 exec perl -le'
     for $file (@ARGV) {
         if ($file eq q{-}) {
@@ -20,7 +25,7 @@ exec perl -le'
             while($offset + 4 < $dlen){
                 $bits = unpack(q{B*}, substr($d, $offset, 4));
                 print(join(qq{\n},
-                    <<substr-32>>
+                    <<substr-32 big-endian>>
                 ));
                 $offset += 4;
             }
@@ -35,27 +40,81 @@ exec perl -le'
     }' "$@"
 @
 
-<<substr>>=
-substr($bits, <<i>>, 1),
+<<u16le-to-bits.sh>>=
+<<preamble>>
+exec perl -le'
+    for $file (@ARGV) {
+        if ($file eq q{-}) {
+            $fh = \*STDIN;
+        } else {
+            open($fh, q{<}, $file);
+        }
+        while(read($fh, $d, 16384)){
+            $offset = 0;
+            $dlen = length($d);
+            while($offset + 4 < $dlen){
+                $bits = unpack(q{B*}, substr($d, $offset, 4));
+                print(join(qq{\n},
+                    <<substr-32 little-endian>>
+                ));
+                $offset += 4;
+            }
+            while($dlen - $offset >= 2){
+                $bits = unpack(q{B*}, substr($d, $offset, 2));
+                print(join(qq{\n},
+                    <<substr-16 little-endian>>
+                ));
+                $offset += 2;
+            }
+        }
+        close($fh) unless $file eq q{-};
+    }' "$@"
+@
+
+<<bits 0 7>>=
+for i in `seq 0 7`; do
+    printf -- 'substr($bits, %s, 1),\n' "${i}"
+done >>'<<aux nw>>'
+@
+
+<<bits 8 15>>=
+for i in `seq 8 15`; do
+    printf -- 'substr($bits, %s, 1),\n' "${i}"
+done >>'<<aux nw>>'
 @
 
 <<*>>=
 #!/bin/sh
 set -eu
 
-:>tmp.substr
+:>'<<aux nw>>'
 
-echo '@<<substr-32@>>='>>tmp.substr
+echo '@<<substr-32 big-endian>>='>>'<<aux nw>>'
 for i in `seq 0 31`; do
-    perl -slne'print}{print(qq{@<<i@>>=\n${i}\n@\n})' -- -i="${i}" bytes-to-bits.nw | nofake -Rsubstr
-done >>tmp.substr
+    printf -- 'substr($bits, %s, 1),\n' "${i}"
+done >>'<<aux nw>>'
 
-echo '@<<substr-8@>>='>>tmp.substr
-for i in `seq 0 7`; do
-    perl -slne'print}{print(qq{@<<i@>>=\n${i}\n@\n})' -- -i="${i}" bytes-to-bits.nw | nofake -Rsubstr
-done >>tmp.substr
+echo '@<<substr-8>>='>>'<<aux nw>>'
+<<bits 0 7>>
 
-CHMOD='chmod 0555' nofake.sh -Rbytes-to-bits.sh -obytes-to-bits.sh bytes-to-bits.nw tmp.substr
+echo '@<<substr-16 little-endian>>='>>'<<aux nw>>'
+<<bits 8 15>>
+<<bits 0 7>>
 
-rm -f tmp.substr
+echo '@<<substr-32 little-endian>>='>>'<<aux nw>>'
+<<bits 8 15>>
+<<bits 0 7>>
+for i in `seq 24 31`; do
+    printf -- 'substr($bits, %s, 1),\n' "${i}"
+done >>'<<aux nw>>'
+for i in `seq 16 23`; do
+    printf -- 'substr($bits, %s, 1),\n' "${i}"
+done >>'<<aux nw>>'
+
+CHMOD='chmod 0555' nofake.sh -Rbytes-to-bits.sh -obytes-to-bits.sh bytes-to-bits.nw '<<aux nw>>'
+CHMOD='chmod 0555' nofake.sh -Ru16le-to-bits.sh -ou16le-to-bits.sh bytes-to-bits.nw '<<aux nw>>'
+@
+
+<<aux nw>>=
+.bytes-to-bits_aux.nw
 @
