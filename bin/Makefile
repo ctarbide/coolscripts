@@ -7,13 +7,13 @@ PRIORITY_TARGETS = \
     nofake-exec.sh
 
 TARGETS = \
-    create-config.sh show-config.sh new-item.sh make-index.sh find.sh \
-    find-strict.sh head-README.sh show-README.sh cat-README.sh seed.sh \
-    cstrng.sh detokenize--imports.nw detokenize.c detokenize encrypt.sh \
-    decrypt.sh verify.sh feh-smart-latest.sh git-last-modified.sh localely-dist.nw \
-    nwsplit--imports.nw nwsplit.c nwsplit shuffle.sh shuffle-noseq.sh \
-    test-shuffle-noseq.sh stretch.sh tokenize--imports.nw tokenize.c tokenize \
-    unshuffle.sh
+    cat-README.sh create-config.sh cstrng.sh decrypt.sh detokenize \
+    detokenize--imports.nw detokenize.c encrypt.sh feh-smart-latest.sh find-strict.sh \
+    find.sh git-last-modified.sh head-README.sh localely-dist.nw make-index.sh \
+    new-item.sh nwsplit nwsplit--imports.nw nwsplit.c seed.sh \
+    show-README.sh show-config.sh shuffle-noseq.sh shuffle.sh stretch.sh \
+    test-shuffle-noseq.sh tokenize tokenize--imports.nw tokenize.c unshuffle.sh \
+    verify.sh
 
 ALL_TARGETS = $(PRIORITY_TARGETS) $(TARGETS)
 
@@ -22,136 +22,136 @@ all: $(ALL_TARGETS)
 
 nofake-exec.sh: \
     nofake-exec.nw shell.nw temporary-files-shell.nw
-	nofake --error -R'build nofake-exec.sh' $^ | $(SH)
-
-create-config.sh: \
-    create-config.nw shell.nw
-	nofake --error -R'build create-config.sh' $^ | $(SH)
-
-show-config.sh: \
-    create-config.nw shell.nw
-	nofake --error -R'build show-config.sh' $^ | $(SH)
-
-new-item.sh: \
-    create-config.nw new-item.nw shell.nw
-	nofake --error -R'build new-item.sh' $^ | $(SH)
-
-make-index.sh: \
-    create-config.nw make-index.nw shell.nw
-	nofake --error -R'build make-index.sh' $^ | $(SH)
-
-find.sh: \
-    create-config.nw find.nw shell.nw temporary-files-shell.nw
-	nofake --error -R'build find.sh' $^ | $(SH)
-
-find-strict.sh: \
-    create-config.nw find-strict.nw shell.nw temporary-files-shell.nw
-	nofake --error -R'build find-strict.sh' $^ | $(SH)
-
-head-README.sh: \
-    create-config.nw head-README.nw shell.nw temporary-files-shell.nw
-	nofake --error -R'build head-README.sh' $^ | $(SH)
-
-show-README.sh: \
-    create-config.nw shell.nw show-README.nw temporary-files-shell.nw
-	nofake --error -R'build show-README.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build nofake-exec.sh' $^ -- $(SH)
 
 cat-README.sh: \
     cat-README.nw create-config.nw shell.nw temporary-files-shell.nw
-	nofake --error -R'build cat-README.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build cat-README.sh' $^ -- $(SH)
 
-seed.sh: \
-    cstrng.nw
-	nofake --error -R'build seed.sh' $^ | $(SH)
+create-config.sh: \
+    create-config.nw shell.nw
+	nofake-exec.sh --error -R'build create-config.sh' $^ -- $(SH)
 
 cstrng.sh: \
     cstrng.nw
-	nofake --error -R'build cstrng.sh' $^ | $(SH)
-
-detokenize--imports.nw: \
-    detokenize.nw repl.nw
-	nofake --error -R'build detokenize--imports.nw' $^ | $(SH)
-
-detokenize.c: \
-    detokenize--imports.nw detokenize.nw strscan.nw
-	nofake --error -R'build detokenize.c' $^ | $(SH)
-
-detokenize: \
-    detokenize--imports.nw detokenize.c detokenize.nw strscan.nw
-	nofake --error -R'build detokenize' $^ | $(SH)
-
-encrypt.sh: \
-    encrypt.nw netstring-perl.nw shell.nw
-	nofake --error -R'build encrypt.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build cstrng.sh' $^ -- $(SH)
 
 decrypt.sh: \
     encrypt.nw netstring-perl.nw shell.nw
-	nofake --error -R'build decrypt.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build decrypt.sh' $^ -- $(SH)
 
-verify.sh: \
+detokenize: \
+    detokenize--imports.nw detokenize.c detokenize.nw strscan.nw
+	nofake-exec.sh --error -R'build detokenize' $^ -- $(SH)
+
+detokenize--imports.nw: \
+    detokenize.nw repl.nw
+	nofake-exec.sh --error -R'build detokenize--imports.nw' $^ -- $(SH)
+
+detokenize.c: \
+    detokenize--imports.nw detokenize.nw strscan.nw
+	nofake-exec.sh --error -R'build detokenize.c' $^ -- $(SH)
+
+encrypt.sh: \
     encrypt.nw netstring-perl.nw shell.nw
-	nofake --error -R'build verify.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build encrypt.sh' $^ -- $(SH)
 
 feh-smart-latest.sh: \
     feh-smart-latest.nw shell.nw temporary-files-shell.nw
-	nofake --error -R'build feh-smart-latest.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build feh-smart-latest.sh' $^ -- $(SH)
+
+find-strict.sh: \
+    create-config.nw find-strict.nw shell.nw temporary-files-shell.nw
+	nofake-exec.sh --error -R'build find-strict.sh' $^ -- $(SH)
+
+find.sh: \
+    create-config.nw find.nw shell.nw temporary-files-shell.nw
+	nofake-exec.sh --error -R'build find.sh' $^ -- $(SH)
 
 git-last-modified.sh: \
     git-last-modified.nw shell.nw
-	nofake --error -R'build git-last-modified.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build git-last-modified.sh' $^ -- $(SH)
+
+head-README.sh: \
+    create-config.nw head-README.nw shell.nw temporary-files-shell.nw
+	nofake-exec.sh --error -R'build head-README.sh' $^ -- $(SH)
 
 localely-dist.nw: \
     localely.nw
-	nofake --error -R'build localely-dist.nw' $^ | $(SH)
+	nofake-exec.sh --error -R'build localely-dist.nw' $^ -- $(SH)
 
-nwsplit--imports.nw: \
-    nwsplit.nw repl.nw
-	nofake --error -R'build nwsplit--imports.nw' $^ | $(SH)
+make-index.sh: \
+    create-config.nw make-index.nw shell.nw
+	nofake-exec.sh --error -R'build make-index.sh' $^ -- $(SH)
 
-nwsplit.c: \
-    nwsplit--imports.nw nwsplit.nw strscan.nw
-	nofake --error -R'build nwsplit.c' $^ | $(SH)
+new-item.sh: \
+    create-config.nw new-item.nw shell.nw
+	nofake-exec.sh --error -R'build new-item.sh' $^ -- $(SH)
 
 nwsplit: \
     nwsplit--imports.nw nwsplit.c nwsplit.nw strscan.nw
-	nofake --error -R'build nwsplit' $^ | $(SH)
+	nofake-exec.sh --error -R'build nwsplit' $^ -- $(SH)
 
-shuffle.sh: \
-    shell.nw shuffle.nw
-	nofake --error -R'build shuffle.sh' $^ | $(SH)
+nwsplit--imports.nw: \
+    nwsplit.nw repl.nw
+	nofake-exec.sh --error -R'build nwsplit--imports.nw' $^ -- $(SH)
+
+nwsplit.c: \
+    nwsplit--imports.nw nwsplit.nw strscan.nw
+	nofake-exec.sh --error -R'build nwsplit.c' $^ -- $(SH)
+
+seed.sh: \
+    cstrng.nw
+	nofake-exec.sh --error -R'build seed.sh' $^ -- $(SH)
+
+show-README.sh: \
+    create-config.nw shell.nw show-README.nw temporary-files-shell.nw
+	nofake-exec.sh --error -R'build show-README.sh' $^ -- $(SH)
+
+show-config.sh: \
+    create-config.nw shell.nw
+	nofake-exec.sh --error -R'build show-config.sh' $^ -- $(SH)
 
 shuffle-noseq.sh: \
     shell.nw shuffle.nw
-	nofake --error -R'build shuffle-noseq.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build shuffle-noseq.sh' $^ -- $(SH)
 
-test-shuffle-noseq.sh: \
+shuffle.sh: \
     shell.nw shuffle.nw
-	nofake --error -R'build test-shuffle-noseq.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build shuffle.sh' $^ -- $(SH)
 
 stretch.sh: \
     shell.nw stretch.nw temporary-files-shell.nw
-	nofake --error -R'build stretch.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build stretch.sh' $^ -- $(SH)
 
-tokenize--imports.nw: \
-    repl.nw tokenize.nw
-	nofake --error -R'build tokenize--imports.nw' $^ | $(SH)
-
-tokenize.c: \
-    localely-dist.nw strscan.nw tokenize--imports.nw tokenize.nw
-	nofake --error -R'build tokenize.c' $^ | $(SH)
+test-shuffle-noseq.sh: \
+    shell.nw shuffle.nw
+	nofake-exec.sh --error -R'build test-shuffle-noseq.sh' $^ -- $(SH)
 
 tokenize: \
     localely-dist.nw strscan.nw tokenize--imports.nw tokenize.c tokenize.nw
-	nofake --error -R'build tokenize' $^ | $(SH)
+	nofake-exec.sh --error -R'build tokenize' $^ -- $(SH)
+
+tokenize--imports.nw: \
+    repl.nw tokenize.nw
+	nofake-exec.sh --error -R'build tokenize--imports.nw' $^ -- $(SH)
+
+tokenize.c: \
+    localely-dist.nw strscan.nw tokenize--imports.nw tokenize.nw
+	nofake-exec.sh --error -R'build tokenize.c' $^ -- $(SH)
 
 unshuffle.sh: \
     shell.nw temporary-files-shell.nw unshuffle.nw
-	nofake --error -R'build unshuffle.sh' $^ | $(SH)
+	nofake-exec.sh --error -R'build unshuffle.sh' $^ -- $(SH)
+
+verify.sh: \
+    encrypt.nw netstring-perl.nw shell.nw
+	nofake-exec.sh --error -R'build verify.sh' $^ -- $(SH)
 
 .PHONY: touch
 touch:
-	-touch $(ALL_TARGETS)
+	-touch -c $(ALL_TARGETS)
 
 .PHONY: clean
 clean:
-	-rm -f $(ALL_TARGETS)
+	-rm -f $(TARGETS)

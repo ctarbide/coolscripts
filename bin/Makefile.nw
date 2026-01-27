@@ -6,9 +6,15 @@ To generate/update Makefile, simply do:
 
     nofake Makefile.nw | sh
 
+<<*>>=
+nofake-exec.sh --error -R'build Makefile' Makefile.nw <<Makefile.nw import>> -- sh -eu
+@
+
 <<Makefile prefix>>=
 Makefile
 @
+
+<<Makefile.nw import>>=
 
 <<sources>>=
 <<Makefile prefix>>.nw create-config.nw nofake-exec.nw
@@ -19,26 +25,31 @@ cstrng.nw stretch.nw shuffle.nw unshuffle.nw
 
 <<priority targets>>=
 
-<<*>>=
+<<build Makefile>>=
 #!/bin/sh
 set -eu
 SH=${SH:-sh -eu}; export SH
 <<function cmd_push_to_argv>>
 <<function list_set_sources>>
-#@<<gen build.sh>>
-eval "set --; `list_set_sources`"
-nofake --error -R'generate Makefile' "$@" | ${SH} ><<Makefile prefix>>
-@
-
-<<gen build.sh>>=
-set -- <<Makefile prefix>>.nw
-nofake --error -R'generate build.sh' "$@" | ${SH}
+<<function indent_args>>
+#nofake-exec.sh --error -R'generate build.sh' '<<Makefile prefix>>.nw' \
+#    -- ${SH}
+set_sources=`list_set_sources`
+eval "set --; ${set_sources}"
+<<generate listings.nw>>
+rm -f Makefile
+nofake-exec.sh --error -R'generate Makefile' Makefile.nw listings.nw \
+    -- ${SH} >'<<Makefile prefix>>'
+chmod 0444 Makefile
 @
 
 <<function cmd_push_to_argv>>=
 cmd_push_to_argv(){
-    normalize-args.sh | perl -lpe'$_=qq{set -- \042\$\@\042 ${_};}' |
-        LC_ALL=C sort -u
+    normalize-args.sh | perl -lne'
+        next if m{^\047(?:set|--|\$\@)\047$};
+        s,;\047$,\047,;
+        print(qq{set -- \042\$\@\042 ${_};});
+    ' | LC_ALL=C sort -u
 }
 @
 
@@ -46,6 +57,22 @@ cmd_push_to_argv(){
 list_set_sources(){
     cat<<'EOF' | cmd_push_to_argv
 <<sources>>
+EOF
+}
+@
+
+<<function list_set_priority_targets>>=
+list_set_priority_targets(){
+cat<<'EOF' | cmd_push_to_argv
+<<priority targets>>
+EOF
+}
+@
+
+<<function list_set_targets>>=
+list_set_targets(){
+cat<<'EOF' | cmd_push_to_argv
+<<targets>>
 EOF
 }
 @
@@ -60,67 +87,42 @@ indent_args(){
 }
 @
 
-<<indent "$@">>=
-indent_args "$@"
-@
-
 <<output TARGETS=>>=
-set --
-<<targets>>
+set --; <<set targets>>
 printf -- 'TARGETS = \\\n'
-<<indent "$@">>
+indent_args "$@"
 printf -- '\n'
 @
 
 <<output PRIORITY_TARGETS=>>=
-set --
-<<priority targets>>
+set --; <<set priority targets>>
 if [ $# -gt 0 ]; then
     printf -- 'PRIORITY_TARGETS = \\\n'
-    <<indent "$@">>
+    indent_args "$@"
     printf -- '\n'
 fi
 @
 
 <<output all:>>=
-set --
-<<priority targets>>
-<<targets>>
 printf -- '.PHONY: all\nall: $(ALL_TARGETS)\n\n'
+set --
+<<set priority targets>>
+<<set targets>>
 for target; do
-    printf '%s: \\\n' "${target}"
+    printf -- '%s: \\\n' "${target}"
     (
-        eval "set --; ${set_sources}"
-        set_deps=`nofake --error -R"${target} deps" "$@" | cmd_push_to_argv`
+        set_deps=`nofake --error -R"set ${target} deps" listings.nw`
         eval "set --; ${set_deps}"
-        <<indent "$@">>
-        printf -- '\tnofake --error -R'"'"'build '"${target}'"' $^ | $(SH)\n\n'
+        indent_args "$@"
+        printf -- '\tnofake-exec.sh --error -R'"'"'build '"${target}'"' $^ -- $(SH)\n\n'
     )
 done
-@
-
-<<generate Makefile>>=
-#!/bin/sh
-set -eu
-SH=${SH:-sh -eu}; export SH
-<<function cmd_push_to_argv>>
-<<function list_set_sources>>
-<<function indent_args>>
-printf -- '\n# automatically generated from <<Makefile prefix>>.nw\n\n'
-set_sources=`list_set_sources`
-printf -- 'SH = %s\n\n' "${SH}"
-<<output PRIORITY_TARGETS=>>
-<<output TARGETS=>>
-printf -- 'ALL_TARGETS = $(PRIORITY_TARGETS) $(TARGETS)\n\n'
-<<output all:>>
-printf -- '.PHONY: touch\ntouch:\n\t-touch $(ALL_TARGETS)\n\n'
-printf -- '.PHONY: clean\nclean:\n\t-rm -f $(ALL_TARGETS)\n'
 @
 
 <<generate build.sh>>=
 #!/bin/sh
 set -eu
-CHMOD='chmod 0555' nofake.sh --error -Rbuild.sh -obuild.sh <<Makefile prefix>>.nw
+CHMOD='chmod 0555' nofake.sh --error -Rbuild.sh -obuild.sh '<<Makefile prefix>>.nw'
 @
 
 <<build.sh>>=
@@ -128,6 +130,53 @@ CHMOD='chmod 0555' nofake.sh --error -Rbuild.sh -obuild.sh <<Makefile prefix>>.n
 # automatically generated from <<Makefile prefix>>.nw
 set -eu
 SH=${SH:-sh -eu}; export SH
-nofake --error <<Makefile prefix>>.nw | ${SH}
-make -f <<Makefile prefix>>
+nofake-exec.sh --error '<<Makefile prefix>>.nw' -- ${SH}
+make -f '<<Makefile prefix>>'
+@
+
+<<generate listings.nw>>=
+rm -f listings.nw
+printf -- 'automatically generated from <<Makefile prefix>>.nw\n\n' >listings.nw
+printf -- '@<<set sources>>=\n' >>listings.nw
+echo "${set_sources}" >>listings.nw
+(set -eu
+    echo '@<<generate listings.nw - targets and deps - run>>='
+    echo 'set -eu'
+    nofake --error -R'function cmd_push_to_argv' '<<Makefile prefix>>.nw'
+    nofake-exec.sh --error -R'generate listings.nw - targets and deps - template' "$@" -- ${SH}
+    echo '@'
+) | nofake --error -R'generate listings.nw - targets and deps - run' "$@" - | ${SH} >>listings.nw
+echo '@' >>listings.nw
+chmod 0444 listings.nw
+@
+
+<<generate listings.nw - targets and deps - template>>=
+<<function cmd_push_to_argv>>
+<<function list_set_priority_targets>>
+<<function list_set_targets>>
+printf -- '@<<set priority targets>>=\n' >>listings.nw
+list_set_priority_targets >>listings.nw
+printf -- '@<<set targets>>=\n' >>listings.nw
+# printf -- '@<<set priority targets>>\n' >>listings.nw
+list_set_targets >>listings.nw
+set --; eval "`list_set_priority_targets`"; eval "`list_set_targets`"
+for target; do
+    printf -- "echo '@@<<set ${target} deps>>='\n"
+    printf -- "cat@@<<'EOF' | cmd_push_to_argv\n"
+    printf -- '@<<%s deps>>\n' "${target}"
+    printf -- 'EOF\n'
+done
+@
+
+<<generate Makefile>>=
+<<function indent_args>>
+printf -- '\n# automatically generated from <<Makefile prefix>>.nw\n\n'
+printf -- 'SH = %s\n\n' "${SH}"
+set --; <<set targets>>
+<<output PRIORITY_TARGETS=>>
+<<output TARGETS=>>
+printf -- 'ALL_TARGETS = $(PRIORITY_TARGETS) $(TARGETS)\n\n'
+<<output all:>>
+printf -- '.PHONY: touch\ntouch:\n\t-touch -c $(ALL_TARGETS)\n\n'
+printf -- '.PHONY: clean\nclean:\n\t-rm -f $(TARGETS)\n'
 @

@@ -1,0 +1,176 @@
+automatically generated from Makefile.nw
+
+<<set sources>>=
+set -- "$@" 'Makefile.nw';
+set -- "$@" 'create-config.nw';
+set -- "$@" 'cstrng.nw';
+set -- "$@" 'detokenize.nw';
+set -- "$@" 'encrypt.nw';
+set -- "$@" 'feh-smart-latest.nw';
+set -- "$@" 'git-last-modified.nw';
+set -- "$@" 'localely.nw';
+set -- "$@" 'nofake-exec.nw';
+set -- "$@" 'nwsplit.nw';
+set -- "$@" 'repl.nw';
+set -- "$@" 'shuffle.nw';
+set -- "$@" 'stretch.nw';
+set -- "$@" 'tokenize.nw';
+set -- "$@" 'unshuffle.nw';
+<<set priority targets>>=
+set -- "$@" 'nofake-exec.sh';
+<<set targets>>=
+set -- "$@" 'cat-README.sh';
+set -- "$@" 'create-config.sh';
+set -- "$@" 'cstrng.sh';
+set -- "$@" 'decrypt.sh';
+set -- "$@" 'detokenize';
+set -- "$@" 'detokenize--imports.nw';
+set -- "$@" 'detokenize.c';
+set -- "$@" 'encrypt.sh';
+set -- "$@" 'feh-smart-latest.sh';
+set -- "$@" 'find-strict.sh';
+set -- "$@" 'find.sh';
+set -- "$@" 'git-last-modified.sh';
+set -- "$@" 'head-README.sh';
+set -- "$@" 'localely-dist.nw';
+set -- "$@" 'make-index.sh';
+set -- "$@" 'new-item.sh';
+set -- "$@" 'nwsplit';
+set -- "$@" 'nwsplit--imports.nw';
+set -- "$@" 'nwsplit.c';
+set -- "$@" 'seed.sh';
+set -- "$@" 'show-README.sh';
+set -- "$@" 'show-config.sh';
+set -- "$@" 'shuffle-noseq.sh';
+set -- "$@" 'shuffle.sh';
+set -- "$@" 'stretch.sh';
+set -- "$@" 'test-shuffle-noseq.sh';
+set -- "$@" 'tokenize';
+set -- "$@" 'tokenize--imports.nw';
+set -- "$@" 'tokenize.c';
+set -- "$@" 'unshuffle.sh';
+set -- "$@" 'verify.sh';
+<<set nofake-exec.sh deps>>=
+set -- "$@" 'nofake-exec.nw';
+set -- "$@" 'shell.nw';
+set -- "$@" 'temporary-files-shell.nw';
+<<set cat-README.sh deps>>=
+set -- "$@" 'cat-README.nw';
+set -- "$@" 'create-config.nw';
+set -- "$@" 'shell.nw';
+set -- "$@" 'temporary-files-shell.nw';
+<<set create-config.sh deps>>=
+set -- "$@" 'create-config.nw';
+set -- "$@" 'shell.nw';
+<<set cstrng.sh deps>>=
+set -- "$@" 'cstrng.nw';
+<<set decrypt.sh deps>>=
+set -- "$@" 'encrypt.nw';
+set -- "$@" 'netstring-perl.nw';
+set -- "$@" 'shell.nw';
+<<set detokenize deps>>=
+set -- "$@" 'detokenize--imports.nw';
+set -- "$@" 'detokenize.c';
+set -- "$@" 'detokenize.nw';
+set -- "$@" 'strscan.nw';
+<<set detokenize--imports.nw deps>>=
+set -- "$@" 'detokenize.nw';
+set -- "$@" 'repl.nw';
+<<set detokenize.c deps>>=
+set -- "$@" 'detokenize--imports.nw';
+set -- "$@" 'detokenize.nw';
+set -- "$@" 'strscan.nw';
+<<set encrypt.sh deps>>=
+set -- "$@" 'encrypt.nw';
+set -- "$@" 'netstring-perl.nw';
+set -- "$@" 'shell.nw';
+<<set feh-smart-latest.sh deps>>=
+set -- "$@" 'feh-smart-latest.nw';
+set -- "$@" 'shell.nw';
+set -- "$@" 'temporary-files-shell.nw';
+<<set find-strict.sh deps>>=
+set -- "$@" 'create-config.nw';
+set -- "$@" 'find-strict.nw';
+set -- "$@" 'shell.nw';
+set -- "$@" 'temporary-files-shell.nw';
+<<set find.sh deps>>=
+set -- "$@" 'create-config.nw';
+set -- "$@" 'find.nw';
+set -- "$@" 'shell.nw';
+set -- "$@" 'temporary-files-shell.nw';
+<<set git-last-modified.sh deps>>=
+set -- "$@" 'git-last-modified.nw';
+set -- "$@" 'shell.nw';
+<<set head-README.sh deps>>=
+set -- "$@" 'create-config.nw';
+set -- "$@" 'head-README.nw';
+set -- "$@" 'shell.nw';
+set -- "$@" 'temporary-files-shell.nw';
+<<set localely-dist.nw deps>>=
+set -- "$@" 'localely.nw';
+<<set make-index.sh deps>>=
+set -- "$@" 'create-config.nw';
+set -- "$@" 'make-index.nw';
+set -- "$@" 'shell.nw';
+<<set new-item.sh deps>>=
+set -- "$@" 'create-config.nw';
+set -- "$@" 'new-item.nw';
+set -- "$@" 'shell.nw';
+<<set nwsplit deps>>=
+set -- "$@" 'nwsplit--imports.nw';
+set -- "$@" 'nwsplit.c';
+set -- "$@" 'nwsplit.nw';
+set -- "$@" 'strscan.nw';
+<<set nwsplit--imports.nw deps>>=
+set -- "$@" 'nwsplit.nw';
+set -- "$@" 'repl.nw';
+<<set nwsplit.c deps>>=
+set -- "$@" 'nwsplit--imports.nw';
+set -- "$@" 'nwsplit.nw';
+set -- "$@" 'strscan.nw';
+<<set seed.sh deps>>=
+set -- "$@" 'cstrng.nw';
+<<set show-README.sh deps>>=
+set -- "$@" 'create-config.nw';
+set -- "$@" 'shell.nw';
+set -- "$@" 'show-README.nw';
+set -- "$@" 'temporary-files-shell.nw';
+<<set show-config.sh deps>>=
+set -- "$@" 'create-config.nw';
+set -- "$@" 'shell.nw';
+<<set shuffle-noseq.sh deps>>=
+set -- "$@" 'shell.nw';
+set -- "$@" 'shuffle.nw';
+<<set shuffle.sh deps>>=
+set -- "$@" 'shell.nw';
+set -- "$@" 'shuffle.nw';
+<<set stretch.sh deps>>=
+set -- "$@" 'shell.nw';
+set -- "$@" 'stretch.nw';
+set -- "$@" 'temporary-files-shell.nw';
+<<set test-shuffle-noseq.sh deps>>=
+set -- "$@" 'shell.nw';
+set -- "$@" 'shuffle.nw';
+<<set tokenize deps>>=
+set -- "$@" 'localely-dist.nw';
+set -- "$@" 'strscan.nw';
+set -- "$@" 'tokenize--imports.nw';
+set -- "$@" 'tokenize.c';
+set -- "$@" 'tokenize.nw';
+<<set tokenize--imports.nw deps>>=
+set -- "$@" 'repl.nw';
+set -- "$@" 'tokenize.nw';
+<<set tokenize.c deps>>=
+set -- "$@" 'localely-dist.nw';
+set -- "$@" 'strscan.nw';
+set -- "$@" 'tokenize--imports.nw';
+set -- "$@" 'tokenize.nw';
+<<set unshuffle.sh deps>>=
+set -- "$@" 'shell.nw';
+set -- "$@" 'temporary-files-shell.nw';
+set -- "$@" 'unshuffle.nw';
+<<set verify.sh deps>>=
+set -- "$@" 'encrypt.nw';
+set -- "$@" 'netstring-perl.nw';
+set -- "$@" 'shell.nw';
+@
