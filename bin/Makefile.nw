@@ -36,7 +36,11 @@ SH=${SH:-sh -eu}; export SH
 #    -- ${SH}
 set_sources=`list_set_sources`
 eval "set --; ${set_sources}"
-<<generate listings.nw>>
+latest_mtime_in_sources=`perl -le'@times = map { (stat($_))[9] } @ARGV; print((sort @times)[-1])' -- "$@"`
+listings_mtime=`perl -le'print((stat($ARGV[0]))[9])' -- listings.nw`
+if [ "${latest_mtime_in_sources}" -gt "${listings_mtime}" ]; then
+    <<generate listings.nw>>
+fi
 rm -f Makefile
 nofake-exec.sh --error -R'generate Makefile' Makefile.nw listings.nw \
     -- ${SH} >'<<Makefile prefix>>'
@@ -49,7 +53,7 @@ cmd_push_to_argv(){
         next if m{^\047(?:set|--|\$\@)\047$};
         s,;\047$,\047,;
         print(qq{set -- \042\$\@\042 ${_};});
-    ' | LC_ALL=C sort -u
+    }{print unless $.' | LC_ALL=C sort -u
 }
 @
 
@@ -113,7 +117,7 @@ for target; do
     (
         set_deps=`nofake --error -R"set ${target} deps" listings.nw`
         eval "set --; ${set_deps}"
-        indent_args "$@"
+        indent_args listings.nw "$@"
         printf -- '\tnofake-exec.sh --error -R'"'"'build '"${target}'"' $^ -- $(SH)\n\n'
     )
 done
@@ -139,27 +143,32 @@ rm -f listings.nw
 printf -- 'automatically generated from <<Makefile prefix>>.nw\n\n' >listings.nw
 printf -- '@<<set sources>>=\n' >>listings.nw
 echo "${set_sources}" >>listings.nw
+nofake-exec.sh --error -R'generate listings.nw - targets' "$@" -- ${SH} >>listings.nw
 (set -eu
-    echo '@<<generate listings.nw - targets and deps - run>>='
+    echo '@<<generate listings.nw - deps - run>>='
     echo 'set -eu'
     nofake --error -R'function cmd_push_to_argv' '<<Makefile prefix>>.nw'
-    nofake-exec.sh --error -R'generate listings.nw - targets and deps - template' "$@" -- ${SH}
+    nofake-exec.sh --error -R'generate listings.nw - deps - template' Makefile.nw listings.nw -- ${SH}
     echo '@'
-) | nofake --error -R'generate listings.nw - targets and deps - run' "$@" - | ${SH} >>listings.nw
+) | nofake-exec.sh --error -R'generate listings.nw - deps - run' "$@" - -- ${SH} >>listings.nw
 echo '@' >>listings.nw
 chmod 0444 listings.nw
 @
 
-<<generate listings.nw - targets and deps - template>>=
+<<generate listings.nw - targets>>=
 <<function cmd_push_to_argv>>
 <<function list_set_priority_targets>>
 <<function list_set_targets>>
-printf -- '@<<set priority targets>>=\n' >>listings.nw
-list_set_priority_targets >>listings.nw
-printf -- '@<<set targets>>=\n' >>listings.nw
-# printf -- '@<<set priority targets>>\n' >>listings.nw
-list_set_targets >>listings.nw
-set --; eval "`list_set_priority_targets`"; eval "`list_set_targets`"
+printf -- '@<<set priority targets>>=\n'
+list_set_priority_targets
+printf -- '@<<set targets>>=\n'
+list_set_targets
+@
+
+<<generate listings.nw - deps - template>>=
+set --
+<<set priority targets>>
+<<set targets>>
 for target; do
     printf -- "echo '@@<<set ${target} deps>>='\n"
     printf -- "cat@@<<'EOF' | cmd_push_to_argv\n"
