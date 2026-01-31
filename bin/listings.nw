@@ -1,4 +1,4 @@
-automatically generated from Makefile.nw
+automatically generated from Makefile.nw and sources below
 
 <<set sources>>=
 set -- "$@" 'Makefile.nw';
@@ -9,15 +9,27 @@ set -- "$@" 'encrypt.nw';
 set -- "$@" 'feh-smart-latest.nw';
 set -- "$@" 'git-last-modified.nw';
 set -- "$@" 'localely.nw';
-set -- "$@" 'nofake-exec.nw';
 set -- "$@" 'nwsplit.nw';
 set -- "$@" 'repl.nw';
 set -- "$@" 'shuffle.nw';
 set -- "$@" 'stretch.nw';
 set -- "$@" 'tokenize.nw';
 set -- "$@" 'unshuffle.nw';
-<<set priority targets>>=
-set -- "$@" 'nofake-exec.sh';
+<<push sources>>=
+push(@$listref, q{Makefile.nw});
+push(@$listref, q{create-config.nw});
+push(@$listref, q{cstrng.nw});
+push(@$listref, q{detokenize.nw});
+push(@$listref, q{encrypt.nw});
+push(@$listref, q{feh-smart-latest.nw});
+push(@$listref, q{git-last-modified.nw});
+push(@$listref, q{localely.nw});
+push(@$listref, q{nwsplit.nw});
+push(@$listref, q{repl.nw});
+push(@$listref, q{shuffle.nw});
+push(@$listref, q{stretch.nw});
+push(@$listref, q{tokenize.nw});
+push(@$listref, q{unshuffle.nw});
 <<set targets>>=
 set -- "$@" 'cat-README.sh';
 set -- "$@" 'create-config.sh';
@@ -50,127 +62,274 @@ set -- "$@" 'tokenize--imports.nw';
 set -- "$@" 'tokenize.c';
 set -- "$@" 'unshuffle.sh';
 set -- "$@" 'verify.sh';
-<<set nofake-exec.sh deps>>=
-set -- "$@" 'nofake-exec.nw';
-set -- "$@" 'shell.nw';
-set -- "$@" 'temporary-files-shell.nw';
+<<push targets>>=
+push(@$listref, q{cat-README.sh});
+push(@$listref, q{create-config.sh});
+push(@$listref, q{cstrng.sh});
+push(@$listref, q{decrypt.sh});
+push(@$listref, q{detokenize});
+push(@$listref, q{detokenize--imports.nw});
+push(@$listref, q{detokenize.c});
+push(@$listref, q{encrypt.sh});
+push(@$listref, q{feh-smart-latest.sh});
+push(@$listref, q{find-strict.sh});
+push(@$listref, q{find.sh});
+push(@$listref, q{git-last-modified.sh});
+push(@$listref, q{head-README.sh});
+push(@$listref, q{localely-dist.nw});
+push(@$listref, q{make-index.sh});
+push(@$listref, q{new-item.sh});
+push(@$listref, q{nwsplit});
+push(@$listref, q{nwsplit--imports.nw});
+push(@$listref, q{nwsplit.c});
+push(@$listref, q{seed.sh});
+push(@$listref, q{show-README.sh});
+push(@$listref, q{show-config.sh});
+push(@$listref, q{shuffle-noseq.sh});
+push(@$listref, q{shuffle.sh});
+push(@$listref, q{stretch.sh});
+push(@$listref, q{test-shuffle-noseq.sh});
+push(@$listref, q{tokenize});
+push(@$listref, q{tokenize--imports.nw});
+push(@$listref, q{tokenize.c});
+push(@$listref, q{unshuffle.sh});
+push(@$listref, q{verify.sh});
 <<set cat-README.sh deps>>=
 set -- "$@" 'cat-README.nw';
 set -- "$@" 'create-config.nw';
 set -- "$@" 'shell.nw';
 set -- "$@" 'temporary-files-shell.nw';
+<<push cat-README.sh deps>>=
+push(@$listref, q{cat-README.nw});
+push(@$listref, q{create-config.nw});
+push(@$listref, q{shell.nw});
+push(@$listref, q{temporary-files-shell.nw});
 <<set create-config.sh deps>>=
 set -- "$@" 'create-config.nw';
 set -- "$@" 'shell.nw';
+<<push create-config.sh deps>>=
+push(@$listref, q{create-config.nw});
+push(@$listref, q{shell.nw});
 <<set cstrng.sh deps>>=
 set -- "$@" 'cstrng.nw';
+<<push cstrng.sh deps>>=
+push(@$listref, q{cstrng.nw});
 <<set decrypt.sh deps>>=
 set -- "$@" 'encrypt.nw';
 set -- "$@" 'netstring-perl.nw';
 set -- "$@" 'shell.nw';
+<<push decrypt.sh deps>>=
+push(@$listref, q{encrypt.nw});
+push(@$listref, q{netstring-perl.nw});
+push(@$listref, q{shell.nw});
 <<set detokenize deps>>=
 set -- "$@" 'detokenize--imports.nw';
 set -- "$@" 'detokenize.c';
 set -- "$@" 'detokenize.nw';
 set -- "$@" 'strscan.nw';
+<<push detokenize deps>>=
+push(@$listref, q{detokenize--imports.nw});
+push(@$listref, q{detokenize.c});
+push(@$listref, q{detokenize.nw});
+push(@$listref, q{strscan.nw});
 <<set detokenize--imports.nw deps>>=
 set -- "$@" 'detokenize.nw';
 set -- "$@" 'repl.nw';
+<<push detokenize--imports.nw deps>>=
+push(@$listref, q{detokenize.nw});
+push(@$listref, q{repl.nw});
 <<set detokenize.c deps>>=
 set -- "$@" 'detokenize--imports.nw';
 set -- "$@" 'detokenize.nw';
 set -- "$@" 'strscan.nw';
+<<push detokenize.c deps>>=
+push(@$listref, q{detokenize--imports.nw});
+push(@$listref, q{detokenize.nw});
+push(@$listref, q{strscan.nw});
 <<set encrypt.sh deps>>=
 set -- "$@" 'encrypt.nw';
 set -- "$@" 'netstring-perl.nw';
 set -- "$@" 'shell.nw';
+<<push encrypt.sh deps>>=
+push(@$listref, q{encrypt.nw});
+push(@$listref, q{netstring-perl.nw});
+push(@$listref, q{shell.nw});
 <<set feh-smart-latest.sh deps>>=
 set -- "$@" 'feh-smart-latest.nw';
 set -- "$@" 'shell.nw';
 set -- "$@" 'temporary-files-shell.nw';
+<<push feh-smart-latest.sh deps>>=
+push(@$listref, q{feh-smart-latest.nw});
+push(@$listref, q{shell.nw});
+push(@$listref, q{temporary-files-shell.nw});
 <<set find-strict.sh deps>>=
 set -- "$@" 'create-config.nw';
 set -- "$@" 'find-strict.nw';
 set -- "$@" 'shell.nw';
 set -- "$@" 'temporary-files-shell.nw';
+<<push find-strict.sh deps>>=
+push(@$listref, q{create-config.nw});
+push(@$listref, q{find-strict.nw});
+push(@$listref, q{shell.nw});
+push(@$listref, q{temporary-files-shell.nw});
 <<set find.sh deps>>=
 set -- "$@" 'create-config.nw';
 set -- "$@" 'find.nw';
 set -- "$@" 'shell.nw';
 set -- "$@" 'temporary-files-shell.nw';
+<<push find.sh deps>>=
+push(@$listref, q{create-config.nw});
+push(@$listref, q{find.nw});
+push(@$listref, q{shell.nw});
+push(@$listref, q{temporary-files-shell.nw});
 <<set git-last-modified.sh deps>>=
 set -- "$@" 'git-last-modified.nw';
 set -- "$@" 'shell.nw';
+<<push git-last-modified.sh deps>>=
+push(@$listref, q{git-last-modified.nw});
+push(@$listref, q{shell.nw});
 <<set head-README.sh deps>>=
 set -- "$@" 'create-config.nw';
 set -- "$@" 'head-README.nw';
 set -- "$@" 'shell.nw';
 set -- "$@" 'temporary-files-shell.nw';
+<<push head-README.sh deps>>=
+push(@$listref, q{create-config.nw});
+push(@$listref, q{head-README.nw});
+push(@$listref, q{shell.nw});
+push(@$listref, q{temporary-files-shell.nw});
 <<set localely-dist.nw deps>>=
 set -- "$@" 'localely.nw';
+<<push localely-dist.nw deps>>=
+push(@$listref, q{localely.nw});
 <<set make-index.sh deps>>=
 set -- "$@" 'create-config.nw';
 set -- "$@" 'make-index.nw';
 set -- "$@" 'shell.nw';
+<<push make-index.sh deps>>=
+push(@$listref, q{create-config.nw});
+push(@$listref, q{make-index.nw});
+push(@$listref, q{shell.nw});
 <<set new-item.sh deps>>=
 set -- "$@" 'create-config.nw';
 set -- "$@" 'new-item.nw';
 set -- "$@" 'shell.nw';
+<<push new-item.sh deps>>=
+push(@$listref, q{create-config.nw});
+push(@$listref, q{new-item.nw});
+push(@$listref, q{shell.nw});
 <<set nwsplit deps>>=
 set -- "$@" 'nwsplit--imports.nw';
 set -- "$@" 'nwsplit.c';
 set -- "$@" 'nwsplit.nw';
 set -- "$@" 'strscan.nw';
+<<push nwsplit deps>>=
+push(@$listref, q{nwsplit--imports.nw});
+push(@$listref, q{nwsplit.c});
+push(@$listref, q{nwsplit.nw});
+push(@$listref, q{strscan.nw});
 <<set nwsplit--imports.nw deps>>=
 set -- "$@" 'nwsplit.nw';
 set -- "$@" 'repl.nw';
+<<push nwsplit--imports.nw deps>>=
+push(@$listref, q{nwsplit.nw});
+push(@$listref, q{repl.nw});
 <<set nwsplit.c deps>>=
 set -- "$@" 'nwsplit--imports.nw';
 set -- "$@" 'nwsplit.nw';
 set -- "$@" 'strscan.nw';
+<<push nwsplit.c deps>>=
+push(@$listref, q{nwsplit--imports.nw});
+push(@$listref, q{nwsplit.nw});
+push(@$listref, q{strscan.nw});
 <<set seed.sh deps>>=
 set -- "$@" 'cstrng.nw';
+<<push seed.sh deps>>=
+push(@$listref, q{cstrng.nw});
 <<set show-README.sh deps>>=
 set -- "$@" 'create-config.nw';
 set -- "$@" 'shell.nw';
 set -- "$@" 'show-README.nw';
 set -- "$@" 'temporary-files-shell.nw';
+<<push show-README.sh deps>>=
+push(@$listref, q{create-config.nw});
+push(@$listref, q{shell.nw});
+push(@$listref, q{show-README.nw});
+push(@$listref, q{temporary-files-shell.nw});
 <<set show-config.sh deps>>=
 set -- "$@" 'create-config.nw';
 set -- "$@" 'shell.nw';
+<<push show-config.sh deps>>=
+push(@$listref, q{create-config.nw});
+push(@$listref, q{shell.nw});
 <<set shuffle-noseq.sh deps>>=
 set -- "$@" 'shell.nw';
 set -- "$@" 'shuffle.nw';
+<<push shuffle-noseq.sh deps>>=
+push(@$listref, q{shell.nw});
+push(@$listref, q{shuffle.nw});
 <<set shuffle.sh deps>>=
 set -- "$@" 'shell.nw';
 set -- "$@" 'shuffle.nw';
+<<push shuffle.sh deps>>=
+push(@$listref, q{shell.nw});
+push(@$listref, q{shuffle.nw});
 <<set stretch.sh deps>>=
 set -- "$@" 'shell.nw';
 set -- "$@" 'stretch.nw';
 set -- "$@" 'temporary-files-shell.nw';
+<<push stretch.sh deps>>=
+push(@$listref, q{shell.nw});
+push(@$listref, q{stretch.nw});
+push(@$listref, q{temporary-files-shell.nw});
 <<set test-shuffle-noseq.sh deps>>=
 set -- "$@" 'shell.nw';
 set -- "$@" 'shuffle.nw';
+<<push test-shuffle-noseq.sh deps>>=
+push(@$listref, q{shell.nw});
+push(@$listref, q{shuffle.nw});
 <<set tokenize deps>>=
 set -- "$@" 'localely-dist.nw';
 set -- "$@" 'strscan.nw';
 set -- "$@" 'tokenize--imports.nw';
 set -- "$@" 'tokenize.c';
 set -- "$@" 'tokenize.nw';
+<<push tokenize deps>>=
+push(@$listref, q{localely-dist.nw});
+push(@$listref, q{strscan.nw});
+push(@$listref, q{tokenize--imports.nw});
+push(@$listref, q{tokenize.c});
+push(@$listref, q{tokenize.nw});
 <<set tokenize--imports.nw deps>>=
 set -- "$@" 'repl.nw';
 set -- "$@" 'tokenize.nw';
+<<push tokenize--imports.nw deps>>=
+push(@$listref, q{repl.nw});
+push(@$listref, q{tokenize.nw});
 <<set tokenize.c deps>>=
 set -- "$@" 'localely-dist.nw';
 set -- "$@" 'strscan.nw';
 set -- "$@" 'tokenize--imports.nw';
 set -- "$@" 'tokenize.nw';
+<<push tokenize.c deps>>=
+push(@$listref, q{localely-dist.nw});
+push(@$listref, q{strscan.nw});
+push(@$listref, q{tokenize--imports.nw});
+push(@$listref, q{tokenize.nw});
 <<set unshuffle.sh deps>>=
 set -- "$@" 'shell.nw';
 set -- "$@" 'temporary-files-shell.nw';
 set -- "$@" 'unshuffle.nw';
+<<push unshuffle.sh deps>>=
+push(@$listref, q{shell.nw});
+push(@$listref, q{temporary-files-shell.nw});
+push(@$listref, q{unshuffle.nw});
 <<set verify.sh deps>>=
 set -- "$@" 'encrypt.nw';
 set -- "$@" 'netstring-perl.nw';
 set -- "$@" 'shell.nw';
+<<push verify.sh deps>>=
+push(@$listref, q{encrypt.nw});
+push(@$listref, q{netstring-perl.nw});
+push(@$listref, q{shell.nw});
 @

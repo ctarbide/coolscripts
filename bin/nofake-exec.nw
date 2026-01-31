@@ -226,7 +226,3 @@ shell.nw temporary-files-shell.nw nofake-exec.nw
 CHMOD='chmod 0555' nofake.sh --error -Rnofake-exec.sh -onofake-exec.sh \
     <<nofake-exec.sh deps>>
 @
-
-<<priority targets>>=
-set -- "$@" nofake-exec.sh
-@

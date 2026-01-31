@@ -168,12 +168,11 @@ escape_chunk(){
 @
 
 <<prog preamble>>=
-<<function cmd_push_to_argv>>
 thisprog=${1}; shift # the initial script
 saveargs=; for arg do saveargs="${saveargs:+${saveargs} }'${arg}'"; done
 set -- "${thisprog}"
 if [ x"${ADDITIONAL_SOURCES:-}" != x ]; then
-    set_add_srcs=`echo "${ADDITIONAL_SOURCES:-}" | cmd_push_to_argv`
+    set_add_srcs=`echo "${ADDITIONAL_SOURCES:-}" | normalize-args-as-sets.pl`
     eval "${set_add_srcs}"
 fi
 if [ x"${SHOW_SOURCE:-}" = x1 ]; then
@@ -202,13 +201,6 @@ else
         fi
     fi
 fi
-@
-
-<<function cmd_push_to_argv>>=
-cmd_push_to_argv(){
-    normalize-args.sh | perl -lpe'$_=qq{set -- \042\$\@\042 ${_};}' |
-        LC_ALL=C sort -u
-}
 @
 
 <<set CFLAGS>>=

@@ -1,0 +1,144 @@
+
+same options as nofake, customized output
+
+<<*>>=
+<<build extract-and-normalize.pl>>
+@
+
+<<extract-and-normalize.pl - normalize @outputlines>>=
+<<normalize-args - vars>>
+my %args = ();
+for ("#name ${chunk}", @outputlines) {
+    chomp;
+    <<normalize-args - preamble>>
+    $args{$n} = [] if $names{$n} == 1;
+    push(@{$args{$n}}, $s);
+    <<normalize-args - postlude>>
+}
+for my $name (sort keys %args) {
+    my @args = sort @{$args{$name}};
+    <<normalize-args - set name>>
+    <<normalize-args - push name>>
+}
+@
+
+<<extract-and-normalize.pl - preamble>>=
+#!/usr/bin/env perl
+# automatically generated from extract-and-normalize.nw, nofake.nw and
+# normalize-args.nw
+eval 'exec perl -wS $0 ${1+"$@"}'
+    if 0;
+use 5.006; # perl v5.6.0 was released on March 22, 2000
+use strict;
+use warnings FATAL => qw{uninitialized void inplace};
+use Carp ();
+use CGI::Util qw{unescape};
+local $\ = "\n";
+my $carp_or_croak = \&Carp::carp;
+@
+
+<<extract-and-normalize.pl>>=
+<<extract-and-normalize.pl - preamble>>
+<<utils>>
+<<defaults>>
+<<sub extract>>
+<<read file>>
+<<line directive>>
+<<extract-and-normalize.pl - process command line and extract chunk>>
+@
+
+<<defaults>>=
+my @outputlines = ();
+@
+
+<<extract-and-normalize.pl - output lines of \$chunk>>=
+@outputlines = ();
+my ($first_fname, $first_lnum) = get_many($chunks{$chunk});
+unless ($first_fname) {
+    <<set [[$first_fname]] and [[$first_lnum]] from chunk options>>
+}
+for my $item (extract('', $first_fname, $first_lnum, $chunk)) {
+    if (ref($item) eq 'ARRAY') {
+        push(@outputlines, line_directive($_->[1], $_->[2]))
+            for @{ $item };
+    } else {
+        push(@outputlines, $item);
+    }
+}
+{
+    <<extract-and-normalize.pl - normalize @outputlines>>
+}
+@
+
+<<extract-and-normalize.pl - output lines>>=
+if (not @chunks) {
+    push(@chunks, '*');
+}
+for my $chunk (@chunks) {
+    <<verify \$chunk is defined>>
+}
+for my $chunk (@chunks) {
+    <<extract-and-normalize.pl - output lines of \$chunk>>
+}
+@
+
+<<extract-and-normalize.pl - process command line and extract chunk>>=
+my @chunks = ();
+my @files = ();
+my $list_all = 0;
+my $no_op = 0;
+my $dump = 0;
+my $load = 0;
+
+while ($_ = shift(@ARGV)) {
+    <<process arguments>>
+}
+
+if ($dump eq '-') {
+    if ($list_all or $list_roots or @chunks) {
+        <<error stdout output ambiguity>>
+    }
+    $no_op = 1;
+}
+
+if ($load) {
+    <<load state>>
+}
+
+<<read files>>
+
+if ($dump) {
+    <<dump state>>
+}
+
+if ($no_op) {
+    # useful for documentation chunks validation and set when dumping to
+    # stdout
+} elsif ($list_all) {
+    print("@<<${_}@>>") for sort(keys(%chunks_options));
+} elsif ($list_roots) {
+    <<output roots>>
+} else {
+    <<extract-and-normalize.pl - output lines>>
+}
+@
+
+<<extract-and-normalize.pl deps>>=
+extract-and-normalize.nw nofake.nw normalize-args.nw
+@
+
+<<build extract-and-normalize.pl>>=
+set -eu
+set --
+set -- "$@" 'match handler' preamble postlude
+set -- "$@" 'push name' 'set name' vars
+rm -f extract-and-normalize--imports.nw
+PREFIX='normalize-args - ' nofake-export-chunks.sh "$@" \
+    <normalize-args.nw >extract-and-normalize--imports.nw
+chmod 0444 extract-and-normalize--imports.nw
+set --
+CHMOD='chmod 0555' nofake.sh --error -Rextract-and-normalize.pl \
+    -oextract-and-normalize.pl \
+    extract-and-normalize--imports.nw \
+    <<extract-and-normalize.pl deps>>
+@

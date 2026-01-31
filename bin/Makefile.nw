@@ -17,19 +17,16 @@ Makefile
 <<Makefile.nw import>>=
 
 <<sources>>=
-<<Makefile prefix>>.nw create-config.nw nofake-exec.nw
-repl.nw git-last-modified.nw nwsplit.nw tokenize.nw
-detokenize.nw localely.nw encrypt.nw feh-smart-latest.nw
-cstrng.nw stretch.nw shuffle.nw unshuffle.nw
+'<<Makefile prefix>>.nw' create-config.nw repl.nw git-last-modified.nw
+nwsplit.nw tokenize.nw detokenize.nw localely.nw encrypt.nw
+feh-smart-latest.nw cstrng.nw stretch.nw shuffle.nw unshuffle.nw
 @
-
-<<priority targets>>=
 
 <<build Makefile>>=
 #!/bin/sh
 set -eu
 SH=${SH:-sh -eu}; export SH
-<<function cmd_push_to_argv>>
+PERL=${PERL:-perl -wl}; export PERL
 <<function list_set_sources>>
 <<function indent_args>>
 #nofake-exec.sh --error -R'generate build.sh' '<<Makefile prefix>>.nw' \
@@ -37,9 +34,12 @@ SH=${SH:-sh -eu}; export SH
 set_sources=`list_set_sources`
 eval "set --; ${set_sources}"
 latest_mtime_in_sources=`perl -le'@times = map { (stat($_))[9] } @ARGV; print((sort @times)[-1])' -- "$@"`
-listings_mtime=`perl -le'print((stat($ARGV[0]))[9])' -- listings.nw`
+listings_mtime=`perl -sle'print(-f $f ? (stat $f)[9] : 0)' -- -f=listings.nw`
 if [ "${latest_mtime_in_sources}" -gt "${listings_mtime}" ]; then
-    <<generate listings.nw>>
+    rm -f listings.nw
+    nofake-exec.sh --error -R'generate listings.nw' "$@" -- ${SH} \
+        >listings.nw
+    chmod 0444 listings.nw
 fi
 rm -f Makefile
 nofake-exec.sh --error -R'generate Makefile' Makefile.nw listings.nw \
@@ -47,35 +47,17 @@ nofake-exec.sh --error -R'generate Makefile' Makefile.nw listings.nw \
 chmod 0444 Makefile
 @
 
-<<function cmd_push_to_argv>>=
-cmd_push_to_argv(){
-    normalize-args.sh | perl -lne'
-        next if m{^\047(?:set|--|\$\@)\047$};
-        s,;\047$,\047,;
-        print(qq{set -- \042\$\@\042 ${_};});
-    }{print unless $.' | LC_ALL=C sort -u
-}
-@
-
 <<function list_set_sources>>=
 list_set_sources(){
-    cat<<'EOF' | cmd_push_to_argv
+    cat<<'EOF' | normalize-args-as-sets.pl
 <<sources>>
-EOF
-}
-@
-
-<<function list_set_priority_targets>>=
-list_set_priority_targets(){
-cat<<'EOF' | cmd_push_to_argv
-<<priority targets>>
 EOF
 }
 @
 
 <<function list_set_targets>>=
 list_set_targets(){
-cat<<'EOF' | cmd_push_to_argv
+cat<<'EOF' | normalize-args-as-sets.pl
 <<targets>>
 EOF
 }
@@ -84,7 +66,7 @@ EOF
 <<function indent_args>>=
 indent_args(){
     perl -le'
-        sub backslash(){ scalar(@ARGV) ? q{ \\} : q{} }
+        sub backslash(){ @ARGV ? q{ \\} : q{} }
         while (my @a = splice(@ARGV, 0, 5)) {
             print(q{    }, join(q{ }, @a), backslash);
         }' -- "$@"
@@ -98,29 +80,22 @@ indent_args "$@"
 printf -- '\n'
 @
 
-<<output PRIORITY_TARGETS=>>=
-set --; <<set priority targets>>
-if [ $# -gt 0 ]; then
-    printf -- 'PRIORITY_TARGETS = \\\n'
-    indent_args "$@"
-    printf -- '\n'
-fi
+<<output SOURCES=>>=
+set --; <<set sources>>
+printf -- 'SOURCES = \\\n'
+indent_args "$@"
+printf -- '\n'
 @
 
 <<output all:>>=
-printf -- '.PHONY: all\nall: $(ALL_TARGETS)\n\n'
-set --
-<<set priority targets>>
-<<set targets>>
-for target; do
-    printf -- '%s: \\\n' "${target}"
-    (
-        set_deps=`nofake --error -R"set ${target} deps" listings.nw`
-        eval "set --; ${set_deps}"
-        indent_args listings.nw "$@"
-        printf -- '\tnofake-exec.sh --error -R'"'"'build '"${target}'"' $^ -- $(SH)\n\n'
-    )
-done
+printf -- '.PHONY: all\nall: $(TARGETS)\n\n'
+cat<<'EOF'
+listings.nw: $(SOURCES)
+	rm -f listings.nw
+	nofake-exec.sh --error -R'generate listings.nw' $^ -- $(SH) >listings.nw
+	chmod 0444 listings.nw
+
+EOF
 @
 
 <<generate build.sh>>=
@@ -138,54 +113,81 @@ nofake-exec.sh --error '<<Makefile prefix>>.nw' -- ${SH}
 make -f '<<Makefile prefix>>'
 @
 
-<<generate listings.nw>>=
-rm -f listings.nw
-printf -- 'automatically generated from <<Makefile prefix>>.nw\n\n' >listings.nw
-printf -- '@<<set sources>>=\n' >>listings.nw
-echo "${set_sources}" >>listings.nw
-nofake-exec.sh --error -R'generate listings.nw - targets' "$@" -- ${SH} >>listings.nw
-(set -eu
-    echo '@<<generate listings.nw - deps - run>>='
-    echo 'set -eu'
-    nofake --error -R'function cmd_push_to_argv' '<<Makefile prefix>>.nw'
-    nofake-exec.sh --error -R'generate listings.nw - deps - template' Makefile.nw listings.nw -- ${SH}
-    echo '@'
-) | nofake-exec.sh --error -R'generate listings.nw - deps - run' "$@" - -- ${SH} >>listings.nw
-echo '@' >>listings.nw
-chmod 0444 listings.nw
-@
-
-<<generate listings.nw - targets>>=
-<<function cmd_push_to_argv>>
-<<function list_set_priority_targets>>
-<<function list_set_targets>>
-printf -- '@<<set priority targets>>=\n'
-list_set_priority_targets
-printf -- '@<<set targets>>=\n'
-list_set_targets
-@
-
-<<generate listings.nw - deps - template>>=
-set --
-<<set priority targets>>
-<<set targets>>
-for target; do
-    printf -- "echo '@@<<set ${target} deps>>='\n"
-    printf -- "cat@@<<'EOF' | cmd_push_to_argv\n"
-    printf -- '@<<%s deps>>\n' "${target}"
-    printf -- 'EOF\n'
-done
-@
-
 <<generate Makefile>>=
 <<function indent_args>>
 printf -- '\n# automatically generated from <<Makefile prefix>>.nw\n\n'
 printf -- 'SH = %s\n\n' "${SH}"
 set --; <<set targets>>
-<<output PRIORITY_TARGETS=>>
+<<output SOURCES=>>
 <<output TARGETS=>>
-printf -- 'ALL_TARGETS = $(PRIORITY_TARGETS) $(TARGETS)\n\n'
 <<output all:>>
-printf -- '.PHONY: touch\ntouch:\n\t-touch -c $(ALL_TARGETS)\n\n'
+<<output rules>>
+printf -- '.PHONY: touch\ntouch:\n\t-touch -c $(TARGETS)\n\n'
 printf -- '.PHONY: clean\nclean:\n\t-rm -f $(TARGETS)\n'
+@
+
+<<generate listings.nw - deps>>=
+my $listref = [];
+<<push sources>>
+my @sources = @$listref;
+$listref = [];
+<<push targets>>
+my @targets = @$listref;
+my @args = (qw{extract-and-normalize.pl --error},
+    (map {qq{-R${_} deps}} @targets),
+    @sources);
+exec {$args[0]} @args;
+@
+
+nofake reads the entire input before output'ing any content, thus it is
+safe to append to it's input
+
+<<generate listings.nw>>=
+#!/bin/sh
+set -eu
+PERL=${PERL:-perl -wl}; export PERL
+cat@<<'EOF' | normalize-args-as-nw.pl >.tmp.listings.nw
+#name sources
+<<sources>>
+#name targets
+<<targets>>
+EOF
+nofake-exec.sh --error -R'generate listings.nw - deps' '<<Makefile prefix>>.nw' \
+    .tmp.listings.nw -- ${PERL} >>.tmp.listings.nw
+printf -- 'automatically generated from <<Makefile prefix>>.nw and sources below\n\n'
+cat .tmp.listings.nw
+echo @
+rm -f .tmp.listings.nw
+@
+
+setup %deps before output loop
+
+<<output rules>>=
+(   echo '@<<setup %deps>>='
+    echo 'my %deps = ();'
+    set --;
+    <<set targets>>
+    for target; do
+        echo '$deps{q{'"${target}"'}} = $listref = [];'
+        echo '@<<push '"${target}"' deps>>'
+    done
+) | <<nofake exec 'output rules - use %deps'>>
+@
+
+<<nofake exec 'output rules - use %deps'>>=
+nofake-exec.sh --error -R'setup %deps' -R'output rules - use %deps' \
+    '<<Makefile prefix>>.nw' listings.nw - -- perl -wl
+@
+
+<<output rules - use %deps>>=
+my $listref = [];
+<<push targets>>
+for my $target (@$listref) {
+    print qq{${target}: \\};
+    my @tmp = @{$deps{$target}};
+    while (my @a = splice(@tmp, 0, 5)) {
+        print(q{    }, join(q{ }, @a), @tmp ? q{ \\} : q{});
+    }
+    print qq{\tnofake-exec.sh --error -R\047build ${target}\047 \$^ -- \$(SH)\n};
+}
 @
