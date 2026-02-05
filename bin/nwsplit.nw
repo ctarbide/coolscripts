@@ -329,7 +329,7 @@ nwsplit--imports.nw nwsplit.nw strscan.nw
 @
 
 <<build nwsplit.c>>=
-CHMOD='chmod 0444' nofake.sh --error -L -Rnwsplit.c -onwsplit.c <<nwsplit.c deps>>
+CHMOD='chmod 0444' nofake.sh --error -L -Rnwsplit.c -onwsplit.c "$@"
 @
 
 <<build nwsplit - DEBUG>>=

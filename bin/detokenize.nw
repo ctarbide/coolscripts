@@ -328,7 +328,7 @@ detokenize--imports.nw detokenize.nw strscan.nw
 @
 
 <<build detokenize.c>>=
-CHMOD='chmod 0444' nofake.sh --error -L -Rdetokenize.c -odetokenize.c <<detokenize.c deps>>
+CHMOD='chmod 0444' nofake.sh --error -L -Rdetokenize.c -odetokenize.c "$@"
 @
 
 <<build detokenize - DEBUG>>=

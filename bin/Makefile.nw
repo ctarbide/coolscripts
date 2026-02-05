@@ -75,7 +75,7 @@ indent_args(){
 
 <<output TARGETS=>>=
 set --; <<set targets>>
-printf -- 'TARGETS = \\\n'
+printf -- 'TARGETS = listings.nw \\\n'
 indent_args "$@"
 printf -- '\n'
 @
@@ -183,11 +183,33 @@ nofake-exec.sh --error -R'setup %deps' -R'output rules - use %deps' \
 my $listref = [];
 <<push targets>>
 for my $target (@$listref) {
-    print qq{${target}: \\};
+    print qq{${target}: listings.nw \\};
     my @tmp = @{$deps{$target}};
     while (my @a = splice(@tmp, 0, 5)) {
         print(q{    }, join(q{ }, @a), @tmp ? q{ \\} : q{});
     }
-    print qq{\tnofake-exec.sh --error -R\047build ${target}\047 \$^ -- \$(SH)\n};
+    print qq{\t\@SH=\047\$(SH)\047 nofake-exec.sh --error } .
+        qq{-R\047run recipe\047 --aa-- \047${target}\047 } .
+        qq{Makefile.nw listings.nw -- \$(SH)\n};
 }
+@
+
+<<run recipe>>=
+#!/bin/sh
+set -eu
+SH=${SH:-sh -eu}; export SH
+target=$1
+set --
+eval "`nofake --error -R"set ${target} deps" listings.nw`"
+args=
+argsdesc=
+for dep; do
+    [ x"${dep%.nw}" = x"${dep}" ] && continue
+    args="${args:+${args} }'${dep}'"
+    argsdesc="${argsdesc:+${argsdesc}, }${dep}"
+done
+printf -- "Buiding %s from %s\n" "${target}" "${argsdesc}."
+eval "set -- ${args}"
+exec nofake-exec.sh --error -R"build ${target}" listings.nw \
+    "$@" --ba-- "$@" --ea-- -- ${SH}
 @

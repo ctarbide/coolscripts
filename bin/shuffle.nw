@@ -106,17 +106,17 @@ shuffle.nw shell.nw
 <<build shuffle.sh>>=
 <<sh preamble>>
 CHMOD='chmod 0555' nofake.sh --error -Rshuffle.sh -oshuffle.sh \
-    <<shuffle.sh deps>>
+    "$@"
 @
 
 <<build shuffle-noseq.sh>>=
 <<sh preamble>>
 CHMOD='chmod 0555' nofake.sh --error -Rshuffle-noseq.sh \
-    -oshuffle-noseq.sh <<shuffle-noseq.sh deps>>
+    -oshuffle-noseq.sh "$@"
 @
 
 <<build test-shuffle-noseq.sh>>=
 <<sh preamble>>
 CHMOD='chmod 0555' nofake.sh --error -Rtest-shuffle-noseq.sh \
-    -otest-shuffle-noseq.sh <<test-shuffle-noseq.sh deps>>
+    -otest-shuffle-noseq.sh "$@"
 @

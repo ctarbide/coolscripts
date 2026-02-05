@@ -290,11 +290,11 @@ shell.nw netstring-perl.nw encrypt.nw
 @
 
 <<build encrypt.sh>>=
-CHMOD='chmod 0555' nofake.sh --error -Rencrypt.sh -oencrypt.sh <<encrypt.sh deps>>
+CHMOD='chmod 0555' nofake.sh --error -Rencrypt.sh -oencrypt.sh "$@"
 <<build decrypt.sh>>=
-CHMOD='chmod 0555' nofake.sh --error -Rdecrypt.sh -odecrypt.sh <<encrypt.sh deps>>
+CHMOD='chmod 0555' nofake.sh --error -Rdecrypt.sh -odecrypt.sh "$@"
 <<build verify.sh>>=
-CHMOD='chmod 0555' nofake.sh --error -Rverify.sh -overify.sh <<encrypt.sh deps>>
+CHMOD='chmod 0555' nofake.sh --error -Rverify.sh -overify.sh "$@"
 @
 
 <<targets>>=

@@ -181,5 +181,5 @@ stretch.nw shell.nw temporary-files-shell.nw
 <<build stretch.sh>>=
 <<sh preamble>>
 CHMOD='chmod 0555' nofake.sh --error -Rstretch.sh -ostretch.sh \
-    <<stretch.sh deps>>
+    "$@"
 @

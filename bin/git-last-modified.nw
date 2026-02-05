@@ -59,7 +59,7 @@ shell.nw git-last-modified.nw
 
 <<build git-last-modified.sh>>=
 CHMOD='chmod 0555' nofake.sh --error -Rgit-last-modified.sh \
-    -ogit-last-modified.sh <<git-last-modified.sh deps>>
+    -ogit-last-modified.sh "$@"
 @
 
 <<targets>>=

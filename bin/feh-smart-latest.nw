@@ -53,6 +53,6 @@ shell.nw temporary-files-shell.nw feh-smart-latest.nw
 @
 
 <<build feh-smart-latest.sh>>=
-CHMOD='chmod 0555' nofake.sh --error -Rfeh-smart-latest.sh -ofeh-smart-latest.sh \
-    <<feh-smart-latest.sh deps>>
+CHMOD='chmod 0555' nofake.sh --error -Rfeh-smart-latest.sh \
+    -ofeh-smart-latest.sh "$@"
 @

@@ -68,7 +68,7 @@ cstrng.nw
 @
 
 <<build seed.sh>>=
-CHMOD='chmod 0555' nofake.sh --error -Rseed.sh -oseed.sh <<seed.sh deps>>
+CHMOD='chmod 0555' nofake.sh --error -Rseed.sh -oseed.sh "$@"
 @
 
 <<cstrng.sh deps>>=
@@ -76,5 +76,5 @@ cstrng.nw
 @
 
 <<build cstrng.sh>>=
-CHMOD='chmod 0555' nofake.sh --error -Rcstrng.sh -ocstrng.sh <<cstrng.sh deps>>
+CHMOD='chmod 0555' nofake.sh --error -Rcstrng.sh -ocstrng.sh "$@"
 @

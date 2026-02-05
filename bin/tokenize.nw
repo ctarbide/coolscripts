@@ -371,7 +371,7 @@ tokenize--imports.nw localely-dist.nw tokenize.nw strscan.nw
 @
 
 <<build tokenize.c>>=
-CHMOD='chmod 0444' nofake.sh --error -L -Rtokenize.c -otokenize.c <<tokenize.c deps>>
+CHMOD='chmod 0444' nofake.sh --error -L -Rtokenize.c -otokenize.c "$@"
 @
 
 <<build tokenize - DEBUG>>=

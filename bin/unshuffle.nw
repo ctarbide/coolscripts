@@ -61,6 +61,5 @@ unshuffle.nw shell.nw temporary-files-shell.nw
 
 <<build unshuffle.sh>>=
 <<sh preamble>>
-CHMOD='chmod 0555' nofake.sh --error -Runshuffle.sh -ounshuffle.sh \
-    <<unshuffle.sh deps>>
+CHMOD='chmod 0555' nofake.sh --error -Runshuffle.sh -ounshuffle.sh "$@"
 @
