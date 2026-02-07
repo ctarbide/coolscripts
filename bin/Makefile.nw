@@ -38,7 +38,8 @@ listings_mtime=`perl -sle'print(-f $f ? (stat $f)[9] : 0)' -- -f=listings.nw`
 if [ "${latest_mtime_in_sources}" -gt "${listings_mtime}" ]; then
     rm -f listings.nw
     nofake-exec.sh --error -R'generate listings.nw' "$@" -- ${SH} \
-        >listings.nw
+        >.listings.nw
+    mv .listings.nw listings.nw
     chmod 0444 listings.nw
 fi
 rm -f Makefile
@@ -51,14 +52,6 @@ chmod 0444 Makefile
 list_set_sources(){
     cat<<'EOF' | normalize-args-as-sets.pl
 <<sources>>
-EOF
-}
-@
-
-<<function list_set_targets>>=
-list_set_targets(){
-cat<<'EOF' | normalize-args-as-sets.pl
-<<targets>>
 EOF
 }
 @
@@ -117,7 +110,9 @@ make -f '<<Makefile prefix>>'
 <<function indent_args>>
 printf -- '\n# automatically generated from <<Makefile prefix>>.nw\n\n'
 printf -- 'SH = %s\n\n' "${SH}"
-set --; <<set targets>>
+set --
+<<set targets>>
+<<set phony targets>>
 <<output SOURCES=>>
 <<output TARGETS=>>
 <<output all:>>
@@ -132,6 +127,7 @@ my $listref = [];
 my @sources = @$listref;
 $listref = [];
 <<push targets>>
+<<push phony targets>>
 my @targets = @$listref;
 my @args = (qw{extract-and-normalize.pl --error},
     (map {qq{-R${_} deps}} @targets),
@@ -142,6 +138,8 @@ exec {$args[0]} @args;
 nofake reads the entire input before output'ing any content, thus it is
 safe to append to it's input
 
+<<phony targets>>=
+
 <<generate listings.nw>>=
 #!/bin/sh
 set -eu
@@ -151,6 +149,8 @@ cat@<<'EOF' | normalize-args-as-nw.pl >.tmp.listings.nw
 <<sources>>
 #name targets
 <<targets>>
+#name phony targets
+<<phony targets>>
 EOF
 nofake-exec.sh --error -R'generate listings.nw - deps' '<<Makefile prefix>>.nw' \
     .tmp.listings.nw -- ${PERL} >>.tmp.listings.nw
@@ -167,6 +167,7 @@ setup %deps before output loop
     echo 'my %deps = ();'
     set --;
     <<set targets>>
+    <<set phony targets>>
     for target; do
         echo '$deps{q{'"${target}"'}} = $listref = [];'
         echo '@<<push '"${target}"' deps>>'
@@ -176,25 +177,52 @@ setup %deps before output loop
 
 <<nofake exec 'output rules - use %deps'>>=
 nofake-exec.sh --error -R'setup %deps' -R'output rules - use %deps' \
-    '<<Makefile prefix>>.nw' listings.nw - -- perl -wl
+    '<<Makefile prefix>>.nw' listings.nw - -- ${PERL}
+@
+
+rule - recipe
+
+<<output rules - use %deps - core - preamble>>=
+print qq{${target}: listings.nw \\};
+my @tmp = @{$deps{$target}};
+while (my @a = splice(@tmp, 0, 5)) {
+    print(q{    }, join(q{ }, @a), @tmp ? q{ \\} : q{});
+}
+@
+
+normal target rule
+
+<<output rules - use %deps - core>>=
+<<output rules - use %deps - core - preamble>>
+print qq{\t\@SH=\047\$(SH)\047 nofake-exec.sh --error } .
+    qq{-R\047run recipe\047 --aa-- \047${target}\047 } .
+    qq{Makefile.nw listings.nw -- \$(SH)\n};
+@
+
+phony target rule
+
+<<output rules - use %deps - core (.PHONY)>>=
+<<output rules - use %deps - core - preamble>>
+print qq{\t\@SH=\047\$(SH)\047 nofake-exec.sh --error } .
+    qq{-R\047run recipe (.PHONY)\047 --aa-- \047${target}\047 } .
+    qq{Makefile.nw listings.nw -- \$(SH)\n};
 @
 
 <<output rules - use %deps>>=
 my $listref = [];
 <<push targets>>
 for my $target (@$listref) {
-    print qq{${target}: listings.nw \\};
-    my @tmp = @{$deps{$target}};
-    while (my @a = splice(@tmp, 0, 5)) {
-        print(q{    }, join(q{ }, @a), @tmp ? q{ \\} : q{});
-    }
-    print qq{\t\@SH=\047\$(SH)\047 nofake-exec.sh --error } .
-        qq{-R\047run recipe\047 --aa-- \047${target}\047 } .
-        qq{Makefile.nw listings.nw -- \$(SH)\n};
+    <<output rules - use %deps - core>>
+}
+$listref = [];
+<<push phony targets>>
+for my $target (@$listref) {
+    print qq{.PHONY: ${target}};
+    <<output rules - use %deps - core (.PHONY)>>
 }
 @
 
-<<run recipe>>=
+<<run recipe - preamble>>=
 #!/bin/sh
 set -eu
 SH=${SH:-sh -eu}; export SH
@@ -208,8 +236,20 @@ for dep; do
     args="${args:+${args} }'${dep}'"
     argsdesc="${argsdesc:+${argsdesc}, }${dep}"
 done
+@
+
+<<run recipe>>=
+<<run recipe - preamble>>
 printf -- "Buiding %s from %s\n" "${target}" "${argsdesc}."
 eval "set -- ${args}"
 exec nofake-exec.sh --error -R"build ${target}" listings.nw \
+    "$@" --ba-- "$@" --ea-- -- ${SH}
+@
+
+<<run recipe (.PHONY)>>=
+<<run recipe - preamble>>
+printf -- "Running %s from %s\n" "${target}" "${argsdesc}."
+eval "set -- ${args}"
+exec nofake-exec.sh --error -R"run ${target}" listings.nw \
     "$@" --ba-- "$@" --ea-- -- ${SH}
 @

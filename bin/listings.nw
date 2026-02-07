@@ -1,5 +1,9 @@
 automatically generated from Makefile.nw and sources below
 
+<<set phony targets>>=
+
+<<push phony targets>>=
+
 <<set sources>>=
 set -- "$@" 'Makefile.nw';
 set -- "$@" 'create-config.nw';

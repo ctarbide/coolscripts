@@ -6,12 +6,12 @@ use strict;
 use warnings FATAL => qw{uninitialized void inplace};
 use CGI::Util qw{unescape};
 local $\ = "\n";
-my ($n, $s, %names) = (q{?},);
+my ($n, $s, @names, %names) = (q{?},);
 my %args = ();
 while (<>) {
     chomp;
     if (m{^#name\s+(.*)\s*$}) {
-       $n = $1;
+       push(@names, $n = $1);
        next;
     }
     next if m{^\s*#};

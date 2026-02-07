@@ -6,12 +6,12 @@ use strict;
 use warnings FATAL => qw{uninitialized void inplace};
 use CGI::Util qw{unescape};
 local $\ = "\n";
-my ($n, $s, %names) = (q{?},);
+my ($n, $s, @names, %names) = (q{?},);
 my %args = ();
 while (<>) {
     chomp;
     if (m{^#name\s+(.*)\s*$}) {
-       $n = $1;
+       push(@names, $n = $1);
        next;
     }
     next if m{^\s*#};
@@ -55,15 +55,20 @@ while (<>) {
         }
     }gex;
 }
-for my $name (sort keys %args) {
-    my @args = sort @{$args{$name}};
-    print qq{<<set ${name}>>=};
-    for my $arg (@args) {
-        print qq{set -- \042\$\@\042 $arg;};
-    }
-    print qq{<<push ${name}>>=};
-    for my $arg (@args) {
-        $arg =~ s,^\047|\047$,,g;
-        print qq{push(\@\$listref, q{$arg});};
+for my $name (sort @names) {
+    if (defined $args{$name}) {
+        my @args = sort @{$args{$name}};
+        print qq{<<set ${name}>>=};
+        for my $arg (@args) {
+            print qq{set -- \042\$\@\042 $arg;};
+        }
+        print qq{<<push ${name}>>=};
+        for my $arg (@args) {
+            $arg =~ s,^\047|\047$,,g;
+            print qq{push(\@\$listref, q{$arg});};
+        }
+    } else {
+        print qq{<<set ${name}>>=\n};
+        print qq{<<push ${name}>>=\n};
     }
 }

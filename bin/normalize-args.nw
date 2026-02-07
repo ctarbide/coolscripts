@@ -10,7 +10,7 @@ CHMOD='chmod 0555' nofake.sh --error -Rnormalize-args-as-nw.pl -onormalize-args-
 
 <<preamble>>=
 if (m{^#name\s+(.*)\s*$}) {
-   $n = $1;
+   push(@names, $n = $1);
    next;
 }
 next if m{^\s*#};
@@ -35,7 +35,7 @@ s{
 @
 
 <<vars>>=
-my ($n, $s, %names) = (q{?},);
+my ($n, $s, @names, %names) = (q{?},);
 <<match handler>>=
 # print qq{"[1:$1][2:$2][3:$3][4:$4][5:$5][6:$6][7:$7][$line]};
 if (defined($2)) {
@@ -123,10 +123,15 @@ while (<>) {
     push(@{$args{$n}}, $s);
     <<postlude>>
 }
-for my $name (sort keys %args) {
-    my @args = sort @{$args{$name}};
-    <<set name>>
-    <<push name>>
+for my $name (sort @names) {
+    if (defined $args{$name}) {
+        my @args = sort @{$args{$name}};
+        <<set name>>
+        <<push name>>
+    } else {
+        print qq{@<<set ${name}>>=\n};
+        print qq{@<<push ${name}>>=\n};
+    }
 }
 @
 
