@@ -237,7 +237,7 @@ esac
 '-Wno-long-long' allow use of 64-bit constants (ull suffix) with ansi
 
 <<set CFLAGS - gcc - pedantic>>=
-set -- "$@" -O2 -ansi -pedantic
+set -- "$@" -O2 -ansi -pedantic -fno-common
 set -- "$@" -Wall -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wshadow -Wconversion -Wno-long-long
 set -- "$@" -Wredundant-decls -Wpointer-arith
@@ -249,6 +249,7 @@ fi
 if [ "${gccver}" -ge 6 ]; then
     set -- "$@" -fmax-errors=3
 fi
+set -- "$@" -Wno-missing-field-initializers
 <<also consider "${HOME}/local"?>>
 @
 

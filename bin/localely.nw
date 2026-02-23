@@ -297,7 +297,7 @@ int main(void) {
 #endif /* LOCALELY_H */
 
 <<targets>>=
-set -- "$@" localely-dist.nw
+localely-dist.nw
 @
 
 <<localely-dist.nw deps>>=
