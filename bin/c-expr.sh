@@ -39,6 +39,8 @@ Useful environment variables:
 
     DO_NOT_LINK=1
 
+    DO_NOT_RUN=1
+
     INCLUDE_HOME_LOCAL=1
 
     SAVE_C_SOURCE_TO=out.c
@@ -124,6 +126,7 @@ main(int argc, char **argv, char **envp)
 #include <locale.h>
 #include <ctype.h>
 #include <limits.h>
+#include <time.h>
 #include <signal.h>
 #include <setjmp.h>
 #include <errno.h>
@@ -157,8 +160,10 @@ fi
 @
 
 <<run program>>=
-eval "set -- ${saveargs}"
-postrun "$@"
+if [ x"${DO_NOT_RUN:-}" != x1 ]; then
+   eval "set -- ${saveargs}"
+   postrun "$@"
+fi
 @
 
 <<function escape_chunk>>=
@@ -241,6 +246,7 @@ set -- "$@" -O2 -ansi -pedantic -fno-common
 set -- "$@" -Wall -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wshadow -Wconversion -Wno-long-long
 set -- "$@" -Wredundant-decls -Wpointer-arith
+set -- "$@" -Wsign-conversion
 gccver=`echo __GNUC__ | gcc -E -P -x c -`
 if [ "${gccver}" -ge 3 ]; then
     set -- "$@" -Werror -Wextra -Wno-unused-parameter
@@ -249,7 +255,10 @@ fi
 if [ "${gccver}" -ge 6 ]; then
     set -- "$@" -fmax-errors=3
 fi
+set -- "$@" -Wno-implicit-fallthrough
+set -- "$@" -Wno-unused-function
 set -- "$@" -Wno-missing-field-initializers
+set -- "$@" -Wno-format
 <<also consider "${HOME}/local"?>>
 @
 

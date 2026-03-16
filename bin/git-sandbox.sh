@@ -59,7 +59,7 @@ useful commands:
 
     ${0##*/} commit
 
-        commit changes with a default message
+        commit changes with a default message, repack all and prune
 
     ${0##*/} commit message
 
@@ -100,7 +100,9 @@ case "${#}_${1}" in
         exec git ls-files
         ;;
     1_commit)
-        exec git commit -m "checkpoint"
+        git commit -m "checkpoint"
+        git repack -da
+        git prune
         ;;
     2_commit)
         exec git commit -m "${2}"
@@ -113,7 +115,7 @@ case "${#}_${1}" in
         protect_command_add "$@"
         exec git "${cmd}" "$@"
         ;;
-    *_commit | *_log | *_show | *_diff | *_status | *_ls-files | *_checkout | *_mv | *_rm | *_repack | *_prune | *_fsck)
+    *_commit | *_log | *_show | *_diff | *_status | *_ls-files | *_checkout | *_mv | *_rm | *_repack | *_prune | *_fsck | *_reset | *_restore)
         cmd=$1
         shift
         exec git "${cmd}" "$@"

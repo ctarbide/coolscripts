@@ -27,7 +27,8 @@ CHMOD='chmod 0444' nofake.sh --error -L -R.bashrc shell-tips.nw -o ~/.bashrc
 @
 
 <<zsh options>>=
-setopt histignorespace
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
 @
 
 <<common aliases>>=
@@ -221,6 +222,12 @@ bindkey -e
 # https://stackoverflow.com/questions/72539284/how-to-extend-the-length-of-session-name-in-tmux
 set -g status-left-length 20
 
+# default is 1s, why hurry when esc cancels it?
+set -g display-panes-time 10000
+
+# stay in tmux after closing the last session's window
+set -g detach-on-destroy off
+
 # https://www.golinuxcloud.com/tmux-config/
 # Set bind key to reload configuration file
 bind r source-file ~/.tmux.conf \; display ​"Reloaded!"
@@ -232,8 +239,8 @@ bind - split-window -v
 
 # https://unix.stackexchange.com/questions/210174/set-the-active-tmux-tab-color
 # works with tmux 3.3a
-set-window-option -g window-status-style bg=green,fg=black
-set-window-option -g window-status-current-style bg=green,fg=blue
+setw -g window-status-style bg=green,fg=black
+setw -g window-status-current-style bg=green,fg=blue
 @
 
 <<.bash_profile>>=
