@@ -51,34 +51,49 @@ struct strscan {
 #line 156 "tokenize.nw"
 #line 333 "tokenize.nw"
 #line 3 "localely-dist.nw"
+#line 5 "localely-dist.nw"
 int C_isascii(int ch);
-#line 13 "localely-dist.nw"
+#line 17 "localely-dist.nw"
+#line 19 "localely-dist.nw"
 int C_isspace(int ch);
-#line 23 "localely-dist.nw"
-int C_iscntrl(int ch);
+#line 31 "localely-dist.nw"
 #line 33 "localely-dist.nw"
+int C_iscntrl(int ch);
+#line 45 "localely-dist.nw"
+#line 47 "localely-dist.nw"
 int C_isprint(int ch);
-#line 43 "localely-dist.nw"
+#line 59 "localely-dist.nw"
+#line 61 "localely-dist.nw"
 int C_isblank(int ch);
-#line 53 "localely-dist.nw"
-int C_isgraph(int ch);
-#line 63 "localely-dist.nw"
-int C_isupper(int ch);
 #line 73 "localely-dist.nw"
-int C_islower(int ch);
-#line 83 "localely-dist.nw"
-int C_isalpha(int ch);
-#line 93 "localely-dist.nw"
-int C_isdigit(int ch);
+#line 75 "localely-dist.nw"
+int C_isgraph(int ch);
+#line 87 "localely-dist.nw"
+#line 89 "localely-dist.nw"
+int C_isupper(int ch);
+#line 101 "localely-dist.nw"
 #line 103 "localely-dist.nw"
+int C_islower(int ch);
+#line 115 "localely-dist.nw"
+#line 117 "localely-dist.nw"
+int C_isalpha(int ch);
+#line 129 "localely-dist.nw"
+#line 131 "localely-dist.nw"
+int C_isdigit(int ch);
+#line 143 "localely-dist.nw"
+#line 145 "localely-dist.nw"
 int C_isalnum(int ch);
-#line 113 "localely-dist.nw"
+#line 157 "localely-dist.nw"
+#line 159 "localely-dist.nw"
 int C_ispunct(int ch);
-#line 123 "localely-dist.nw"
+#line 171 "localely-dist.nw"
+#line 173 "localely-dist.nw"
 int C_isxdigit(int ch);
-#line 133 "localely-dist.nw"
+#line 185 "localely-dist.nw"
+#line 187 "localely-dist.nw"
 int C_toupper(int ch);
-#line 141 "localely-dist.nw"
+#line 197 "localely-dist.nw"
+#line 199 "localely-dist.nw"
 int C_tolower(int ch);
 #line 21 "strscan.nw"
 char *
@@ -107,103 +122,118 @@ char *prog_name;        /* who we are */
 long tot_line_count;    /* total number of lines */
 #line 158 "tokenize.nw"
 #line 331 "tokenize.nw"
-#line 5 "localely-dist.nw"
+#line 7 "localely-dist.nw"
+#line 9 "localely-dist.nw"
 int C_isascii(int ch)
    {
    int r;
    r = (ch < 128 && ch >= 0);
    return r;
    }
-#line 15 "localely-dist.nw"
+#line 21 "localely-dist.nw"
+#line 23 "localely-dist.nw"
 int C_isspace(int ch)
    {
    int r;
    r = (ch >= 9 && ch <= 13) || ch == 32;
    return r;
    }
-#line 25 "localely-dist.nw"
+#line 35 "localely-dist.nw"
+#line 37 "localely-dist.nw"
 int C_iscntrl(int ch)
    {
    int r;
    r = (ch < 32 || ch == 127) && (ch < 128 && ch >= 0);
    return r;
    }
-#line 35 "localely-dist.nw"
+#line 49 "localely-dist.nw"
+#line 51 "localely-dist.nw"
 int C_isprint(int ch)
    {
    int r;
    r = !(ch < 32 || ch == 127) && (ch < 128 && ch >= 0);
    return r;
    }
-#line 45 "localely-dist.nw"
+#line 63 "localely-dist.nw"
+#line 65 "localely-dist.nw"
 int C_isblank(int ch)
    {
    int r;
    r = ch == 32 || ch == 9;
    return r;
    }
-#line 55 "localely-dist.nw"
+#line 77 "localely-dist.nw"
+#line 79 "localely-dist.nw"
 int C_isgraph(int ch)
    {
    int r;
    r = ch > 32 && ch < 127;
    return r;
    }
-#line 65 "localely-dist.nw"
+#line 91 "localely-dist.nw"
+#line 93 "localely-dist.nw"
 int C_isupper(int ch)
    {
    int r;
    r = (ch >= 65 && ch <= 90);
    return r;
    }
-#line 75 "localely-dist.nw"
+#line 105 "localely-dist.nw"
+#line 107 "localely-dist.nw"
 int C_islower(int ch)
    {
    int r;
    r = (ch >= 97 && ch <= 122);
    return r;
    }
-#line 85 "localely-dist.nw"
+#line 119 "localely-dist.nw"
+#line 121 "localely-dist.nw"
 int C_isalpha(int ch)
    {
    int r;
    r = ((ch >= 97 && ch <= 122) || (ch >= 65 && ch <= 90));
    return r;
    }
-#line 95 "localely-dist.nw"
+#line 133 "localely-dist.nw"
+#line 135 "localely-dist.nw"
 int C_isdigit(int ch)
    {
    int r;
    r = (ch >= 48 && ch <= 57);
    return r;
    }
-#line 105 "localely-dist.nw"
+#line 147 "localely-dist.nw"
+#line 149 "localely-dist.nw"
 int C_isalnum(int ch)
    {
    int r;
    r = ((ch >= 97 && ch <= 122) || (ch >= 65 && ch <= 90)) || (ch >= 48 && ch <= 57);
    return r;
    }
-#line 115 "localely-dist.nw"
+#line 161 "localely-dist.nw"
+#line 163 "localely-dist.nw"
 int C_ispunct(int ch)
    {
    int r;
    r = (ch >= 33 && ch <= 47) || (ch >= 58 && ch <= 64) || (ch >= 91 && ch <= 96) || (ch >= 123 && ch <= 126);
    return r;
    }
-#line 125 "localely-dist.nw"
+#line 175 "localely-dist.nw"
+#line 177 "localely-dist.nw"
 int C_isxdigit(int ch)
    {
    int r;
    r = (ch >= 65 && ch <= 70) || (ch >= 97 && ch <= 102) || (ch >= 48 && ch <= 57);
    return r;
    }
-#line 135 "localely-dist.nw"
+#line 189 "localely-dist.nw"
+#line 191 "localely-dist.nw"
 int C_toupper(int ch)
    {
    return (ch >= 97 && ch <= 122) ? ch ^ 0x20 : ch;
    }
-#line 143 "localely-dist.nw"
+#line 201 "localely-dist.nw"
+#line 203 "localely-dist.nw"
 int C_tolower(int ch)
    {
    return (ch >= 65 && ch <= 90) ? ch ^ 0x20 : ch;

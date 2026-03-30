@@ -1,7 +1,11 @@
 
 <<protos>>=
+<<proto C_isascii>>
+<<proto C_isascii>>=
 int C_isascii(int ch);
 <<impl>>=
+<<impl C_isascii>>
+<<impl C_isascii>>=
 int C_isascii(int ch)
    {
    int r;
@@ -10,8 +14,12 @@ int C_isascii(int ch)
    }
 @
 <<protos>>=
+<<proto C_isspace>>
+<<proto C_isspace>>=
 int C_isspace(int ch);
 <<impl>>=
+<<impl C_isspace>>
+<<impl C_isspace>>=
 int C_isspace(int ch)
    {
    int r;
@@ -20,8 +28,12 @@ int C_isspace(int ch)
    }
 @
 <<protos>>=
+<<proto C_iscntrl>>
+<<proto C_iscntrl>>=
 int C_iscntrl(int ch);
 <<impl>>=
+<<impl C_iscntrl>>
+<<impl C_iscntrl>>=
 int C_iscntrl(int ch)
    {
    int r;
@@ -30,8 +42,12 @@ int C_iscntrl(int ch)
    }
 @
 <<protos>>=
+<<proto C_isprint>>
+<<proto C_isprint>>=
 int C_isprint(int ch);
 <<impl>>=
+<<impl C_isprint>>
+<<impl C_isprint>>=
 int C_isprint(int ch)
    {
    int r;
@@ -40,8 +56,12 @@ int C_isprint(int ch)
    }
 @
 <<protos>>=
+<<proto C_isblank>>
+<<proto C_isblank>>=
 int C_isblank(int ch);
 <<impl>>=
+<<impl C_isblank>>
+<<impl C_isblank>>=
 int C_isblank(int ch)
    {
    int r;
@@ -50,8 +70,12 @@ int C_isblank(int ch)
    }
 @
 <<protos>>=
+<<proto C_isgraph>>
+<<proto C_isgraph>>=
 int C_isgraph(int ch);
 <<impl>>=
+<<impl C_isgraph>>
+<<impl C_isgraph>>=
 int C_isgraph(int ch)
    {
    int r;
@@ -60,8 +84,12 @@ int C_isgraph(int ch)
    }
 @
 <<protos>>=
+<<proto C_isupper>>
+<<proto C_isupper>>=
 int C_isupper(int ch);
 <<impl>>=
+<<impl C_isupper>>
+<<impl C_isupper>>=
 int C_isupper(int ch)
    {
    int r;
@@ -70,8 +98,12 @@ int C_isupper(int ch)
    }
 @
 <<protos>>=
+<<proto C_islower>>
+<<proto C_islower>>=
 int C_islower(int ch);
 <<impl>>=
+<<impl C_islower>>
+<<impl C_islower>>=
 int C_islower(int ch)
    {
    int r;
@@ -80,8 +112,12 @@ int C_islower(int ch)
    }
 @
 <<protos>>=
+<<proto C_isalpha>>
+<<proto C_isalpha>>=
 int C_isalpha(int ch);
 <<impl>>=
+<<impl C_isalpha>>
+<<impl C_isalpha>>=
 int C_isalpha(int ch)
    {
    int r;
@@ -90,8 +126,12 @@ int C_isalpha(int ch)
    }
 @
 <<protos>>=
+<<proto C_isdigit>>
+<<proto C_isdigit>>=
 int C_isdigit(int ch);
 <<impl>>=
+<<impl C_isdigit>>
+<<impl C_isdigit>>=
 int C_isdigit(int ch)
    {
    int r;
@@ -100,8 +140,12 @@ int C_isdigit(int ch)
    }
 @
 <<protos>>=
+<<proto C_isalnum>>
+<<proto C_isalnum>>=
 int C_isalnum(int ch);
 <<impl>>=
+<<impl C_isalnum>>
+<<impl C_isalnum>>=
 int C_isalnum(int ch)
    {
    int r;
@@ -110,8 +154,12 @@ int C_isalnum(int ch)
    }
 @
 <<protos>>=
+<<proto C_ispunct>>
+<<proto C_ispunct>>=
 int C_ispunct(int ch);
 <<impl>>=
+<<impl C_ispunct>>
+<<impl C_ispunct>>=
 int C_ispunct(int ch)
    {
    int r;
@@ -120,8 +168,12 @@ int C_ispunct(int ch)
    }
 @
 <<protos>>=
+<<proto C_isxdigit>>
+<<proto C_isxdigit>>=
 int C_isxdigit(int ch);
 <<impl>>=
+<<impl C_isxdigit>>
+<<impl C_isxdigit>>=
 int C_isxdigit(int ch)
    {
    int r;
@@ -130,16 +182,24 @@ int C_isxdigit(int ch)
    }
 @
 <<protos>>=
+<<proto C_toupper>>
+<<proto C_toupper>>=
 int C_toupper(int ch);
 <<impl>>=
+<<impl C_toupper>>
+<<impl C_toupper>>=
 int C_toupper(int ch)
    {
    return (ch >= 97 && ch <= 122) ? ch ^ 0x20 : ch;
    }
 @
 <<protos>>=
+<<proto C_tolower>>
+<<proto C_tolower>>=
 int C_tolower(int ch);
 <<impl>>=
+<<impl C_tolower>>
+<<impl C_tolower>>=
 int C_tolower(int ch)
    {
    return (ch >= 65 && ch <= 90) ? ch ^ 0x20 : ch;

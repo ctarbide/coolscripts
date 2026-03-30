@@ -33,15 +33,7 @@ PERL=${PERL:-perl -wl}; export PERL
 #    -- ${SH}
 set_sources=`list_set_sources`
 eval "set --; ${set_sources}"
-latest_mtime_in_sources=`perl -le'@times = map { (stat($_))[9] } @ARGV; print((sort @times)[-1])' -- "$@"`
-listings_mtime=`perl -sle'print(-f $f ? (stat $f)[9] : 0)' -- -f=listings.nw`
-if [ "${latest_mtime_in_sources}" -gt "${listings_mtime}" ]; then
-    rm -f listings.nw
-    nofake-exec.sh --error -R'generate listings.nw' "$@" -- ${SH} \
-        >.listings.nw
-    mv .listings.nw listings.nw
-    chmod 0444 listings.nw
-fi
+<<generate listings.nw - SOURCES in [["$@"]]>>
 rm -f Makefile
 nofake-exec.sh --error -R'generate Makefile' Makefile.nw listings.nw \
     -- ${SH} >'<<Makefile prefix>>'
@@ -54,6 +46,36 @@ list_set_sources(){
 <<sources>>
 EOF
 }
+@
+
+<<generate listings.nw - SOURCES in [["$@"]]>>=
+latest_mtime_in_sources=`perl -le'@times = map { (stat($_))[9] } @ARGV; print((sort @times)[-1])' -- "$@"`
+listings_mtime=`perl -sle'print(-f $f ? (stat $f)[9] : 0)' -- -f=listings.nw`
+if [ "${latest_mtime_in_sources}" -gt "${listings_mtime}" ]; then
+    nofake-exec.sh --error -R'output listings.nw' "$@" -- ${SH} \
+        >.listings.nw
+    if cmp .listings.nw listings.nw 2>/dev/null; then
+        echo "listings.nw is up to date."
+        rm -f .listings.nw
+    else
+        echo "updating listings.nw"
+        rm -f listings.nw
+        mv .listings.nw listings.nw
+    fi
+    chmod 0444 listings.nw
+fi
+@
+
+<<generate listings.nw>>=
+#!/bin/sh
+set -eu
+SH=${SH:-sh -eu}; export SH
+PERL=${PERL:-perl -wl}; export PERL
+<<function list_set_sources>>
+<<function indent_args>>
+set_sources=`list_set_sources`
+eval "set --; ${set_sources}"
+<<generate listings.nw - SOURCES in [["$@"]]>>
 @
 
 <<function indent_args>>=
@@ -84,9 +106,7 @@ printf -- '\n'
 printf -- '.PHONY: all\nall: $(TARGETS)\n\n'
 cat<<'EOF'
 listings.nw: $(SOURCES)
-	rm -f listings.nw
-	nofake-exec.sh --error -R'generate listings.nw' $^ -- $(SH) >listings.nw
-	chmod 0444 listings.nw
+	nofake-exec.sh --error -R'generate listings.nw' $^ -- $(SH)
 
 EOF
 @
@@ -121,7 +141,7 @@ printf -- '.PHONY: touch\ntouch:\n\t-touch -c $(TARGETS)\n\n'
 printf -- '.PHONY: clean\nclean:\n\t-rm -f $(TARGETS)\n'
 @
 
-<<generate listings.nw - deps>>=
+<<output listings.nw - deps>>=
 my $listref = [];
 <<push sources>>
 my @sources = @$listref;
@@ -140,7 +160,7 @@ safe to append to it's input
 
 <<phony targets>>=
 
-<<generate listings.nw>>=
+<<output listings.nw>>=
 #!/bin/sh
 set -eu
 PERL=${PERL:-perl -wl}; export PERL
@@ -152,7 +172,7 @@ cat@<<'EOF' | normalize-args-as-nw.pl >.tmp.listings.nw
 #name phony targets
 <<phony targets>>
 EOF
-nofake-exec.sh --error -R'generate listings.nw - deps' '<<Makefile prefix>>.nw' \
+nofake-exec.sh --error -R'output listings.nw - deps' '<<Makefile prefix>>.nw' \
     .tmp.listings.nw -- ${PERL} >>.tmp.listings.nw
 printf -- 'automatically generated from <<Makefile prefix>>.nw and sources below\n\n'
 cat .tmp.listings.nw

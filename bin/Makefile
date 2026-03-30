@@ -21,9 +21,7 @@ TARGETS = listings.nw \
 all: $(TARGETS)
 
 listings.nw: $(SOURCES)
-	rm -f listings.nw
-	nofake-exec.sh --error -R'generate listings.nw' $^ -- $(SH) >listings.nw
-	chmod 0444 listings.nw
+	nofake-exec.sh --error -R'generate listings.nw' $^ -- $(SH)
 
 cat-README.sh: listings.nw \
     cat-README.nw create-config.nw shell.nw temporary-files-shell.nw
