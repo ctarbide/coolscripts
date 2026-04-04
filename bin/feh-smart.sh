@@ -73,7 +73,7 @@ if [ x"${args0}" != x ]; then
 fi
 
 exec feh ${FEH_OPTS} -. -d -G --on-last-slide hold \
-     --action 'echo "you pressed return, right?"' \
+     --action 'echo "you pressed return, right?" # tip: type a and d' \
      --action1 'echo -n "move: "; mv-to-cwd-let-no-spaces-nor-colon.sh %F .' \
      --action2 'echo -n "copy: "; cp-to-cwd-let-no-spaces-nor-colon.sh %F .' \
      --action3 'rename-let-no-spaces-nor-colon.sh %F' \
