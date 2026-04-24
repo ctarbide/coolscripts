@@ -1,6 +1,14 @@
 #!/bin/sh
 
-# git-sandbox.sh git status -uno
+# usage:
+# git-sandbox.sh
+# git-sandbox.sh add <file>
+# git-sandbox.sh status
+# git-sandbox.sh ls
+# git-sandbox.sh diff
+# git-sandbox.sh diff -w
+# git-sandbox.sh add
+# git-sandbox.sh commit <message>
 
 set -eu #x
 
@@ -88,10 +96,7 @@ protect_command_add(){
 
 case "${#}_${1}" in
     1_add)
-        cd "${GIT_WORK_TREE}" && files_m | xargs -r git add
-        ;;
-    1_diff)
-        cd "${GIT_WORK_TREE}" && files_m | xargs -r git diff
+        cd "${GIT_WORK_TREE}" && files_m | xargs -r git add -f
         ;;
     1_status)
         cd "${GIT_WORK_TREE}" && files_m | xargs -r git status
@@ -105,6 +110,11 @@ case "${#}_${1}" in
         git prune
         ;;
     2_commit)
+        case "${2}" in
+          -*)
+            die 1 "the second argument to 'commit' is the commit message, not a flag"
+            ;;
+        esac
         exec git commit -m "${2}"
         ;;
     *_add)
@@ -115,7 +125,19 @@ case "${#}_${1}" in
         protect_command_add "$@"
         exec git "${cmd}" "$@"
         ;;
-    *_commit | *_log | *_show | *_diff | *_status | *_ls-files | *_checkout | *_mv | *_rm | *_repack | *_prune | *_fsck | *_reset | *_restore)
+    *_diff)
+        case "${1}_${2:-}" in
+        diff_-*)
+            # run against only known files by default
+            cd "${GIT_WORK_TREE}" && files_m | xargs -r git "$@"
+            ;;
+        *)
+            # explicit files in "$@"
+            exec git "$@"
+            ;;
+        esac
+        ;;
+    *_commit | *_log | *_show | *_status | *_ls-files | *_checkout | *_mv | *_rm | *_repack | *_prune | *_fsck | *_reset | *_restore)
         cmd=$1
         shift
         exec git "${cmd}" "$@"
@@ -123,7 +145,7 @@ case "${#}_${1}" in
     *_gitk)
         shift
         exec gitk "$@"
-	;;
+        ;;
     *_exec) # yeahh.. easter egg, use with care
         shift
         exec "$@"

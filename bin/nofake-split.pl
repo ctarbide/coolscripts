@@ -22,6 +22,10 @@ my $inside_chunk = 0;
 
 sub read_file {
     local @ARGV = @_;
+    if ($inside_chunk) {
+        $inside_chunk = 0;
+        $chunk = sprintf("%08x", $chunk_id++);
+    }
     while (my $line = <>) {
         chomp($line);
         if ($line =~ m{^<<(.+?)>>=\s*$}) {

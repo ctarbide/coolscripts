@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # usage example: RESOLUTION=1912x1054x24 x11vnc-xvfb.sh
+# usage example: RESOLUTION=1280x720x24 x11vnc-xvfb.sh
 
 set -eu #x
 
