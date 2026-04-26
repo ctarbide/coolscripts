@@ -145,18 +145,22 @@ LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:c
 # default prompt
 PROMPT='%F{blue}%~%f %# '
 
-alias small-prompt='PS1='"'"'%F{blue}.../%1d%f %# '"'"
-alias medium-prompt='PS1='"'"'%F{blue}.../%2d%f %# '"'"
-alias large-prompt='PS1='"'"'%F{blue}.../%3d%f %# '"'"
+alias small-prompt='PS1='"'"'%F{blue}../%1d%f %# '"'"
+alias medium-prompt='PS1='"'"'%F{blue}../%2d%f %# '"'"
+alias large-prompt='PS1='"'"'%F{blue}../%3d%f %# '"'"
 alias normal-prompt='PS1='"'"'%F{blue}%~%f %# '"'"
-alias 80cols-prompt='PS1='"'"'%F{blue}%80<...<%~%f %# '"'"
+alias 80cols-prompt='PS1='"'"'%F{blue}%80<..<%~%f %# '"'"
 
-alias substr10-prompt='PS1='"'"'%F{blue}%10>>%~%>>%F{gree}..%F{blue}%10<<%2d%<<%f %# '"'"''
-alias substr15-prompt='PS1='"'"'%F{blue}%15>>%~%>>%F{gree}..%F{blue}%15<<%2d%<<%f %# '"'"''
-alias substr20-prompt='PS1='"'"'%F{blue}%20>>%~%>>%F{gree}..%F{blue}%20<<%2d%<<%f %# '"'"''
-alias substr30-prompt='PS1='"'"'%F{blue}%30>>%~%>>%F{gree}..%F{blue}%30<<%2d%<<%f %# '"'"''
-alias substr40-prompt='PS1='"'"'%F{blue}%40>>%~%>>%F{gree}..%F{blue}%40<<%2d%<<%f %# '"'"''
-alias substr50-prompt='PS1='"'"'%F{blue}%50>>%~%>>%F{gree}..%F{blue}%50<<%2d%<<%f %# '"'"''
+alias small-prompt-prefix30='PS1='"'"'%F{blue}../%30>..>%1d%<<%f %# '"'"
+alias small-prompt-prefix50='PS1='"'"'%F{blue}../%50>..>%1d%<<%f %# '"'"
+alias small-prompt-prefix70='PS1='"'"'%F{blue}../%70>..>%1d%<<%f %# '"'"
+
+alias substr10-prompt='PS1='"'"'%F{blue}%10>>%~%>>%F{green}..%f%F{blue}%10<<%2d%<<%f %# '"'"''
+alias substr15-prompt='PS1='"'"'%F{blue}%15>>%~%>>%F{green}..%f%F{blue}%15<<%2d%<<%f %# '"'"''
+alias substr20-prompt='PS1='"'"'%F{blue}%20>>%~%>>%F{green}..%f%F{blue}%20<<%2d%<<%f %# '"'"''
+alias substr30-prompt='PS1='"'"'%F{blue}%30>>%~%>>%F{green}..%f%F{blue}%30<<%2d%<<%f %# '"'"''
+alias substr40-prompt='PS1='"'"'%F{blue}%40>>%~%>>%F{green}..%f%F{blue}%40<<%2d%<<%f %# '"'"''
+alias substr50-prompt='PS1='"'"'%F{blue}%50>>%~%>>%F{green}..%f%F{blue}%50<<%2d%<<%f %# '"'"''
 @
 
 <<perl5 local::lib>>=

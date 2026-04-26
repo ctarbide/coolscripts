@@ -127,7 +127,7 @@ case "${#}_${1}" in
         ;;
     *_diff)
         case "${1}_${2:-}" in
-        diff_-*)
+        diff_ | diff_-*)
             # run against only known files by default
             cd "${GIT_WORK_TREE}" && files_m | xargs -r git "$@"
             ;;
