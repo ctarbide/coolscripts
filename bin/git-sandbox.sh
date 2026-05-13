@@ -37,6 +37,12 @@ GIT_DIR=${GIT_WORK_TREE}__git-sandbox
 export GIT_DIR GIT_WORK_TREE
 
 if [ ! -d "${GIT_DIR}/refs" ]; then
+    echo 'git-sandbox repository does not exist yet, create a new one? ("yes" to confirm)'
+    read ans
+    if [ x"${ans}" != xyes ]; then
+        echo 'aborting'
+        exit
+    fi
     git init
     rm -f "${GIT_DIR}"/hooks/*.sample
 fi
@@ -67,7 +73,7 @@ useful commands:
 
     ${0##*/} commit
 
-        commit changes with a default message, repack all and prune
+        commit changes without a message, repack all and prune
 
     ${0##*/} commit message
 
@@ -105,7 +111,7 @@ case "${#}_${1}" in
         exec git ls-files
         ;;
     1_commit)
-        git commit -m "checkpoint"
+        git commit --allow-empty-message -m ""
         git repack -da
         git prune
         ;;
