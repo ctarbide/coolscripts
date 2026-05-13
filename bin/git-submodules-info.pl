@@ -14,13 +14,13 @@ local $\ = "\n";
 sub slurp_subprocess_lines {
     open(my $fh, '-|', @_) or die $!;
     if (wantarray) {
-	my @res = map {chomp($_); $_} <$fh>;
-	close($fh); # or Carp::carp "Cannot close $fh: $!";
-	return @res;
+        my @res = map {chomp($_); $_} <$fh>;
+        close($fh); # or Carp::carp "Cannot close $fh: $!";
+        return @res;
     } elsif (defined(wantarray)) {
-	my $res = do {local $/; <$fh>};
-	close($fh); # or Carp::carp "Cannot close $fh: $!";
-	return $res;
+        my $res = do {local $/; <$fh>};
+        close($fh); # or Carp::carp "Cannot close $fh: $!";
+        return $res;
     }
     Carp::confess 'exhaustion';
 }
@@ -28,13 +28,13 @@ sub slurp_subprocess_lines {
 sub set_many (\%@) {
     my ($h, $k, $v) = @_;
     if (defined($h->{$k})) {
-	if (ref($h->{$k}) eq 'ARRAY') {
-	    push(@{ $h->{$k} }, $v);
-	} else {
-	    $h->{$k} = [$h->{$k}, $v];
-	}
+        if (ref($h->{$k}) eq 'ARRAY') {
+            push(@{ $h->{$k} }, $v);
+        } else {
+            $h->{$k} = [$h->{$k}, $v];
+        }
     } else {
-	$h->{$k} = $v;
+        $h->{$k} = $v;
     }
 }
 
@@ -62,21 +62,21 @@ my $conf = { read_configuration($gitmodules, '^submodule\.') };
 {
     my @mods = map {s,\.path$,,; $_} grep {/\.path$/} keys(%{$conf});
     for my $i (@mods){
-	(my $id = $i) =~ s,^submodule\.,,;
+        (my $id = $i) =~ s,^submodule\.,,;
         my ($path, $url, $branch) = expand($conf, $i);
         $branch = q{master} unless $branch;
-	my ($urldn, $urlbn);
-	if ($url =~ m{^\.\./.+}) {
-	    # relative path
-	    $urldn = $url;
-	    $urlbn = $url;
-	} elsif ($url =~ m{^(.*)/(.*)}) {
-	    # uri-like
-	    $urldn = $1;
-	    $urlbn = $2;
-	} else {
-	    Carp::confess 'exhaustion';
-	}
+        my ($urldn, $urlbn);
+        if ($url =~ m{^\.\./.+}) {
+            # relative path
+            $urldn = $url;
+            $urlbn = $url;
+        } elsif ($url =~ m{^(.*)/(.*)}) {
+            # uri-like
+            $urldn = $1;
+            $urlbn = $2;
+        } else {
+            Carp::confess 'exhaustion';
+        }
         print("$url $urldn $urlbn $branch $path $id");
     }
 }
