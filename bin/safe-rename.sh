@@ -13,6 +13,10 @@ for i in ${1+"$@"}; do
         copy_instead=true
         shift
     fi
+    if [ x"${i}" = x--git-add ]; then
+        git_add=true
+        shift
+    fi
 done
 
 for i in ${1+"$@"}; do
@@ -70,5 +74,9 @@ for i in ${1+"$@"}; do
     else
         mv -v "${i}" "${out}"
         chmod a-w "${out}"
+    fi
+
+    if [ x"${git_add}" = xtrue ]; then
+        git add "${out}"
     fi
 done
