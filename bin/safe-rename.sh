@@ -7,6 +7,7 @@ die(){ ev=$1; shift; for msg in "$@"; do echo "${msg}"; done; exit "${ev}"; }
 [ "$#" -gt 0 ] || die 1 "usage: ${0##*/} file1 file2 ..."
 
 copy_instead=false
+git_add=false
 
 for i in ${1+"$@"}; do
     if [ x"${i}" = x--copy-instead ]; then
