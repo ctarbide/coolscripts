@@ -346,9 +346,7 @@ set -eu
 details.
 
 <<targets>>=
-set -- "$@" tokenize--imports.nw
-set -- "$@" tokenize.c
-set -- "$@" tokenize
+tokenize--imports.nw tokenize.c tokenize
 @
 
 <<tokenize--imports.nw deps>>=

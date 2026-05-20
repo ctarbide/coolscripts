@@ -90,9 +90,7 @@ rm -f "${k}" "${d}"
 @
 
 <<targets>>=
-set -- "$@" shuffle.sh
-set -- "$@" shuffle-noseq.sh
-set -- "$@" test-shuffle-noseq.sh
+shuffle.sh shuffle-noseq.sh test-shuffle-noseq.sh
 @
 
 <<shuffle.sh deps>>=

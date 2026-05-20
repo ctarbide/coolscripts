@@ -59,8 +59,7 @@ exec perl <<seed required modules>> -MDigest::SHA=sha512 -e'
 @
 
 <<targets>>=
-set -- "$@" seed.sh
-set -- "$@" cstrng.sh
+seed.sh cstrng.sh
 @
 
 <<seed.sh deps>>=

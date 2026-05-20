@@ -27,10 +27,8 @@ s{
     ( [^\047\042\s]+ )
 }{
     <<match handler>>
-    if ($s !~ m{^\047(?:set|--|\$\@)\047$}) {
-        $names{$n}++;
+    $names{$n}++;
 <<postlude>>=
-    }
 }gex;
 @
 
@@ -74,14 +72,14 @@ local $\ = "\n";
 <<normalize-args.pl>>=
 <<perl preamble>>
 <<vars>>
-my %args = ();
+my @args = ();
 while (<>) {
     chomp;
     <<preamble>>
-    $args{$s}++;
+    push(@args, $s);
     <<postlude>>
 }
-print for sort keys %args;
+print for @args;
 @
 
 <<normalize-args-as-sets.pl>>=

@@ -62,7 +62,7 @@ shell.nw create-config.nw
 <<build create-config.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rcreate-config.sh -ocreate-config.sh "$@"
 <<targets>>=
-set -- "$@" create-config.sh
+create-config.sh
 @
 
 <<show-config.sh deps>>=
@@ -70,7 +70,7 @@ shell.nw create-config.nw
 <<build show-config.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rshow-config.sh -oshow-config.sh "$@"
 <<targets>>=
-set -- "$@" show-config.sh
+show-config.sh
 @
 
 <<new-item.sh deps>>=
@@ -78,7 +78,7 @@ shell.nw create-config.nw new-item.nw
 <<build new-item.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rnew-item.sh -onew-item.sh "$@"
 <<targets>>=
-set -- "$@" new-item.sh
+new-item.sh
 @
 
 <<make-index.sh deps>>=
@@ -86,7 +86,7 @@ shell.nw create-config.nw make-index.nw
 <<build make-index.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rmake-index.sh -omake-index.sh "$@"
 <<targets>>=
-set -- "$@" make-index.sh
+make-index.sh
 @
 
 <<find.sh deps>>=
@@ -94,7 +94,7 @@ shell.nw create-config.nw temporary-files-shell.nw find.nw
 <<build find.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rfind.sh -ofind.sh "$@"
 <<targets>>=
-set -- "$@" find.sh
+find.sh
 @
 
 <<find-strict.sh deps>>=
@@ -102,7 +102,7 @@ shell.nw create-config.nw temporary-files-shell.nw find-strict.nw
 <<build find-strict.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rfind-strict.sh -ofind-strict.sh "$@"
 <<targets>>=
-set -- "$@" find-strict.sh
+find-strict.sh
 @
 
 <<head-README.sh deps>>=
@@ -110,7 +110,7 @@ shell.nw create-config.nw temporary-files-shell.nw head-README.nw
 <<build head-README.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rhead-README.sh -ohead-README.sh "$@"
 <<targets>>=
-set -- "$@" head-README.sh
+head-README.sh
 @
 
 <<show-README.sh deps>>=
@@ -118,7 +118,7 @@ shell.nw create-config.nw temporary-files-shell.nw show-README.nw
 <<build show-README.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rshow-README.sh -oshow-README.sh "$@"
 <<targets>>=
-set -- "$@" show-README.sh
+show-README.sh
 @
 
 <<cat-README.sh deps>>=
@@ -126,7 +126,7 @@ shell.nw create-config.nw temporary-files-shell.nw cat-README.nw
 <<build cat-README.sh>>=
 CHMOD='chmod 0555' nofake.sh -Rcat-README.sh -ocat-README.sh "$@"
 <<targets>>=
-set -- "$@" cat-README.sh
+cat-README.sh
 @
 
 <<build all>>=

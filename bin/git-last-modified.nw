@@ -63,5 +63,5 @@ CHMOD='chmod 0555' nofake.sh --error -Rgit-last-modified.sh \
 @
 
 <<targets>>=
-set -- "$@" git-last-modified.sh
+git-last-modified.sh
 @

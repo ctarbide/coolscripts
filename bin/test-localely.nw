@@ -13,8 +13,7 @@
 @
 
 <<set sources>>=
-set -- "$@" test-localely.nw
-set -- "$@" localely.nw
+test-localely.nw localely.nw
 @
 
 <<rtt>>=

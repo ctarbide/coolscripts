@@ -48,11 +48,9 @@ while (<>) {
         } else {
             $s = qq{\047\047};
         }
-        if ($s !~ m{^\047(?:set|--|\$\@)\047$}) {
-            $names{$n}++;
+        $names{$n}++;
     $args{$n} = [] if $names{$n} == 1;
     push(@{$args{$n}}, $s);
-        }
     }gex;
 }
 for my $name (sort @names) {

@@ -45,7 +45,7 @@ feh-smart.sh --filelist "${filelist}" "$@" --
 @
 
 <<targets>>=
-set -- "$@" feh-smart-latest.sh
+feh-smart-latest.sh
 @
 
 <<feh-smart-latest.sh deps>>=

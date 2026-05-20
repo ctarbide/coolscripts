@@ -7,7 +7,7 @@ use warnings FATAL => qw{uninitialized void inplace};
 use CGI::Util qw{unescape};
 local $\ = "\n";
 my ($n, $s, @names, %names) = (q{?},);
-my %args = ();
+my @args = ();
 while (<>) {
     chomp;
     if (m{^#name\s+(.*)\s*$}) {
@@ -48,10 +48,8 @@ while (<>) {
         } else {
             $s = qq{\047\047};
         }
-        if ($s !~ m{^\047(?:set|--|\$\@)\047$}) {
-            $names{$n}++;
-    $args{$s}++;
-        }
+        $names{$n}++;
+    push(@args, $s);
     }gex;
 }
-print for sort keys %args;
+print for @args;

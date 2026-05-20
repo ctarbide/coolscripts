@@ -48,10 +48,8 @@ while (<>) {
         } else {
             $s = qq{\047\047};
         }
-        if ($s !~ m{^\047(?:set|--|\$\@)\047$}) {
-            $names{$n}++;
+        $names{$n}++;
     $args{$s}++;
-        }
     }gex;
 }
 print qq{set -- \042\$\@\042 $_;} for sort keys %args;

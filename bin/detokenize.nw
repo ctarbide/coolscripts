@@ -303,9 +303,7 @@ set -eu
 details.
 
 <<targets>>=
-set -- "$@" detokenize--imports.nw
-set -- "$@" detokenize.c
-set -- "$@" detokenize
+detokenize--imports.nw detokenize.c detokenize
 @
 
 <<detokenize--imports.nw deps>>=

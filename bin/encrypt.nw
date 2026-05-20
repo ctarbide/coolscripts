@@ -298,7 +298,5 @@ CHMOD='chmod 0555' nofake.sh --error -Rverify.sh -overify.sh "$@"
 @
 
 <<targets>>=
-set -- "$@" encrypt.sh
-set -- "$@" decrypt.sh
-set -- "$@" verify.sh
+encrypt.sh decrypt.sh verify.sh
 @

@@ -32,9 +32,7 @@ test-repl
 @
 
 <<set sources>>=
-set -- "$@" <<test name>>.nw
-set -- "$@" localely-dist.nw
-set -- "$@" repl.nw
+<<test name>>.nw localely-dist.nw repl.nw
 @
 
 <<protos>>=

@@ -52,7 +52,7 @@ perl -le'while(<STDIN>){print(q{})}' <"${slurp_to}" | "${thisdir}/random-prefix.
 @
 
 <<targets>>=
-set -- "$@" unshuffle.sh
+unshuffle.sh
 @
 
 <<unshuffle.sh deps>>=

@@ -304,9 +304,7 @@ set -eu
 details.
 
 <<targets>>=
-set -- "$@" nwsplit--imports.nw
-set -- "$@" nwsplit.c
-set -- "$@" nwsplit
+nwsplit--imports.nw nwsplit.c nwsplit
 @
 
 <<nwsplit--imports.nw deps>>=
