@@ -20,7 +20,7 @@ abs_canon_path(){
 
 # modified files
 files_m(){
-    git status --porcelain -uno | awk '/^[ AM][M ]/{print$2}'
+    git status --porcelain -uno -- "$@" | awk '/^[ AM][M ]/{print$2}'
 }
 
 GIT_DIR=`git-dir.sh .`
@@ -107,6 +107,16 @@ case "${#}_${1}" in
     1_status)
         cd "${GIT_WORK_TREE}" && files_m | xargs -r git status
         ;;
+    2_status)
+        case "${2}" in
+            . | ..)
+                files_m "${2}" | (cd "${GIT_WORK_TREE}" && xargs -r git status)
+                ;;
+            *)
+                cd "${GIT_WORK_TREE}" && git status "${2}"
+                ;;
+        esac
+        ;;
     1_ls)
         exec git ls-files
         ;;
@@ -117,9 +127,9 @@ case "${#}_${1}" in
         ;;
     2_commit)
         case "${2}" in
-          -*)
-            die 1 "the second argument to 'commit' is the commit message, not a flag"
-            ;;
+            -*)
+                die 1 "the second argument to 'commit' is the commit message, not a flag"
+                ;;
         esac
         exec git commit -m "${2}"
         ;;

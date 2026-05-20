@@ -16,7 +16,7 @@ test -d "${dir}" || die 1 'error: "'"${dir}"'" is not a directory'
 LC_ALL=C
 export LC_ALL
 
-find "${dir}" -type f | perl -lne'
+find -L "${dir}" -type f | perl -lne'
     s,^\./,,;
     @s = stat;
     ($s,$n,$h,$d,$m,$y) = localtime($s[9]);
