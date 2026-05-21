@@ -7,7 +7,6 @@ use 5.006; # perl v5.6.0 was released on March 22, 2000
 use strict;
 use warnings FATAL => qw{uninitialized void inplace};
 use Carp ();
-use CGI::Util qw{unescape};
 local $\ = "\n";
 my $carp_or_croak = \&Carp::carp;
 sub set_many (\%@) {
@@ -329,12 +328,12 @@ if ($no_op) {
             }
         }
         {
-            my ($n, $s, %names) = (q{?},);
+            my ($n, $s, @names, %names) = (q{?},);
             my %args = ();
             for ("#name ${chunk}", @outputlines) {
                 chomp;
                 if (m{^#name\s+(.*)\s*$}) {
-                   $n = $1;
+                   push(@names, $n = $1);
                    next;
                 }
                 next if m{^\s*#};
@@ -365,17 +364,16 @@ if ($no_op) {
                         $s = q{exhaustion};
                     }
                     if ($s) {
-                        $s = qq{\047} . unescape($s) . qq{\047};
+                        $s =~ s/%([0-9a-f]{2})/chr hex $1/gei;
+                        $s = qq{\047} . $s . qq{\047};
                         $s =~ s,^\047\047|\047\047$,,g;
                         $s =~ s,;\047$,\047,g;
                     } else {
                         $s = qq{\047\047};
                     }
-                    if ($s !~ m{^\047(?:set|--|\$\@)\047$}) {
-                        $names{$n}++;
+                    $names{$n}++;
                 $args{$n} = [] if $names{$n} == 1;
                 push(@{$args{$n}}, $s);
-                    }
                 }gex;
             }
             for my $name (sort keys %args) {

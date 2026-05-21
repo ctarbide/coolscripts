@@ -1,6 +1,6 @@
 <<normalize-args - preamble>>=
 if (m{^#name\s+(.*)\s*$}) {
-   $n = $1;
+   push(@names, $n = $1);
    next;
 }
 next if m{^\s*#};
@@ -17,15 +17,13 @@ s{
     ( [^\047\042\s]+ )
 }{
     <<normalize-args - match handler>>
-    if ($s !~ m{^\047(?:set|--|\$\@)\047$}) {
-        $names{$n}++;
+    $names{$n}++;
 @
 <<normalize-args - postlude>>=
-    }
 }gex;
 @
 <<normalize-args - vars>>=
-my ($n, $s, %names) = (q{?},);
+my ($n, $s, @names, %names) = (q{?},);
 @
 <<normalize-args - match handler>>=
 # print qq{"[1:$1][2:$2][3:$3][4:$4][5:$5][6:$6][7:$7][$line]};
@@ -43,7 +41,8 @@ if (defined($2)) {
     $s = q{exhaustion};
 }
 if ($s) {
-    $s = qq{\047} . unescape($s) . qq{\047};
+    $s =~ s/%([0-9a-f]{2})/chr hex $1/gei;
+    $s = qq{\047} . $s . qq{\047};
     $s =~ s,^\047\047|\047\047$,,g;
     $s =~ s,;\047$,\047,g;
 } else {

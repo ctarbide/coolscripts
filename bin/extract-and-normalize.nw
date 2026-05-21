@@ -32,7 +32,6 @@ use 5.006; # perl v5.6.0 was released on March 22, 2000
 use strict;
 use warnings FATAL => qw{uninitialized void inplace};
 use Carp ();
-use CGI::Util qw{unescape};
 local $\ = "\n";
 my $carp_or_croak = \&Carp::carp;
 @

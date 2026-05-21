@@ -4,7 +4,6 @@ eval 'exec perl -wS $0 ${1+"$@"}'
 use 5.006; # perl v5.6.0 was released on March 22, 2000
 use strict;
 use warnings FATAL => qw{uninitialized void inplace};
-use CGI::Util qw{unescape};
 local $\ = "\n";
 my ($n, $s, @names, %names) = (q{?},);
 my @args = ();
@@ -42,7 +41,8 @@ while (<>) {
             $s = q{exhaustion};
         }
         if ($s) {
-            $s = qq{\047} . unescape($s) . qq{\047};
+            $s =~ s/%([0-9a-f]{2})/chr hex $1/gei;
+            $s = qq{\047} . $s . qq{\047};
             $s =~ s,^\047\047|\047\047$,,g;
             $s =~ s,;\047$,\047,g;
         } else {

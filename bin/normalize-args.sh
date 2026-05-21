@@ -1,5 +1,5 @@
 #!/bin/sh
-exec perl -MCGI::Util=unescape -lne'
+exec perl -lne'
 next if m{^\s*#};
 # my $line = $_;
 s,\\\s*$,,;
@@ -28,7 +28,8 @@ s{
         $s = q{exhaustion};
     }
     if ($s) {
-        $s = qq{\047} . unescape($s) . qq{\047};
+        $s =~ s/%([0-9a-f]{2})/chr hex $1/gei;
+        $s = qq{\047} . $s . qq{\047};
         $s =~ s,^\047\047|\047\047$,,g;
         print $s;
     } else {
