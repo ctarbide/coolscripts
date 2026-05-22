@@ -20,7 +20,7 @@ abs_canon_path(){
 
 # modified files
 files_m(){
-    git status --porcelain -uno -- "$@" | awk '/^[ AM][M ]/{print$2}'
+    git status --porcelain -uno -- "$@" | perl -lne'next unless m{^(?:[ AM][M ]|RM .*? ->) (.*)}; print($1)'
 }
 
 GIT_DIR=`git-dir.sh .`
