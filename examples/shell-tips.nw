@@ -111,6 +111,10 @@ fi
 if can_be_added_to_manpath /usr/share/man; then
     MANPATH=/usr/share/man${MANPATH:+:${MANPATH}}
 fi
+
+if can_be_added_to_manpath "${HOME}/Downloads/coolscripts/man"; then
+    MANPATH=${HOME}/Downloads/coolscripts/man${MANPATH:+:${MANPATH}}
+fi
 @
 
 <<set ~/local>>=

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# git-sandbox.sh is a "side-car" repository, very useful for not
+# tainting the official repository
+
 # usage:
 # git-sandbox.sh
 # git-sandbox.sh add <file>
@@ -63,10 +66,6 @@ useful commands:
 
         status of added or modified files
 
-    ${0##*/} status -uno
-
-        status of all known files
-
     ${0##*/} ls
 
         listing of all known files
@@ -89,7 +88,7 @@ EOF
     exit 1
 fi
 
-protect_command_add(){
+protect_add_command(){
     for arg in "$@"; do
         case "${arg}" in
             -f) ;; # .gitignore shouldn't be in git-sandbox's way
@@ -104,8 +103,22 @@ case "${#}_${1}" in
     1_add)
         cd "${GIT_WORK_TREE}" && files_m | xargs -r git add -f
         ;;
-    1_status)
-        cd "${GIT_WORK_TREE}" && files_m | xargs -r git status
+    2_add)
+        case "${2}" in
+            -u)
+                # 'git add -u' has the ability to stage deleted files,
+                # this don't match well with git-sandbox.sh intended
+                # purpose/workflow, for explicit commands use 'exec'
+                # instead of 'add'
+                cd "${GIT_WORK_TREE}" && files_m | xargs -r git add
+                ;;
+            *)
+                git add "${2}"
+                ;;
+        esac
+        ;;
+    1_status | 1_diff)
+        cd "${GIT_WORK_TREE}" && files_m | xargs -r git "$@"
         ;;
     2_status)
         case "${2}" in
@@ -113,7 +126,20 @@ case "${#}_${1}" in
                 files_m "${2}" | (cd "${GIT_WORK_TREE}" && xargs -r git status)
                 ;;
             *)
-                cd "${GIT_WORK_TREE}" && git status "${2}"
+                git status "${2}"
+                ;;
+        esac
+        ;;
+    2_diff)
+        case "${2}" in
+            . | ..)
+                files_m "${2}" | (cd "${GIT_WORK_TREE}" && xargs -r git diff)
+                ;;
+            -w | --cached)
+                files_m | (cd "${GIT_WORK_TREE}" && xargs -r git "$@")
+                ;;
+            *)
+                git diff "${2}"
                 ;;
         esac
         ;;
@@ -134,28 +160,12 @@ case "${#}_${1}" in
         exec git commit -m "${2}"
         ;;
     *_add)
-        cmd=$1
-        shift
-        # 'git add -u' has the ability to stage/confirm deleted files, this
-        # don't match nicely with git-sandbox.sh intended workflow
-        protect_command_add "$@"
+        cmd=$1; shift
+        protect_add_command "$@"
         exec git "${cmd}" "$@"
         ;;
-    *_diff)
-        case "${1}_${2:-}" in
-        diff_ | diff_-*)
-            # run against only known files by default
-            cd "${GIT_WORK_TREE}" && files_m | xargs -r git "$@"
-            ;;
-        *)
-            # explicit files in "$@"
-            exec git "$@"
-            ;;
-        esac
-        ;;
-    *_commit | *_log | *_show | *_status | *_ls-files | *_checkout | *_mv | *_rm | *_repack | *_prune | *_fsck | *_reset | *_restore)
-        cmd=$1
-        shift
+    *_commit | *_log | *_show | *_status | *_ls-files | *_checkout | *_mv | *_rm | *_repack | *_prune | *_fsck | *_reset | *_restore | *_diff)
+        cmd=$1; shift
         exec git "${cmd}" "$@"
         ;;
     *_gitk)
