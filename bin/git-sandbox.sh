@@ -11,7 +11,7 @@
 # git-sandbox.sh diff
 # git-sandbox.sh diff -w
 # git-sandbox.sh add
-# git-sandbox.sh commit <message>
+# git-sandbox.sh commit
 
 set -eu #x
 
@@ -56,11 +56,11 @@ useful commands:
 
     ${0##*/} add
 
-        add only modified files
+        add only known and existent files
 
     ${0##*/} diff
 
-        diff only modified files
+        diff only modified files, ignore inexistent files
 
     ${0##*/} status
 
@@ -69,14 +69,6 @@ useful commands:
     ${0##*/} ls
 
         listing of all known files
-
-    ${0##*/} commit
-
-        commit changes without a message, repack all and prune
-
-    ${0##*/} commit message
-
-        commit changes with a custom message
 
     ${0##*/} (log|show|diff|status|ls-files) [...]
     ${0##*/} (add|checkout|mv|rm) [...]
@@ -151,20 +143,19 @@ case "${#}_${1}" in
         git repack -da
         git prune
         ;;
-    2_commit)
-        case "${2}" in
-            -*)
-                die 1 "the second argument to 'commit' is the commit message, not a flag"
-                ;;
-        esac
-        exec git commit -m "${2}"
+    *_commit)
+        shift
+        set -- --allow-empty-message "$@"
+        GIT_EDITOR=true git commit "$@"
+        git repack -da
+        git prune
         ;;
     *_add)
         cmd=$1; shift
         protect_add_command "$@"
         exec git "${cmd}" "$@"
         ;;
-    *_commit | *_log | *_show | *_status | *_ls-files | *_checkout | *_mv | *_rm | *_repack | *_prune | *_fsck | *_reset | *_restore | *_diff)
+    *_log | *_show | *_status | *_ls-files | *_checkout | *_mv | *_rm | *_repack | *_prune | *_fsck | *_reset | *_restore | *_diff)
         cmd=$1; shift
         exec git "${cmd}" "$@"
         ;;
