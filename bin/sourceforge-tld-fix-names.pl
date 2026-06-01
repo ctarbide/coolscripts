@@ -18,7 +18,7 @@ my @files = get_files('sourceforge-tld');
 print('found ', scalar(@files), ' files elegible to rename');
 
 for my $a (@files) {
-    (my $b = $a) =~ s,\?viasf=\d+$,,i;
+    (my $b = $a) =~ s,\?viasf=\d+(?:&fid=[0-9a-f]+)?$,,i;
     if (-f $b) {
         print("WARNING: \"${b}\" also exists, skipping rename");
     } else {
@@ -36,7 +36,7 @@ sub get_files {
     my @files;
     my $wanted = sub {
         return if -d $_;
-        if (m{\?viasf=1$}) {
+        if (m{\?viasf=\d+(?:&fid=[0-9a-f]+)?$}) {
             push @files, $_;
         }
     };
