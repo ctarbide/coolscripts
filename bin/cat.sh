@@ -15,6 +15,7 @@ case "${file}" in
     *.bz2) cmd='bzip2 -dc';;
     *.xz) cmd='xz -dc';;
     *.lz) cmd='lzip -dc';;
+    *.zstd) cmd='zstd -dc';;
     *)
 	echo "error: unknown file extension [${file}])" 1>&2
 	false
