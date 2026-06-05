@@ -16,11 +16,11 @@ LC_ALL=C
 export LC_ALL
 
 filter_existing(){
-    perl -lne'next if m{/$}; next if m{\?} and !m{\?viasf=1}i; print' -- "$@" |
+    perl -lne'next if m{/$}; next if m{\?} and !m{\?viasf=\d+}i; print' -- "$@" |
         perl -MCGI::Util=unescape -lne'next if m{%} and m{^\w+://(.*)$}i and -f unescape($1); print' |
-        perl -MCGI::Util=unescape -lne'next if m{%} and m{^\w+://(.*)(?:\?viasf=\d+)$}i and -f unescape($1); print' |
+        perl -MCGI::Util=unescape -lne'next if m{%} and m{^\w+://(.*)(?:\?viasf=\d+(?:&fid=[0-9a-f]+)?)$}i and -f unescape($1); print' |
         perl -lne'next if m{^\w+://(.*)$} and -f $1; print' |
-        perl -lne'next if m{^\w+://(.*)(?:\?viasf=\d+)$}i and -f $1; print' |
+        perl -lne'next if m{^\w+://(.*)(?:\?viasf=\d+(?:&fid=[0-9a-f]+)?)$}i and -f $1; print' |
         perl -lne'print(qq{\047${_}\047})'
 }
 
