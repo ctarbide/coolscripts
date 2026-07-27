@@ -160,6 +160,7 @@ do_list_all_html_links(){
     list_filtered_urls | perl -lne'
         next if m{^ https? :// sourceforge\.net /projects/ [^/]+ /files/ }xi;
         next unless m{ (?: \.s?html? | / ) $}xi;
+        s,\047,%27,g;
         print(qq{list \047${_}\047});
     '
 }

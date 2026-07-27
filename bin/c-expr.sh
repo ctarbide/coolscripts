@@ -246,16 +246,20 @@ set -- "$@" -O2 -ansi -pedantic -fno-common
 set -- "$@" -Wall -Wstrict-prototypes -Wmissing-prototypes
 set -- "$@" -Wshadow -Wconversion -Wno-long-long
 set -- "$@" -Wredundant-decls -Wpointer-arith
-set -- "$@" -Wsign-conversion
 gccver=`echo __GNUC__ | gcc -E -P -x c -`
 if [ "${gccver}" -ge 3 ]; then
     set -- "$@" -Werror -Wextra -Wno-unused-parameter
     set -- "$@" -Wdeclaration-after-statement
 fi
+if [ "${gccver}" -ge 5 ]; then
+    set -- "$@" -Wsign-conversion           # introduced in v4.3.0
+fi
 if [ "${gccver}" -ge 6 ]; then
     set -- "$@" -fmax-errors=3
 fi
-set -- "$@" -Wno-implicit-fallthrough
+if [ "${gccver}" -ge 8 ]; then
+    set -- "$@" -Wno-implicit-fallthrough   # introduced in v7.1.0
+fi
 set -- "$@" -Wno-unused-function
 set -- "$@" -Wno-missing-field-initializers
 set -- "$@" -Wno-format
