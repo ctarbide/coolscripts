@@ -241,8 +241,8 @@ bind r source-file ~/.tmux.conf \; display ​"Reloaded!"
 # splitting panes with | and -
 bind | split-window -h
 bind - split-window -v
-# Enable mouse support
-#set -g mouse on
+# Disable mouse support
+set -g mouse off
 
 # https://unix.stackexchange.com/questions/210174/set-the-active-tmux-tab-color
 # works with tmux 3.3a
